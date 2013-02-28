@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<h:html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+  <cc:interface>
+    <cc:attribute name="renderWhileActiveclients"/>
+    <cc:attribute name="trackHistory"/>
+    <cc:attribute name="renderOnHitoryChange"/> 
+    <cc:attribute name="debug"/>   
+  </cc:interface>
+
+  <cc:implementation>
+    <h:outputScript name="jsf.js" library="javax.faces" target="head" />
+    <h:outputScript name="fieldlisteners.js" library="pz2utils" target="head" />
+    
+    <!-- Initiate Ajax update listeners -->  
+    <script>
+     //<![CDATA[
+       var renderWhileActiveclients = "${cc.attrs.renderWhileActiveclients}";
+       var renderOnHistoryChange = "${cc.attrs.renderOnHistoryChange}";
+       var trackHistory = ("${cc.attrs.trackHistory}" == "true");  
+       setUpListeners();
+     //]]>
+    </script>  
+
+    <h:form id="activeclientsForm" prependId="false" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">
+      Active clients: <h:outputText id="activeclientsField" value="${pz2.update()}" />
+    </h:form>
+
+    <h:form id="stateForm" prependId="false" rendered="${cc.attrs.trackHistory == 'true'}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">
+      State: 
+      <h:inputText id="windowlocationhash" value="#{pz2.currentStateKey}" size="100">
+        <f:ajax event="change" render="#{cc.attrs.renderOnHistoryChange} #{pz2watch.activeclients}"/>
+      </h:inputText>
+    </h:form>
+  </cc:implementation>
+  
+</body>
+</h:html>

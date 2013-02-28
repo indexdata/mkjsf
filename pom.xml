@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.indexdata</groupId>
+  <artifactId>pz2utils4jsf</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>pz2utils4jsf</name>
+  <packaging>jar</packaging>
+  <description>Components for building Pazpar2 application using JSF</description>
+    <dependencies>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>6.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- JSF 2 -->
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.faces</artifactId>
+      <version>2.1.16</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp.jstl</groupId>
+      <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+      <version>1.2.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.indexdata</groupId>
+      <artifactId>masterkey-common</artifactId>
+      <version>0.1.9-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
