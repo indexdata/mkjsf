@@ -27,6 +27,14 @@
       <version>1.2.1</version>
       <scope>compile</scope>
     </dependency>
+    <!-- Weld, Dependency Injection (CDI) -->
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet</artifactId>
+      <version>1.1.10.Final</version>
+      <scope>compile</scope>
+    </dependency>
+    
     <dependency>
       <groupId>com.indexdata</groupId>
       <artifactId>masterkey-common</artifactId>
