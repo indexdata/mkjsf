@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<h:html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:composite="http://java.sun.com/jsf/composite">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+  <composite:interface>
+    <composite:attribute name="renderOnChange" required="true"/>
+    
+    <composite:attribute name="visiblePageRange" required="false" default="13"/>    
+    <composite:attribute name="prevLabel" required="false" default="&lt;&lt;Prev"/>
+    <composite:attribute name="nextLabel" required="false" default="Next&gt;&gt;"/>
+    <composite:attribute name="morePagesIndicator" required="false" default="..."/>
+    <composite:attribute name="textBeforeFirst" required="false" default="| "/>
+    <composite:attribute name="textAfterLast" required="false" default="| "/> 
+  </composite:interface>
+  
+  <composite:implementation>
+
+    <h:panelGrid columns="1" width="100%" rendered="#{pz2.hasRecords()}"><h:panelGroup>
+      <h:outputText id="instantiatePager" value="#{pz2.setPager(cc.attrs.visiblePageRange)}" style="display: none;" />
+                 
+      <h:commandLink value="#{cc.attrs.prevLabel}" 
+                     action="#{pz2.pager.goToPreviousPage()}" 
+                     rendered="#{pz2.pager.hasPreviousPage()}">
+         <f:ajax render="#{cc.attrs.renderOnChange}" />                                    
+      </h:commandLink> 
+             
+      <h:outputText value=" "/>
+                         
+      <h:outputText value="#{cc.attrs.prevLabel}" rendered="#{not pz2.pager.hasPreviousPage()}"/>
+            
+      <b><h:outputText value="#{cc.attrs.textBeforeFirst}"/></b>
+    
+      <ui:repeat var="pageLink" value="#{pz2.pager.pageLinks}" varStatus="status">
+                           
+        <h:commandLink value="#{pageLink.text}" 
+                       action="#{pz2.pager.goToPage(pageLink.page)}" 
+                       rendered="#{pageLink.page!=pz2.pager.currentPage}">
+          <f:ajax render="#{cc.attrs.renderOnChange}" />            
+        </h:commandLink>
+        
+        <b><h:outputText value="#{pageLink.text}" rendered="#{pageLink.page==pz2.pager.currentPage}"/> </b>
+                                               
+      </ui:repeat>
+      
+      <h:outputText value="#{cc.attrs.morePagesIndicator}" rendered="#{pz2.pager.hasPageAfterLastDisplayed()}"/>
+        
+      <b><h:outputText value="#{cc.attrs.textAfterLast}" /></b>
+                     
+      <h:commandLink value="#{cc.attrs.nextLabel}" 
+                     action="#{pz2.pager.goToNextPage()}" 
+                     rendered="#{pz2.pager.hasNextPage()}">            
+        <f:ajax render="#{cc.attrs.renderOnChange}" />
+      </h:commandLink>
+                
+      <h:outputText value="#{cc.attrs.nextLabel}" rendered="#{not pz2.pager.hasNextPage()}"/>
+        
+    </h:panelGroup></h:panelGrid>
+  </composite:implementation>
+</body>
+</h:html>
