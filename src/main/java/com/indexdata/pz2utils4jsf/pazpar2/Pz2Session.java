@@ -9,19 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
-import com.indexdata.pz2utils4jsf.pazpar2.CommandThread;
-import com.indexdata.pz2utils4jsf.pazpar2.Expression;
-import com.indexdata.pz2utils4jsf.pazpar2.Pazpar2Command;
-import com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface;
-import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
-import com.indexdata.pz2utils4jsf.pazpar2.TargetFilter;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
 import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
-import com.indexdata.pz2utils4jsf.config.JsfdemoPazpar2ClientConfiguration;
+import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
@@ -40,16 +30,17 @@ public class Pz2Session implements Serializable, Pz2Interface {
   private QueryStates queryStates = new QueryStates();
   
   private static final long serialVersionUID = 3947514708343320514L;  
-  private Pazpar2ClientConfiguration cfg = null;
-  private Pazpar2Client client = null;   
+  private com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration cfg = null;
+  private com.indexdata.masterkey.pazpar2.client.Pazpar2Client client = null;   
   private TargetFilter targetFilter = null;  
   private ResultsPager pager = null; 
-
-  public Pz2Session () {
-    logger.debug("Instantiating pz2");    
+  
+  public Pz2Session (Pz2Configurator pz2conf) {
+    logger.debug("Instantiating pz2");  
+    if (pz2conf == null) {logger.error("conf is null!!!!!!!!!!!!!!!"); }
     try {
-      cfg = new Pazpar2ClientConfiguration(new JsfdemoPazpar2ClientConfiguration().getModuleConfiguration());
-      client = new Pazpar2ClientGeneric(cfg);
+      cfg = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration(pz2conf.getConfig());
+      client = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric(cfg);
       resetDataObjects();
     } catch (ProxyErrorException e) {
       e.printStackTrace();

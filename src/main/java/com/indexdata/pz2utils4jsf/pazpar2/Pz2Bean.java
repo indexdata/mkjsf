@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.indexdata.pz2utils4jsf.config.Pz2ConfigureByWebXml;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface;
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
@@ -23,9 +25,12 @@ public class Pz2Bean implements Pz2Interface, Serializable {
 
   private static final long serialVersionUID = 3440277287081557861L;
   Pz2Session pz2;
-  
+
+  @Inject 
+  private Pz2ConfigureByWebXml pz2conf;
+
   public Pz2Bean () {
-    pz2 = new Pz2Session();    
+    pz2 = new Pz2Session(pz2conf);    
   }
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch(java.lang.String)
