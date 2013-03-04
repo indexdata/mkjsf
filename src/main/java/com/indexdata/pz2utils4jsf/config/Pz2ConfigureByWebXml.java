@@ -1,6 +1,7 @@
 package com.indexdata.pz2utils4jsf.config;
 
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Alternative;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
@@ -8,7 +9,8 @@ import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
-@SessionScoped @Named
+
+@Named @SessionScoped @Alternative
 public class Pz2ConfigureByWebXml implements Pz2Configurator {
 
   private static final long serialVersionUID = 144390224959311772L;
