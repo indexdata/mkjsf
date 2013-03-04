@@ -3,15 +3,15 @@ package com.indexdata.pz2utils4jsf.pazpar2;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.indexdata.pz2utils4jsf.config.Pz2ConfigureByWebXml;
+import org.apache.log4j.Logger;
+
+import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface;
-import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
-import com.indexdata.pz2utils4jsf.pazpar2.TargetFilter;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
@@ -24,14 +24,21 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
 public class Pz2Bean implements Pz2Interface, Serializable {
 
   private static final long serialVersionUID = 3440277287081557861L;
-  Pz2Session pz2;
-
-  @Inject 
-  private Pz2ConfigureByWebXml pz2conf;
-
+  private static Logger logger = Logger.getLogger(Pz2Bean.class);
+  
+  Pz2Session pz2;  
+  @Inject Pz2Configurator pz2conf;
+  
   public Pz2Bean () {
-    pz2 = new Pz2Session(pz2conf);    
+    logger.debug("Instantiating pz2 bean");      
+    pz2 = new Pz2Session();    
   }
+  
+  @PostConstruct
+  public void initiatePz2Session() {
+    pz2.init(pz2conf);
+  }
+  
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch(java.lang.String)
    */

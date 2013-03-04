@@ -1,5 +1,6 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
@@ -11,7 +12,7 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.StatResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
 
-public interface Pz2Interface {
+public interface Pz2Interface extends Serializable {
 
   /**
    * Executes a Pazpar2 search using the given query string

@@ -1,11 +1,13 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
@@ -22,7 +24,9 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.state.QueryStates;
 
-public class Pz2Session implements Serializable, Pz2Interface {
+@Named
+@SessionScoped
+public class Pz2Session implements Pz2Interface {
   
   private static Logger logger = Logger.getLogger(Pz2Session.class);
   
@@ -34,19 +38,26 @@ public class Pz2Session implements Serializable, Pz2Interface {
   private com.indexdata.masterkey.pazpar2.client.Pazpar2Client client = null;   
   private TargetFilter targetFilter = null;  
   private ResultsPager pager = null; 
-  
-  public Pz2Session (Pz2Configurator pz2conf) {
-    logger.debug("Instantiating pz2");  
-    if (pz2conf == null) {logger.error("conf is null!!!!!!!!!!!!!!!"); }
+      
+  public Pz2Session () {
+    logger.debug("Instantiating pz2 session object");      
+  }
+    
+  public void init(Pz2Configurator pz2conf) {
+    if (client==null) {
+    logger.debug("Initiating a session holding object ");
     try {
       cfg = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration(pz2conf.getConfig());
       client = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric(cfg);
       resetDataObjects();
     } catch (ProxyErrorException e) {
       e.printStackTrace();
-    }    
+    }        
+    } else {
+      logger.error("??? attempt to initiate session but already has a client");
+    }
   }
-
+    
   public void doSearch(String query) {
     setCommandParameter("search",new CommandParameter("query","=",query));     
     doSearch();

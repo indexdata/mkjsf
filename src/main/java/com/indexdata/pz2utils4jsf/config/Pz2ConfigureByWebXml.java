@@ -8,8 +8,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
-@Named("pz2configwebxml")
-@SessionScoped
+@SessionScoped @Named
 public class Pz2ConfigureByWebXml implements Pz2Configurator {
 
   private static final long serialVersionUID = 144390224959311772L;
@@ -21,7 +20,7 @@ public class Pz2ConfigureByWebXml implements Pz2Configurator {
     ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
     ServletContext servletContext = (ServletContext) externalContext.getContext();
     String pazpar2Url = servletContext.getInitParameter("PAZPAR2_URL");
-    String pazpar2ServiceId = servletContext.getInitParameter("PAZPAR2_SERVICE_id");
+    String pazpar2ServiceId = servletContext.getInitParameter("PAZPAR2_SERVICE_ID");
     config = new Pz2Config(pazpar2Url,pazpar2ServiceId);
   }
   
