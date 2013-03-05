@@ -28,11 +28,9 @@ public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
     ServletContext servletContext = (ServletContext) externalContext.getContext();       
     MasterkeyConfiguration mkConfigContext =
         MasterkeyConfiguration.getInstance(servletContext,
-        "faces-component", ((HttpServletRequest) externalContext.getRequest()).getServerName());
-    ModuleConfiguration moduleConfig = mkConfigContext.getModuleConfiguration("pz2client");    
-    String pazpar2Url = moduleConfig.get("PAZPAR2_URL");
-    String pazpar2ServiceId = moduleConfig.get("PAZPAR2_SERVICE_ID");
-    pz2config = new Pz2Config(pazpar2Url,pazpar2ServiceId);
+        "pazpar-application-jsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());
+    ModuleConfiguration moduleConfig = mkConfigContext.getModuleConfiguration("pz2client");
+    pz2config = new Pz2Config(moduleConfig);
   }
     
   @Override

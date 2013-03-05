@@ -1,5 +1,8 @@
 package com.indexdata.pz2utils4jsf.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
 import javax.faces.context.ExternalContext;
@@ -21,9 +24,10 @@ public class Pz2ConfigureByWebXml implements Pz2Configurator {
     logger.debug("Instantiating Pazpar2 service configuration by web.xml parameters");
     ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
     ServletContext servletContext = (ServletContext) externalContext.getContext();
-    String pazpar2Url = servletContext.getInitParameter("PAZPAR2_URL");
-    String pazpar2ServiceId = servletContext.getInitParameter("PAZPAR2_SERVICE_ID");
-    config = new Pz2Config(pazpar2Url,pazpar2ServiceId);
+    Map<String,String> parameters = new HashMap<String,String>();
+    parameters.put("PAZPAR2_URL", servletContext.getInitParameter("PAZPAR2_URL"));
+    parameters.put("PAZPAR2_SERVICE_ID", servletContext.getInitParameter("PAZPAR2_SERVICE_ID"));
+    config = new Pz2Config(parameters);
   }
   
   @Override

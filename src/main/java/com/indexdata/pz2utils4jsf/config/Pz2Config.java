@@ -1,5 +1,6 @@
 package com.indexdata.pz2utils4jsf.config;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
+import com.indexdata.masterkey.config.ModuleConfiguration;
 import com.indexdata.masterkey.config.ModuleConfigurationGetter;
 
 public class Pz2Config implements ModuleConfigurationGetter, Serializable {
@@ -14,19 +16,27 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
   private static final long serialVersionUID = -6801241975338182197L;
   private static Logger logger = Logger.getLogger(Pz2Config.class);
   Map<String,String> properties = new HashMap<String,String>();
+  ModuleConfiguration moduleConfig = null;
   
   public Pz2Config () {
-    setStatics();
+    setDefaults();
   }
   
-  public Pz2Config (String pazpar2Url, String pazpar2ServiceId) {
-    setStatics();
-    setPazpar2Url(pazpar2Url);
-    setPazpar2ServiceId(pazpar2ServiceId);
-    logger.debug("Creating pazpar2 configuration with "+ get("PAZPAR2_URL") + " and " + get("PAZPAR2_SERVICE_ID"));
+  public Pz2Config (Map<String,String> parameters) {
+    setDefaults();
+    for (String key : parameters.keySet()) {
+      properties.put(key, parameters.get(key));
+    }
   }
   
-  private void setStatics () {
+  public Pz2Config (ModuleConfiguration moduleConfig) throws IOException {
+    this.moduleConfig = moduleConfig;
+    for (String key : moduleConfig.getConfigMap().keySet()) {
+      properties.put(key, moduleConfig.getConfigParameter(key));
+    }
+  }
+  
+  private void setDefaults () {
     properties.put("PROXY_MODE","1");
     properties.put("SERIALIZE_REQUESTS", "false");
     properties.put("STREAMBUFF_SIZE", "4096");
@@ -69,7 +79,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
 
   @Override
   public String getConfigFilePath() {
-    return null;
+    return moduleConfig.getConfigFilePath();
   }
   
   
