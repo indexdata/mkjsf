@@ -1,5 +1,6 @@
 package com.indexdata.pz2utils4jsf.config;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,20 +19,25 @@ public class Pz2ConfigureByWebXml implements Pz2Configurator {
 
   private static final long serialVersionUID = 144390224959311772L;
   private static Logger logger = Logger.getLogger(Pz2ConfigureByWebXml.class);
-  private Pz2Config config = null;
+  private Pz2Config pz2config = null;
   
   public Pz2ConfigureByWebXml () {
-    logger.debug("Instantiating Pazpar2 service configuration by web.xml parameters");
+    logger.info("Instantiating Pazpar2 service configuration by web.xml parameters");
+  }
+  
+  public Pz2Config getConfig() throws IOException {
+    if (pz2config == null) {
+      createConfig();
+    }
+    return pz2config;
+  }
+  
+  private void createConfig () throws IOException {
     ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
     ServletContext servletContext = (ServletContext) externalContext.getContext();
     Map<String,String> parameters = new HashMap<String,String>();
     parameters.put("PAZPAR2_URL", servletContext.getInitParameter("PAZPAR2_URL"));
     parameters.put("PAZPAR2_SERVICE_ID", servletContext.getInitParameter("PAZPAR2_SERVICE_ID"));
-    config = new Pz2Config(parameters);
-  }
-  
-  @Override
-  public Pz2Config getConfig() {
-    return config;
+    pz2config = new Pz2Config(parameters);    
   }
 }

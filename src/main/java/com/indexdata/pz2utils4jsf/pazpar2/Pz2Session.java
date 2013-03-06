@@ -1,5 +1,6 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,9 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.StatResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.state.QueryStates;
+import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named
-@SessionScoped
+@Named @SessionScoped  
 public class Pz2Session implements Pz2Interface {
   
   private static Logger logger = Logger.getLogger(Pz2Session.class);
@@ -40,21 +41,23 @@ public class Pz2Session implements Pz2Interface {
   private ResultsPager pager = null; 
       
   public Pz2Session () {
-    logger.debug("Instantiating pz2 session object");      
+    logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
   }
     
   public void init(Pz2Configurator pz2conf) {
     if (client==null) {
-    logger.debug("Initiating a session holding object ");
+      logger.info(Utils.objectId(this) + " is configuring itself using the provided " + Utils.objectId(pz2conf));
     try {
       cfg = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration(pz2conf.getConfig());
       client = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric(cfg);
       resetDataObjects();
     } catch (ProxyErrorException e) {
       e.printStackTrace();
-    }        
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
     } else {
-      logger.error("??? attempt to initiate session but already has a client");
+      logger.warn("Attempt to configure session but it already has a configured client");
     }
   }
     
@@ -67,7 +70,7 @@ public class Pz2Session implements Pz2Interface {
     queryStates.hasPendingStateChange("search",false);
     resetDataObjects();
     setCommandParameter("show",new CommandParameter("start","=",0));    
-    logger.info("Searching using "+getCommand("search").getParameter("query").getEncodedQueryString());
+    logger.debug(Utils.objectId(this) + " is searching using "+getCommand("search").getParameter("query").getEncodedQueryString());
     doCommand("search");    
   }
       
@@ -77,7 +80,7 @@ public class Pz2Session implements Pz2Interface {
    * @return Number of activeclients at the time of the 'show' command.
    */
   public String update () {
-    logger.info("Updating show,stat,termlist, and bytarget data from pazpar2");
+    logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
     return update("show,stat,termlist,bytarget");
   }
  
@@ -113,7 +116,7 @@ public class Pz2Session implements Pz2Interface {
       }
       return getActiveClients();
     } else {
-      logger.info("Skipped requests for " + commands + " as there's not yet a query."); 
+      logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
       resetDataObjects();
       return "0";
     }

@@ -18,9 +18,9 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.StatResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
+import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named("pz2")
-@SessionScoped
+@Named("pz2") @SessionScoped
 public class Pz2Bean implements Pz2Interface, Serializable {
 
   private static final long serialVersionUID = 3440277287081557861L;
@@ -30,19 +30,21 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   @Inject Pz2Configurator pz2conf;
   
   public Pz2Bean () {
-    logger.debug("Instantiating pz2 bean");      
-    pz2 = new Pz2Session();    
+    logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");
   }
   
   @PostConstruct
   public void initiatePz2Session() {
+    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session next.");
+    pz2 = new Pz2Session();
+    logger.debug(Utils.objectId(this) + " will forward configuration to the new Pz2Session [" + Utils.objectId(pz2) + "]");
     pz2.init(pz2conf);
   }
   
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch(java.lang.String)
    */
-  public void doSearch(String query) {
+  public void doSearch(String query) {    
     pz2.doSearch(query);
   }
 
@@ -50,6 +52,7 @@ public class Pz2Bean implements Pz2Interface, Serializable {
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch()
    */
   public void doSearch() {
+    logger.info(Utils.objectId(this) + " doing search for "+this.getQuery());
     pz2.doSearch();
   }
 

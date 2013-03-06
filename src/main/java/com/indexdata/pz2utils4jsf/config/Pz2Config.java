@@ -5,12 +5,17 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
 import com.indexdata.masterkey.config.ModuleConfiguration;
 import com.indexdata.masterkey.config.ModuleConfigurationGetter;
+import com.indexdata.pz2utils4jsf.utils.Utils;
 
+@Named @SessionScoped
 public class Pz2Config implements ModuleConfigurationGetter, Serializable {
 
   private static final long serialVersionUID = -6801241975338182197L;
@@ -19,10 +24,12 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
   ModuleConfiguration moduleConfig = null;
   
   public Pz2Config () {
+    logger.debug(Utils.objectId(this) + " being constructed with no argument");
     setDefaults();
   }
   
   public Pz2Config (Map<String,String> parameters) {
+    logger.debug(Utils.objectId(this) + " being constructed with parameter map argument");
     setDefaults();
     for (String key : parameters.keySet()) {
       properties.put(key, parameters.get(key));
@@ -30,6 +37,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
   }
   
   public Pz2Config (ModuleConfiguration moduleConfig) throws IOException {
+    logger.debug(Utils.objectId(this) + " being constructed with moduleConfig argument.");
     this.moduleConfig = moduleConfig;
     for (String key : moduleConfig.getConfigMap().keySet()) {
       properties.put(key, moduleConfig.getConfigParameter(key));
