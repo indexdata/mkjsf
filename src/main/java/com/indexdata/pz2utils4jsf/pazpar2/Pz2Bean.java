@@ -272,5 +272,18 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   public void setCurrentStateKey(String key) {
     pz2.setCurrentStateKey(key);    
   }
+  
+  public boolean hasErrors() {
+    return pz2.hasErrors();
+  }
+  
+  public String getErrorMessages() {
+    return pz2.getErrorMessages();
+  }
+  
+  public String getFirstErrorMessage() {
+    return pz2.getFirstErrorMessage();
+  }
+  
 
 }

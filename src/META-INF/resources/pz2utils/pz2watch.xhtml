@@ -32,8 +32,12 @@
      //]]>
     </script>  
 
-    <h:form id="activeclientsForm" prependId="false" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">
-      Active clients: <h:outputText id="activeclientsField" value="${pz2.update()}" />
+    <h:form id="activeclientsForm" prependId="false">
+      <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
+      <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
+      <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'color: red;' : 'display: none;'}">
+        <p><h:outputText id="messages" value="Error: #{pz2.firstErrorMessage}"/></p>
+      </h:panelGrid>                      
     </h:form>
 
     <h:form id="stateForm" prependId="false" rendered="${cc.attrs.trackHistory == 'true'}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">

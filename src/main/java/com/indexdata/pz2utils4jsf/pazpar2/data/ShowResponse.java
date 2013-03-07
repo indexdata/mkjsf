@@ -12,7 +12,7 @@ public class ShowResponse extends Pazpar2ResponseData {
   
 
   public String getStatus() {
-    return getOneElement("status").getValue();
+    return getOneElementValue("status");
   }
   
   public String getActiveClients () {

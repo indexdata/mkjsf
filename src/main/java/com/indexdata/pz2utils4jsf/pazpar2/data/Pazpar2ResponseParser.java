@@ -38,7 +38,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
   private Pazpar2ResponseData result = null;
 
   private static final List<String> docTypes = 
-      Arrays.asList("bytarget","termlist","show","stat","record");
+      Arrays.asList("bytarget","termlist","show","stat","record","search");
   
   public Pazpar2ResponseParser() {    
     try {
@@ -109,6 +109,8 @@ public class Pazpar2ResponseParser extends DefaultHandler {
       ((TermListResponse)dataElements.peek()).addTerm((TermResponse)currentElement);
     } else if (localName.equals("record")) {
       currentElement = new RecordResponse();
+    } else if (localName.equals("search")) {
+      currentElement = new SearchResponse();
     } else {
       currentElement = new Pazpar2ResponseData();
     }

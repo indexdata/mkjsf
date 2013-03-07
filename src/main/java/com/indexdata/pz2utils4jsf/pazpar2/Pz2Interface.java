@@ -298,4 +298,11 @@ public interface Pz2Interface extends Serializable {
    * @param key corresponding to browsers hash string
    */
   public void setCurrentStateKey(String key);
+  
+  public boolean hasErrors();
+  
+  public String getErrorMessages();
+  
+  public String getFirstErrorMessage();
+   
 }

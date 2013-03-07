@@ -14,6 +14,7 @@ public class Pazpar2ResponseData implements Serializable {
   HashMap<String,String> attributes = new HashMap<String,String>();
   HashMap<String,List<Pazpar2ResponseData>> elements = new HashMap<String,List<Pazpar2ResponseData>>();
   String textContent = "";
+  String errorText = null;
         
   public void setType (String type) {
     this.type = type;
@@ -85,6 +86,14 @@ public class Pazpar2ResponseData implements Serializable {
     } else {
       return Integer.parseInt(val);
     }
+  }
+    
+  public boolean isError () {
+    return (getOneElement("error") != null);   
+  }
+  
+  public String getErrorMessage() {
+    return getOneElementValue("error");
   }
 
       

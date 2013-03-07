@@ -19,6 +19,7 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
+import com.indexdata.pz2utils4jsf.pazpar2.data.SearchResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.StatResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
@@ -83,7 +84,7 @@ public class Pz2Session implements Pz2Interface {
     logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
     return update("show,stat,termlist,bytarget");
   }
- 
+   
   /**
    * Refreshes the data objects listed in 'commands' from pazpar2
    * 
@@ -110,9 +111,7 @@ public class Pz2Session implements Pz2Interface {
         }
       }
       for (CommandThread thread : threadList) {
-        if (!thread.getCommand().getName().equals("search")) {
-          dataObjects.put(thread.getCommand().getName(), new Pazpar2ResponseParser().getObject(thread.getResponse()));
-        }
+         dataObjects.put(thread.getCommand().getName(), new Pazpar2ResponseParser().getObject(thread.getResponse()));        
       }
       return getActiveClients();
     } else {
@@ -268,6 +267,44 @@ public class Pz2Session implements Pz2Interface {
     logger.debug("************** request to set state key to: [" + key + "]");    
     queryStates.setCurrentStateKey(key);
   }
+  
+  public boolean hasErrors () {
+    if (dataObjects.get("search").isError()) {
+      logger.info("Error detected in search");
+      return true;
+    }
+    for (String name : dataObjects.keySet()) {
+      if (dataObjects.get(name).isError()) {
+        logger.info("Error detected in " + name);
+        return true;
+      }
+    }    
+    return false;
+  }
+    
+  public String getErrorMessages() {
+    StringBuilder msgs = new StringBuilder("");
+    for (String name : dataObjects.keySet()) {     
+      if (dataObjects.get(name).isError()) {     
+        msgs.append(name + ": " + dataObjects.get(name).getErrorMessage());
+      } 
+    }
+    return msgs.toString();
+  }
+  
+  public String getFirstErrorMessage() {
+    if (dataObjects.get("search").isError()) {
+      return "Error doing search: " + dataObjects.get("search").getErrorMessage();
+    }
+    for (String name : dataObjects.keySet()) {     
+      if (dataObjects.get(name).isError()) {     
+        return name + ": " + dataObjects.get(name).getErrorMessage();        
+      } 
+    }
+    return "";
+    
+  }
+
     
   private boolean hasTargetFilter(TargetFilter targetFilter) {
     return hasTargetFilter() && targetFilter.equals(this.targetFilter);
@@ -312,9 +349,9 @@ public class Pz2Session implements Pz2Interface {
     }    
   }
 
-  private String getActiveClients() {
-    logger.debug("Active clients: "+getShow().getActiveClients());
+  private String getActiveClients() {    
     if (getShow()!=null) {
+      logger.debug("Active clients: "+getShow().getActiveClients());
       return getShow().getActiveClients();
     } else {
       return "";
@@ -380,13 +417,15 @@ public class Pz2Session implements Pz2Interface {
   }
   
   private void resetDataObjects() {
-    logger.debug("Resetting show,stat,termlist,bytarget response objects.");
+    logger.debug("Resetting show,stat,termlist,bytarget,search response objects.");
     dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
     dataObjects.put("show", new ShowResponse());
     dataObjects.put("stat", new StatResponse());
     dataObjects.put("termlist", new TermListsResponse());
     dataObjects.put("bytarget", new ByTarget());
     dataObjects.put("record", new RecordResponse());
+    dataObjects.put("search", new SearchResponse());
   }
+  
 
 }

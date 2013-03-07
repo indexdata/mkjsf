@@ -4,7 +4,7 @@
   {
 	//console.log('rendering ' + renderWhileActiveclients);
 	var sourcecomp = document.getElementById("pz2watch:activeclientsField");
-    jsf.ajax.request(sourcecomp, null,{render: renderWhileActiveclients});
+    jsf.ajax.request(sourcecomp, null,{render: renderWhileActiveclients + " pz2watch:errorMessages"});
     if (doRefresh) {
 		//console.log('Will do another ajax request after a timeout in order to render: pz2watch:activeclientsField');  
 	    renderTargetsReqVar=setTimeout(
