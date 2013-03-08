@@ -52,6 +52,10 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     }
   }
   
+  public static Pazpar2ResponseParser getParser() {
+    return new Pazpar2ResponseParser();
+  }
+  
   private void initSax() throws ParserConfigurationException, SAXException {
     SAXParserFactory spf = SAXParserFactory.newInstance();
     spf.setNamespaceAware(true);
@@ -60,7 +64,14 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     xmlReader.setContentHandler(this);         
   }
   
-  public Pazpar2ResponseData getObject (String response) {
+  /**
+   * Parses a Pazpar2 XML response -- or an error response as XML -- and produces a 
+   * Pazpar2ResponseData object, i.e. a 'show' object
+   * 
+   * @param response XML response string from Pazpar2
+   * @return Response data object
+   */
+  public Pazpar2ResponseData getDataObject (String response) {
     try {
       xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getBytes("UTF-8"))));
     } catch (UnsupportedEncodingException e) {
@@ -111,6 +122,8 @@ public class Pazpar2ResponseParser extends DefaultHandler {
       currentElement = new RecordResponse();
     } else if (localName.equals("search")) {
       currentElement = new SearchResponse();
+    } else if (localName.equals("applicationerror")) {
+      currentElement = new ApplicationError();
     } else {
       currentElement = new Pazpar2ResponseData();
     }

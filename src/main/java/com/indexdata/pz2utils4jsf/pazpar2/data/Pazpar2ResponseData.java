@@ -14,7 +14,7 @@ public class Pazpar2ResponseData implements Serializable {
   HashMap<String,String> attributes = new HashMap<String,String>();
   HashMap<String,List<Pazpar2ResponseData>> elements = new HashMap<String,List<Pazpar2ResponseData>>();
   String textContent = "";
-  String errorText = null;
+  ApplicationError error = null;
         
   public void setType (String type) {
     this.type = type;
@@ -54,6 +54,12 @@ public class Pazpar2ResponseData implements Serializable {
     }
   }
   
+  /**
+   * Returns the text content of the first element found with the given
+   * name
+   * @param name of the element 
+   * @return text value, empty string if none found
+   */
   public String getOneElementValue (String name) {
     if (getOneElement(name)!=null && getOneElement(name).getValue().length()>0) {
       return getOneElement(name).getValue();
@@ -88,13 +94,15 @@ public class Pazpar2ResponseData implements Serializable {
     }
   }
     
-  public boolean isError () {
-    return (getOneElement("error") != null);   
+  public boolean hasApplicationError () {
+    return (getOneElement("applicationerror") != null);   
   }
   
-  public String getErrorMessage() {
-    return getOneElementValue("error");
+  public ApplicationError getApplicationError() {
+    return (ApplicationError) getOneElement("applicationerror");
   }
-
+  
+  
+  
       
 }

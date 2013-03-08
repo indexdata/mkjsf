@@ -35,8 +35,13 @@
     <h:form id="activeclientsForm" prependId="false">
       <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
       <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
-      <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'color: red;' : 'display: none;'}">
-        <p><h:outputText id="messages" value="Error: #{pz2.firstErrorMessage}"/></p>
+      <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
+        <p><h:outputText id="messages" value="Error: #{pz2.oneError.errorMessage}" style="color: red;"/></p>
+        <h:dataTable value="#{pz2.oneError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">       
+         <h:column>
+           #{suggestion}        
+         </h:column>      
+        </h:dataTable>                
       </h:panelGrid>                      
     </h:form>
 

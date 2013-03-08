@@ -1,7 +1,9 @@
 package com.indexdata.pz2utils4jsf.config;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
@@ -39,5 +41,11 @@ public class Pz2ConfigureByWebXml implements Pz2Configurator {
     parameters.put("PAZPAR2_URL", servletContext.getInitParameter("PAZPAR2_URL"));
     parameters.put("PAZPAR2_SERVICE_ID", servletContext.getInitParameter("PAZPAR2_SERVICE_ID"));
     pz2config = new Pz2Config(parameters);    
+  }
+  
+  public List<String> document() {
+    List<String> doc = new ArrayList<String>();
+    doc.add("No documentation written yet for this configurator");
+    return doc;
   }
 }

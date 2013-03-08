@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
+import com.indexdata.pz2utils4jsf.pazpar2.data.ApplicationError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
@@ -276,13 +277,9 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   public boolean hasErrors() {
     return pz2.hasErrors();
   }
-  
-  public String getErrorMessages() {
-    return pz2.getErrorMessages();
-  }
-  
-  public String getFirstErrorMessage() {
-    return pz2.getFirstErrorMessage();
+    
+  public ApplicationError getOneError() {
+    return pz2.getOneError();
   }
   
 

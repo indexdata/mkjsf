@@ -1,6 +1,8 @@
 package com.indexdata.pz2utils4jsf.config;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
@@ -15,6 +17,8 @@ import org.apache.log4j.Logger;
 import com.indexdata.masterkey.config.MasterkeyConfiguration;
 import com.indexdata.masterkey.config.ModuleConfiguration;
 import com.indexdata.pz2utils4jsf.utils.Utils;
+
+import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
 @Named @SessionScoped @Alternative
 public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
@@ -43,21 +47,28 @@ public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
         "pazpar-application-jsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());
     ModuleConfiguration moduleConfig = mkConfigContext.getModuleConfiguration("pz2client");
     pz2config = new Pz2Config(moduleConfig);
-    logger.info("Accessing Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
-    if (pz2config.get("PAZPAR2_SERVICE_XML") != null) {
-      logger.info("Using the service definition contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SERVICE_XML"));
-      if (pz2config.get("PAZPAR2_SETTINGS_XML") != null) {
-        logger.info("Using the target settings contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SETTINGS_XML"));
-      } else {
-        logger.info("Using the server side target settings as defined in the service definition.");
-      }
-    } else if (pz2config.get("PAZPAR2_SERVICE_ID") != null) {
-      logger.info("Using the server side service definition identified by service id "+pz2config.get("PAZPAR2_SERVICE_ID"));
-    } else {
-      logger.error("Did not find service ID nor service definition XML file so set up pazpar2 service.");
-    }
-
+    logger.info(document());
   }
   
+
+  public List<String> document() {
+    List<String> doc = new ArrayList<String>();
+    
+    doc.add("Set to access Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
+    if (pz2config.get("PAZPAR2_SERVICE_XML") != null) {
+      doc.add("Set to use the service definition contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SERVICE_XML"));
+      if (pz2config.get("PAZPAR2_SETTINGS_XML") != null) {
+        doc.add("Set to use the target settings contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SETTINGS_XML"));
+      } else {
+        doc.add("Set to use the server side target settings as defined in the service definition.");
+      }
+    } else if (pz2config.get("PAZPAR2_SERVICE_ID") != null) {
+      doc.add("Set to use the server side service definition identified by service id "+pz2config.get("PAZPAR2_SERVICE_ID"));
+    } else {
+      doc.add("Error: Did not find service ID nor service definition XML file to set up pazpar2 service.");
+    }
+    return doc;
+  }
+    
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.pazpar2.TargetFilter;
+import com.indexdata.pz2utils4jsf.pazpar2.data.ApplicationError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
@@ -300,9 +301,7 @@ public interface Pz2Interface extends Serializable {
   public void setCurrentStateKey(String key);
   
   public boolean hasErrors();
-  
-  public String getErrorMessages();
-  
-  public String getFirstErrorMessage();
+      
+  public ApplicationError getOneError();
    
 }
