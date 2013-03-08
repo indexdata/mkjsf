@@ -14,7 +14,7 @@ public class Pazpar2ResponseData implements Serializable {
   HashMap<String,String> attributes = new HashMap<String,String>();
   HashMap<String,List<Pazpar2ResponseData>> elements = new HashMap<String,List<Pazpar2ResponseData>>();
   String textContent = "";
-  ApplicationError error = null;
+  CommandError error = null;
         
   public void setType (String type) {
     this.type = type;
@@ -98,8 +98,8 @@ public class Pazpar2ResponseData implements Serializable {
     return (getOneElement("applicationerror") != null);   
   }
   
-  public ApplicationError getApplicationError() {
-    return (ApplicationError) getOneElement("applicationerror");
+  public CommandError getApplicationError() {
+    return (CommandError) getOneElement("applicationerror");
   }
   
   

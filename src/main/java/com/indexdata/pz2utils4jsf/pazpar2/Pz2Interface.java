@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.pazpar2.TargetFilter;
-import com.indexdata.pz2utils4jsf.pazpar2.data.ApplicationError;
+import com.indexdata.pz2utils4jsf.errors.ApplicationError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
@@ -300,8 +299,38 @@ public interface Pz2Interface extends Serializable {
    */
   public void setCurrentStateKey(String key);
   
+  /** 
+   * @return true if any errors encountered so far
+   */
   public boolean hasErrors();
-      
-  public ApplicationError getOneError();
+  
+  /**
+   * 
+   * @return true if errors encountered during execution of commands
+   */
+  public boolean hasCommandErrors();
+  
+  /**
+   * 
+   * @return true if errors encountered when configuring the service
+   */
+  public boolean hasConfigurationErrors();
+  
+  /**
+   * Returns one (of possibly multiple) errors encountered during execution of commands
+   * Will prefer to show the search errors - if any - as the search command is usually 
+   * executed first.  
+   * 
+   * @return
+   */
+  public ApplicationError getCommandError();
+  
+  /**
+   * Returns all errors encountered during configuration of the application, in particular
+   * the Pazpar2 client. 
+   * 
+   * @return
+   */
+  public List<ApplicationError> getConfigurationErrors();
    
 }

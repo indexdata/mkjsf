@@ -12,10 +12,16 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
+import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration;
+import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
 import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.pazpar2.data.ApplicationError;
+import com.indexdata.pz2utils4jsf.errors.ApplicationError;
+import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
+import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
@@ -37,11 +43,12 @@ public class Pz2Session implements Pz2Interface {
   private QueryStates queryStates = new QueryStates();
   
   private static final long serialVersionUID = 3947514708343320514L;  
-  private com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration cfg = null;
-  private com.indexdata.masterkey.pazpar2.client.Pazpar2Client client = null;   
+  private Pazpar2ClientConfiguration cfg = null;
+  private Pazpar2Client client = null;   
   private TargetFilter targetFilter = null;  
   private ResultsPager pager = null; 
-  private ApplicationTroubleshooter errorHelper = null;
+  private ErrorHelper errorHelper = null;
+  private List<ApplicationError> configurationErrors = null;
   
   public Pz2Session () {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
@@ -49,17 +56,26 @@ public class Pz2Session implements Pz2Interface {
     
   public void init(Pz2Configurator pz2conf) {
     if (client==null) {
+      configurationErrors = new ArrayList<ApplicationError>();
+      errorHelper = new ErrorHelper(pz2conf);
       logger.info(Utils.objectId(this) + " is configuring itself using the provided " + Utils.objectId(pz2conf));
       try {
-        cfg = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration(pz2conf.getConfig());
-        client = new com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric(cfg);
-        errorHelper = new ApplicationTroubleshooter(pz2conf);        
-        resetDataObjects();
-      } catch (ProxyErrorException e) {
-        e.printStackTrace();
-      } catch (IOException ioe) {
-        ioe.printStackTrace();
+        cfg = new Pazpar2ClientConfiguration(pz2conf.getConfig());
+      } catch (ProxyErrorException pe) {
+        logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
+        configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + pe.getMessage(),errorHelper));
+      } catch (IOException io) {
+        logger.error("Could not configure Pazpar2 client: " + io.getMessage());
+        configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + io.getMessage(),errorHelper));
       }
+      try {
+        client = new Pazpar2ClientGeneric(cfg);     
+      } catch (ProxyErrorException pe) {
+        logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
+        configurationErrors.add(new ConfigurationError("Pz2Client","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
+      } 
+      logger.info("Got " + configurationErrors.size() + " configuration errors");
+      resetDataObjects();
     } else {
       logger.warn("Attempt to configure session but it already has a configured client");
     }
@@ -95,33 +111,42 @@ public class Pz2Session implements Pz2Interface {
    * @return Number of activeclients at the time of the 'show' command
    */
   public String update (String commands) {
-    if (hasQuery()) {
-      handleQueryStateChanges(commands);
-      logger.debug("Processing request for " + commands); 
-      List<CommandThread> threadList = new ArrayList<CommandThread>();
-      StringTokenizer tokens = new StringTokenizer(commands,",");
-      while (tokens.hasMoreElements()) {
-        threadList.add(new CommandThread(getCommand(tokens.nextToken()),client));            
-      }
-      for (CommandThread thread : threadList) {
-        thread.start();
-      }
-      for (CommandThread thread : threadList) {
-        try {
-          thread.join();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+    if (! hasConfigurationErrors()) {
+      if (hasQuery()) {
+        handleQueryStateChanges(commands);
+        logger.debug("Processing request for " + commands); 
+        List<CommandThread> threadList = new ArrayList<CommandThread>();
+        StringTokenizer tokens = new StringTokenizer(commands,",");
+        while (tokens.hasMoreElements()) {
+          threadList.add(new CommandThread(getCommand(tokens.nextToken()),client));            
         }
+        for (CommandThread thread : threadList) {
+          thread.start();
+        }
+        for (CommandThread thread : threadList) {
+          try {
+            thread.join();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+        for (CommandThread thread : threadList) {
+           String commandName = thread.getCommand().getName();
+           Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(thread.getResponse());
+           dataObjects.put(commandName, responseObject);        
+        }
+        return getActiveClients();
+      } else {
+        logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
+        resetDataObjects();
+        return "0";
       }
-      for (CommandThread thread : threadList) {
-         String commandName = thread.getCommand().getName();
-         Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(thread.getResponse());
-         dataObjects.put(commandName, responseObject);        
-      }
-      return getActiveClients();
     } else {
-      logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
-      resetDataObjects();
+      configurationErrors.add(
+          new ConfigurationError("Querying while errors",
+                                 "App halted",
+                                 "Cannot query Pazpar2 while there are configuration errors.",
+                                 errorHelper));
       return "0";
     }
     
@@ -273,10 +298,11 @@ public class Pz2Session implements Pz2Interface {
     queryStates.setCurrentStateKey(key);
   }
   
-  /**
-   * Returns true if application error found in any response data objects 
-   */
-  public boolean hasErrors () {
+  public boolean hasConfigurationErrors () {
+      return (configurationErrors.size()>0);      
+  }
+  
+  public boolean hasCommandErrors () {
     if (dataObjects.get("search").hasApplicationError()) {
       logger.info("Error detected in search");
       return true;
@@ -287,17 +313,28 @@ public class Pz2Session implements Pz2Interface {
         return true;
       }
     }    
-    return false;
+    return false;    
+  }
+  
+  /**
+   * Returns true if application error found in any response data objects 
+   */
+  public boolean hasErrors () {
+    return hasConfigurationErrors() || hasCommandErrors();
   }
 
+  public List<ApplicationError> getConfigurationErrors() {
+    logger.info("Returning " + configurationErrors.size() + " configuration errors");
+    return configurationErrors;
+  }
   
   /**
    * Returns a search command error, if any, otherwise the first
    * error found for an arbitrary command, if any, otherwise
    * an empty dummy error. 
    */    
-  public ApplicationError getOneError() {
-    ApplicationError error = new ApplicationError();    
+  public ApplicationError getCommandError() {
+    CommandError error = new CommandError();    
     if (dataObjects.get("search").hasApplicationError()) {
       error = dataObjects.get("search").getApplicationError();                        
     } else {
@@ -308,7 +345,7 @@ public class Pz2Session implements Pz2Interface {
         } 
       }
     }
-    error.setTroubleshooter(errorHelper);
+    error.setErrorHelper(errorHelper);
     return error;         
   }
 
@@ -339,7 +376,7 @@ public class Pz2Session implements Pz2Interface {
     return pager;
   }
   
-  protected ApplicationTroubleshooter getTroubleshooter() {
+  protected ErrorHelper getTroubleshooter() {
     return errorHelper;
   }
   
@@ -421,10 +458,10 @@ public class Pz2Session implements Pz2Interface {
     return defaultValue;    
   }
 
-  private String doCommand(String commandName) {
+  private String doCommand(String commandName) {      
     Pazpar2Command command = getCommand(commandName);    
     logger.debug(command.getEncodedQueryString() + ": Results for "+ getCommand("search").getEncodedQueryString());
-    return update(commandName);
+    return update(commandName);      
   }
   
   private void resetDataObjects() {

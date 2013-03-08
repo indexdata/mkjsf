@@ -72,17 +72,17 @@ public class Pazpar2ResponseParser extends DefaultHandler {
    * @return Response data object
    */
   public Pazpar2ResponseData getDataObject (String response) {
-    try {
+    try {      
       xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getBytes("UTF-8"))));
     } catch (UnsupportedEncodingException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      e.printStackTrace();      
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (SAXException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      e.printStackTrace();      
     }
     return result;
   }
@@ -123,7 +123,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     } else if (localName.equals("search")) {
       currentElement = new SearchResponse();
     } else if (localName.equals("applicationerror")) {
-      currentElement = new ApplicationError();
+      currentElement = new CommandError();
     } else {
       currentElement = new Pazpar2ResponseData();
     }

@@ -7,8 +7,9 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.pazpar2.client.ClientCommand;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
+import com.indexdata.masterkey.pazpar2.client.Pazpar2HttpResponse;
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
-import com.indexdata.pz2utils4jsf.pazpar2.data.ApplicationError;
+import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 
 public class CommandThread extends Thread {
 
@@ -16,7 +17,7 @@ public class CommandThread extends Thread {
   Pazpar2Command command;
   Pazpar2Client client;
   private ByteArrayOutputStream baos = new ByteArrayOutputStream();
-  private StringBuilder response = new StringBuilder("");
+  private StringBuilder response = new StringBuilder("");  
   
   public CommandThread (Pazpar2Command command, Pazpar2Client client) {
     this.command = command;
@@ -40,16 +41,24 @@ public class CommandThread extends Thread {
     }
     try {
       long start = System.currentTimeMillis();
-      client.executeCommand(clientCommand, baos);
-      response.append(baos.toString("UTF-8"));
+      Pazpar2HttpResponse httpResponse = client.executeCommand(clientCommand, baos);
+      if (httpResponse.getStatusCode()==200) {
+        response.append(baos.toString("UTF-8"));  
+      } else {
+        String resp = baos.toString("UTF-8");
+        throw new Pazpar2ErrorException(resp,httpResponse.getStatusCode(),resp,null);
+      }       
       long end = System.currentTimeMillis();      
       logger.debug("Executed " + command.getName() + " in " + (end-start) + " ms." );
     } catch (IOException e) {
-      response.append(ApplicationError.createErrorXml(command.getName(), "io", e.getMessage())); 
+      response.append(CommandError.createErrorXml(command.getName(), "io", e.getMessage())); 
       logger.error(response.toString());
     } catch (Pazpar2ErrorException e) {
-      response.append(ApplicationError.createErrorXml(command.getName(), "pazpar2error", e.getMessage())); 
+      response.append(CommandError.createErrorXml(command.getName(), "pazpar2error", e.getMessage())); 
       logger.error(response.toString());
+    } catch (Exception e) {
+      response.append(CommandError.createErrorXml(command.getName(), "general", e.getMessage())); 
+      logger.error(response.toString());      
     }
   }
   

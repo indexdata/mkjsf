@@ -18,8 +18,6 @@ import com.indexdata.masterkey.config.MasterkeyConfiguration;
 import com.indexdata.masterkey.config.ModuleConfiguration;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
-
 @Named @SessionScoped @Alternative
 public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
 
