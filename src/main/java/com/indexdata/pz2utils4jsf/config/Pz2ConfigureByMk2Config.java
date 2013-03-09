@@ -52,7 +52,7 @@ public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
   public List<String> document() {
     List<String> doc = new ArrayList<String>();
     
-    doc.add("-- Set to access Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
+    doc.add("-- App set to access Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
     if (pz2config.get("PAZPAR2_SERVICE_XML") != null) {
       doc.add("-- App set to use the service definition contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SERVICE_XML"));
       if (pz2config.get("PAZPAR2_SETTINGS_XML") != null) {

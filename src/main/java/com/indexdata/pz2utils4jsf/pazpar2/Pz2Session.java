@@ -68,13 +68,15 @@ public class Pz2Session implements Pz2Interface {
         logger.error("Could not configure Pazpar2 client: " + io.getMessage());
         configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + io.getMessage(),errorHelper));
       }
-      try {
-        client = new Pazpar2ClientGeneric(cfg);     
-      } catch (ProxyErrorException pe) {
-        logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
-        configurationErrors.add(new ConfigurationError("Pz2Client error","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
-      } 
-      logger.info("Got " + configurationErrors.size() + " configuration errors");
+      if (cfg != null) {
+        try {
+          client = new Pazpar2ClientGeneric(cfg);     
+        } catch (ProxyErrorException pe) {
+          logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
+          configurationErrors.add(new ConfigurationError("Pz2Client error","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
+        } 
+        logger.info("Got " + configurationErrors.size() + " configuration errors");        
+      }
       resetDataObjects();
     } else {
       logger.warn("Attempt to configure session but it already has a configured client");
@@ -293,8 +295,7 @@ public class Pz2Session implements Pz2Interface {
     return queryStates.getCurrentStateKey();
   }
       
-  public void setCurrentStateKey(String key) {
-    logger.debug("************** request to set state key to: [" + key + "]");    
+  public void setCurrentStateKey(String key) {       
     queryStates.setCurrentStateKey(key);
   }
   
@@ -323,8 +324,7 @@ public class Pz2Session implements Pz2Interface {
     return hasConfigurationErrors() || hasCommandErrors();
   }
 
-  public List<ApplicationError> getConfigurationErrors() {
-    logger.info("Returning " + configurationErrors.size() + " configuration errors");
+  public List<ApplicationError> getConfigurationErrors() {    
     return configurationErrors;
   }
   
@@ -475,5 +475,4 @@ public class Pz2Session implements Pz2Interface {
     dataObjects.put("search", new SearchResponse());
   }
   
-
 }

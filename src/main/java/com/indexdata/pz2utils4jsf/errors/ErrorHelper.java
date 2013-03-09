@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.config.Pz2ConfigureByMk2Config;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Error;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
@@ -22,6 +23,7 @@ public class ErrorHelper implements Serializable {
                          LOCAL_SERVICE_DEF_FILE_NOT_FOUND,
                          REMOTE_SERVICE_DEF_NOT_FOUND,
                          LOCAL_SETTINGS_FILE_NOT_FOUND,
+                         MASTERKEY_CONFIG_FILE_NOT_FOUND,
                          NOT_RESOLVED,
                          SKIP_SUGGESTIONS};
 
@@ -62,6 +64,8 @@ public class ErrorHelper implements Serializable {
           return ErrorCode.PAZPAR2_UNEXPECTED_RESPONSE;
         }
       }       
+    } else if (appError.getMessage().contains("Configuration file") & appError.getMessage().contains("properties")) {
+      return ErrorCode.MASTERKEY_CONFIG_FILE_NOT_FOUND; 
     } else if (appError.getMessage().contains("Error reading service definition XML")) {
       return ErrorCode.LOCAL_SERVICE_DEF_FILE_NOT_FOUND;    
     } else if (appError.getMessage().contains("Cannot query Pazpar2 while there are configuration errors")) {
@@ -84,6 +88,11 @@ public class ErrorHelper implements Serializable {
       suggestions.add("Unexpected response code from Pazpar2. " + nl
           + "Please check the PAZPAR2_URL configuration and verify "
           + "that a pazpar2 service is running at the given address." + nl);
+      break;     
+    case MASTERKEY_CONFIG_FILE_NOT_FOUND: 
+      suggestions.add("The main configuration file that is looked up using parameters" +
+      		" in web.xml (MASTERKEY_ROOT_CONFIG_DIR,MASTERKEY_COMPONENT_CONFIG_DIR,MASTERKEY_CONFIG_FILE_NAME)" +
+      		" could not be found. Please check the web.xml parameters and the expected file system location. ");      
       break;
     case LOCAL_SERVICE_DEF_FILE_NOT_FOUND:
       suggestions.add("The service definition file could not be loaded.");
