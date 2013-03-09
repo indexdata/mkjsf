@@ -3,6 +3,7 @@ package com.indexdata.pz2utils4jsf.errors;
 import java.util.List;
 
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper.ErrorCode;
+import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Error;
 
 
 public class ConfigurationError implements ApplicationError {
@@ -55,6 +56,12 @@ public class ConfigurationError implements ApplicationError {
     return applicationErrorCode;
   }
   
-
+  public boolean hasPazpar2Error () {
+    return false;
+  }
   
+  public Pazpar2Error getPazpar2Error() {
+    return null;
+  }
+ 
 }

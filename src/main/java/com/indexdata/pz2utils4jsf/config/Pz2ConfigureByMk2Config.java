@@ -52,16 +52,16 @@ public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
   public List<String> document() {
     List<String> doc = new ArrayList<String>();
     
-    doc.add("Set to access Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
+    doc.add("-- Set to access Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
     if (pz2config.get("PAZPAR2_SERVICE_XML") != null) {
-      doc.add("Set to use the service definition contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SERVICE_XML"));
+      doc.add("-- App set to use the service definition contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SERVICE_XML"));
       if (pz2config.get("PAZPAR2_SETTINGS_XML") != null) {
-        doc.add("Set to use the target settings contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SETTINGS_XML"));
+        doc.add("-- App set to use the target settings contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SETTINGS_XML"));
       } else {
-        doc.add("Set to use the server side target settings as defined in the service definition.");
+        doc.add("-- App set to use the server side target settings as defined in the service definition.");
       }
     } else if (pz2config.get("PAZPAR2_SERVICE_ID") != null) {
-      doc.add("Set to use the server side service definition identified by service id "+pz2config.get("PAZPAR2_SERVICE_ID"));
+      doc.add("-- App set to use the server side service definition identified by service id \""+pz2config.get("PAZPAR2_SERVICE_ID") + "\"");
     } else {
       doc.add("Error: Did not find service ID nor service definition XML file to set up pazpar2 service.");
     }

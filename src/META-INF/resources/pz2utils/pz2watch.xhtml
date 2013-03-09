@@ -36,24 +36,27 @@
       <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
       <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
       <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
-        <h:dataTable value="#{pz2.configurationErrors}" var="error" cellspace="0" cellpadding="0" style="${pz2.hasConfigurationErrors() ? 'display: block;' : 'display: none;'}">
+        <h:dataTable value="#{pz2.configurationErrors}" var="error" cellspace="0" cellpadding="0" style="${pz2.hasConfigurationErrors() ? 'display: block; vertical-align: top;' : 'display: none;'}">
           <h:column valign="top">
-            #{error.label}
+            #{error.label} 
           </h:column>
           <h:column valign="top">
             <h:outputText value="#{error.message}" style="color: red;"/>
-          </h:column>
-          <h:column>
-            <h:dataTable value="#{error.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">       
+            <h:dataTable value="#{error.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">
              <h:column>
                #{suggestion}        
              </h:column>      
-            </h:dataTable>                            
+            </h:dataTable>                                        
           </h:column>
         </h:dataTable>
         <h:panelGrid  style="${pz2.hasCommandErrors() ? 'display: block;' : 'display: none;'}">
-          <p><h:outputText id="messages" value="#{pz2.commandError.message}" style="color: red;"/></p>
-          <h:dataTable value="#{pz2.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">       
+          <h:column>   
+            <h:outputText value="#{pz2.commandError.label}"/>
+          </h:column>
+          <h:column>
+            <h:outputText id="messages" value="#{pz2.commandError.message}" style="color: red;"/>
+          </h:column>
+          <h:dataTable value="#{pz2.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
            <h:column>
              #{suggestion}        
            </h:column>      

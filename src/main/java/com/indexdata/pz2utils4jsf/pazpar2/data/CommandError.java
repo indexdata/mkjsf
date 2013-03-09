@@ -33,7 +33,11 @@ public class CommandError extends Pazpar2ResponseData implements ApplicationErro
   }
       
   public String getMessage() {
-    return getOneElementValue("errormessage");
+    if (hasPazpar2Error()) {      
+      return getPazpar2Error().getMsg();
+    } else {      
+      return getOneElementValue("errormessage");
+    }
   }
     
   public String getException () {
@@ -69,6 +73,19 @@ public class CommandError extends Pazpar2ResponseData implements ApplicationErro
     return errorXml.toString(); 
   }
   
+  public static String insertPazpar2ErrorXml (String commandName, String exceptionName, String pazpar2ErrorXml) {
+    StringBuilder errorXml = new StringBuilder("");
+    errorXml.append("<" + commandName + ">"+nl);
+    errorXml.append(" <applicationerror>"+nl);
+    errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
+    errorXml.append("  <exception>" + XmlUtils.escape(exceptionName) + "</exception>"+nl);    
+    errorXml.append(pazpar2ErrorXml+nl);    
+    errorXml.append(" </applicationerror>"+nl);
+    errorXml.append("</" + commandName + ">"+nl);
+    return errorXml.toString(); 
+    
+  }
+    
   public void setErrorHelper (ErrorHelper errorHelper) {
     this.errorHelper = errorHelper; 
   }
@@ -82,5 +99,14 @@ public class CommandError extends Pazpar2ResponseData implements ApplicationErro
   public ErrorCode getApplicationErrorCode() {
     return applicationErrorCode;    
   }
+  
+  public boolean hasPazpar2Error () {
+    return ( getOneElement("error") != null);            
+  }
+  
+  public Pazpar2Error getPazpar2Error() {
+    return (Pazpar2Error) getOneElement("error");
+  }
+
 
 }

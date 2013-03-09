@@ -124,6 +124,8 @@ public class Pazpar2ResponseParser extends DefaultHandler {
       currentElement = new SearchResponse();
     } else if (localName.equals("applicationerror")) {
       currentElement = new CommandError();
+    } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
+      currentElement = new Pazpar2Error();     
     } else {
       currentElement = new Pazpar2ResponseData();
     }
@@ -151,6 +153,4 @@ public class Pazpar2ResponseParser extends DefaultHandler {
       dataElements.pop();
     }
   }
-
-
 }

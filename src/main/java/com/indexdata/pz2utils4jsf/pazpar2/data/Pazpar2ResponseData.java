@@ -102,7 +102,8 @@ public class Pazpar2ResponseData implements Serializable {
     return (CommandError) getOneElement("applicationerror");
   }
   
-  
-  
-      
+  public boolean hasPazpar2Error() {
+    return hasApplicationError() && getApplicationError().hasPazpar2Error();
+  }
+        
 }

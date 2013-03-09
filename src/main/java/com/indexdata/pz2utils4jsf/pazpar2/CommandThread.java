@@ -44,8 +44,12 @@ public class CommandThread extends Thread {
       Pazpar2HttpResponse httpResponse = client.executeCommand(clientCommand, baos);
       if (httpResponse.getStatusCode()==200) {
         response.append(baos.toString("UTF-8"));  
+      } else if (httpResponse.getStatusCode()==417) {
+        logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
+        response.append(CommandError.insertPazpar2ErrorXml(command.getName(), "Expectation failed (417)", baos.toString("UTF-8")));        
       } else {
         String resp = baos.toString("UTF-8");
+        logger.error("Pazpar2 status code was " + httpResponse.getStatusCode() + ": " + resp);
         throw new Pazpar2ErrorException(resp,httpResponse.getStatusCode(),resp,null);
       }       
       long end = System.currentTimeMillis();      

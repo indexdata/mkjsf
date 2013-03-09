@@ -72,7 +72,7 @@ public class Pz2Session implements Pz2Interface {
         client = new Pazpar2ClientGeneric(cfg);     
       } catch (ProxyErrorException pe) {
         logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
-        configurationErrors.add(new ConfigurationError("Pz2Client","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
+        configurationErrors.add(new ConfigurationError("Pz2Client error","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
       } 
       logger.info("Got " + configurationErrors.size() + " configuration errors");
       resetDataObjects();

@@ -1,5 +1,7 @@
 package com.indexdata.pz2utils4jsf.errors;
 
+import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -8,21 +10,24 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Error;
 import com.indexdata.pz2utils4jsf.utils.Utils;
-import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
 public class ErrorHelper implements Serializable {
 
   public enum ErrorCode {PAZPAR2_404, 
                          PAZPAR2_UNEXPECTED_RESPONSE,
+                         PAZPAR2_12,
+                         PAZPAR2_ERRORS,
                          LOCAL_SERVICE_DEF_FILE_NOT_FOUND,
                          REMOTE_SERVICE_DEF_NOT_FOUND,
                          LOCAL_SETTINGS_FILE_NOT_FOUND,
-                         NOT_RESOLVED};
+                         NOT_RESOLVED,
+                         SKIP_SUGGESTIONS};
 
   private static final long serialVersionUID = 2860804561068279131L;
   private static Pattern httpResponsePattern = Pattern.compile("Unexpected HTTP response code \\(([0-9]*)\\).*");
-  private static Pattern missingLocalServiceDefFile = Pattern.compile(".*Error reading service definition XML.*");
+  
   private static Logger logger = Logger.getLogger(ErrorHelper.class);
   
   private Pz2Configurator configurator = null;
@@ -31,9 +36,24 @@ public class ErrorHelper implements Serializable {
     this.configurator = configurator;
   }
   
-  public ErrorHelper.ErrorCode getErrorCode(ApplicationError error) {    
-    if (error.getMessage().startsWith("Unexpected HTTP response")) {
-      Matcher m = httpResponsePattern.matcher(error.getMessage());
+  public ErrorHelper.ErrorCode getErrorCode(ApplicationError appError) {
+    if (appError.hasPazpar2Error()) {
+      Pazpar2Error pz2err = appError.getPazpar2Error();
+      String pz2errcode = pz2err.getCode();
+      switch (pz2errcode) {
+      case "12": 
+        return ErrorCode.PAZPAR2_12;
+      case "0":    
+        if (pz2err.getMsg().contains("target settings from file")) {
+          return ErrorCode.LOCAL_SETTINGS_FILE_NOT_FOUND;
+        } else {
+          return ErrorCode.PAZPAR2_ERRORS;
+        }
+      default: 
+        return ErrorCode.PAZPAR2_ERRORS;
+      }
+    } else if (appError.getMessage().startsWith("Unexpected HTTP response")) {
+      Matcher m = httpResponsePattern.matcher(appError.getMessage());
       if (m.matches()) {
         String errorCode = m.group(1);
         if (errorCode.equals("404")) {
@@ -42,8 +62,10 @@ public class ErrorHelper implements Serializable {
           return ErrorCode.PAZPAR2_UNEXPECTED_RESPONSE;
         }
       }       
-    } else if (error.getMessage().contains("Error reading service definition XML")) {
-      return ErrorCode.LOCAL_SERVICE_DEF_FILE_NOT_FOUND;
+    } else if (appError.getMessage().contains("Error reading service definition XML")) {
+      return ErrorCode.LOCAL_SERVICE_DEF_FILE_NOT_FOUND;    
+    } else if (appError.getMessage().contains("Cannot query Pazpar2 while there are configuration errors")) {
+      return ErrorCode.SKIP_SUGGESTIONS;
     }
     return ErrorCode.NOT_RESOLVED;
   }
@@ -56,9 +78,7 @@ public class ErrorHelper implements Serializable {
       suggestions.add("Pazpar2 service not found (404). ");
       suggestions.add("Please check the PAZPAR2_URL configuration and verify "
           + "that a pazpar2 service is running at the given address.");
-      suggestions.add("The application was configured using " + Utils.baseObjectName(configurator));
-      suggestions.add("The configurator reports following configuration was used: ");
-      suggestions.addAll(configurator.document());
+      addConfigurationDocumentation(suggestions);      
       break;
     case PAZPAR2_UNEXPECTED_RESPONSE:
       suggestions.add("Unexpected response code from Pazpar2. " + nl
@@ -68,16 +88,43 @@ public class ErrorHelper implements Serializable {
     case LOCAL_SERVICE_DEF_FILE_NOT_FOUND:
       suggestions.add("The service definition file could not be loaded.");
       suggestions.add("Please check the configuration and verify that the file exists");
-      suggestions.add("The configurator reports following configuration was used: ");
-      suggestions.addAll(configurator.document());    
+      addConfigurationDocumentation(suggestions);     
       break;
     case REMOTE_SERVICE_DEF_NOT_FOUND:
       break;
     case LOCAL_SETTINGS_FILE_NOT_FOUND:
+      suggestions.add("A configuration using local target settings file was found, but " +
+      		" the file itself could not be found. Please check the configuration.");
+      addConfigurationDocumentation(suggestions);
       break;
     case NOT_RESOLVED:
+      suggestions.add("Unforeseen error situation. No suggestions prepared.");
+      break;
+    case SKIP_SUGGESTIONS:
+      break;
+    case PAZPAR2_12: 
+      suggestions.add("The Pazpar2 service does not have a service definition with the requested ID ");
+      suggestions.add("Please check the service ID set in the configuration and compare it with the " +
+      		" pazpar2 (server side) configuration.");
+      addConfigurationDocumentation(suggestions);    
+      break;
+    case PAZPAR2_ERRORS:
+      if (error.hasPazpar2Error()) {
+        if (error.getPazpar2Error().getCode().equals("0")) {
+          
+        }
+        suggestions.add("Encountered Pazpar2 error: " + error.getPazpar2Error().getMsg() + " ("+error.getPazpar2Error().getCode()+")");
+      } else {
+        logger.error("Programming problem. An application error was categorized as a Papzar2 error yet does not have Pazpar2 error information as expected.");
+      }
       break;
     }
     return suggestions;
+  }
+  
+  private void addConfigurationDocumentation (ArrayList<String> suggestions) {
+    suggestions.add("The application was configured using the configurator " + Utils.baseObjectName(configurator));
+    suggestions.add("This configurator reports that following configuration was used: ");
+    suggestions.addAll(configurator.document());
   }
 }
