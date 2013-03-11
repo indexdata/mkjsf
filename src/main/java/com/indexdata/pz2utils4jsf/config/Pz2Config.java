@@ -82,7 +82,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
     if (properties.containsKey(key)) {
       return properties.get(key);
     } 
-    throw new Error("Missing mandatory parameter: " + key);     
+    throw new MissingMandatoryParameterException("Missing mandatory parameter: " + key);     
   }
 
   @Override

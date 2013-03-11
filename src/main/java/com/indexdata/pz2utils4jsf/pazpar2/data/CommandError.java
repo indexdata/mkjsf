@@ -5,20 +5,26 @@ import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.indexdata.pz2utils4jsf.errors.ApplicationError;
+import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper.ErrorCode;
 import com.indexdata.utils.XmlUtils;
 
 /**
- * Captures errors encountered during the execution of a command. 
- * Is parsed by Pazpar2ResponseParser, piggybacked in a (seemingly)
- * regular command respond.
+ * Holds an error encountered during the execution of a command.
+ * 
+ * An error can be received by a command thread as an exception message 
+ * or as an error XML. In both cases the error (string or xml) will be embedded
+ * in a new 'applicationerror' element which in turn will be embedded in a
+ * command XML (i.e. a 'search' or a 'show' response XML)  
+ * 
+ * The command response XML is subsequently parsed by Pazpar2ResponseParser, 
+ * which will then create the CommandError object.
  * 
  * @author Niels Erik
  *
  */
-public class CommandError extends Pazpar2ResponseData implements ApplicationError {
+public class CommandError extends Pazpar2ResponseData implements ErrorInterface {
 
   private static final long serialVersionUID = 8878776025779714122L;
   private ErrorCode applicationErrorCode;
@@ -56,6 +62,7 @@ public class CommandError extends Pazpar2ResponseData implements ApplicationErro
   
   /**
    * Creates an XML string error message, embedded in an XML string document named by the command
+   * This is the XML that Pazpar2ResponseParser will turn into a CommandError object. 
    * @param commandName
    * @param exceptionName
    * @param errorMessage
@@ -73,6 +80,18 @@ public class CommandError extends Pazpar2ResponseData implements ApplicationErro
     return errorXml.toString(); 
   }
   
+  /**
+   * Embeds a Pazpar2 (or Pazpar2 client) error response document as a child element of
+   * a command response document (like 'search' or 'show').
+   * This is the XML that Pazpar2ResponseParser will turn into a CommandError object.
+   * 
+   * 
+   * @param commandName The name of the command during which's execution the error was encountered
+   * @param exceptionName The (possibly loosely defined) name of the exception that was thrown
+   * @param pazpar2ErrorXml The error document as created by Pazpar2 -- or, for some errors, by the 
+   *                        Pazpar2 client. 
+   * @return
+   */
   public static String insertPazpar2ErrorXml (String commandName, String exceptionName, String pazpar2ErrorXml) {
     StringBuilder errorXml = new StringBuilder("");
     errorXml.append("<" + commandName + ">"+nl);
@@ -85,7 +104,11 @@ public class CommandError extends Pazpar2ResponseData implements ApplicationErro
     return errorXml.toString(); 
     
   }
-    
+   
+  /**
+   * Sets the object that should be used to analyze the error
+   *  
+   */
   public void setErrorHelper (ErrorHelper errorHelper) {
     this.errorHelper = errorHelper; 
   }

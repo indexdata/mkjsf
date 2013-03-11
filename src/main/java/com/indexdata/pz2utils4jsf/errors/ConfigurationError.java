@@ -6,7 +6,7 @@ import com.indexdata.pz2utils4jsf.errors.ErrorHelper.ErrorCode;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Error;
 
 
-public class ConfigurationError implements ApplicationError {
+public class ConfigurationError implements ErrorInterface {
 
   private static final long serialVersionUID = -6599667223782130838L;
   private String label;

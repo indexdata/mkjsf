@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.errors.ApplicationError;
+import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
@@ -323,7 +323,7 @@ public interface Pz2Interface extends Serializable {
    * 
    * @return
    */
-  public ApplicationError getCommandError();
+  public ErrorInterface getCommandError();
   
   /**
    * Returns all errors encountered during configuration of the application, in particular
@@ -331,6 +331,6 @@ public interface Pz2Interface extends Serializable {
    * 
    * @return
    */
-  public List<ApplicationError> getConfigurationErrors();
+  public List<ErrorInterface> getConfigurationErrors();
    
 }

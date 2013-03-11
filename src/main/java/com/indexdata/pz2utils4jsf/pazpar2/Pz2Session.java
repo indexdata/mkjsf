@@ -18,7 +18,7 @@ import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
 import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.errors.ApplicationError;
+import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
@@ -48,7 +48,7 @@ public class Pz2Session implements Pz2Interface {
   private TargetFilter targetFilter = null;  
   private ResultsPager pager = null; 
   private ErrorHelper errorHelper = null;
-  private List<ApplicationError> configurationErrors = null;
+  private List<ErrorInterface> configurationErrors = null;
   
   public Pz2Session () {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
@@ -56,7 +56,7 @@ public class Pz2Session implements Pz2Interface {
     
   public void init(Pz2Configurator pz2conf) {
     if (client==null) {
-      configurationErrors = new ArrayList<ApplicationError>();
+      configurationErrors = new ArrayList<ErrorInterface>();
       errorHelper = new ErrorHelper(pz2conf);
       logger.info(Utils.objectId(this) + " is configuring itself using the provided " + Utils.objectId(pz2conf));
       try {
@@ -144,11 +144,7 @@ public class Pz2Session implements Pz2Interface {
         return "0";
       }
     } else {
-      configurationErrors.add(
-          new ConfigurationError("Querying while errors",
-                                 "App halted",
-                                 "Cannot query Pazpar2 while there are configuration errors.",
-                                 errorHelper));
+      logger.error("Did not attempt to execute query since there are configuration errors.");
       return "0";
     }
     
@@ -324,7 +320,7 @@ public class Pz2Session implements Pz2Interface {
     return hasConfigurationErrors() || hasCommandErrors();
   }
 
-  public List<ApplicationError> getConfigurationErrors() {    
+  public List<ErrorInterface> getConfigurationErrors() {    
     return configurationErrors;
   }
   
@@ -333,7 +329,7 @@ public class Pz2Session implements Pz2Interface {
    * error found for an arbitrary command, if any, otherwise
    * an empty dummy error. 
    */    
-  public ApplicationError getCommandError() {
+  public ErrorInterface getCommandError() {
     CommandError error = new CommandError();    
     if (dataObjects.get("search").hasApplicationError()) {
       error = dataObjects.get("search").getApplicationError();                        

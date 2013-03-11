@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
-import com.indexdata.pz2utils4jsf.config.Pz2ConfigureByMk2Config;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Error;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
@@ -24,6 +23,7 @@ public class ErrorHelper implements Serializable {
                          REMOTE_SERVICE_DEF_NOT_FOUND,
                          LOCAL_SETTINGS_FILE_NOT_FOUND,
                          MASTERKEY_CONFIG_FILE_NOT_FOUND,
+                         MISSING_MANDATORY_PARAMETER,
                          NOT_RESOLVED,
                          SKIP_SUGGESTIONS};
 
@@ -38,7 +38,7 @@ public class ErrorHelper implements Serializable {
     this.configurator = configurator;
   }
   
-  public ErrorHelper.ErrorCode getErrorCode(ApplicationError appError) {
+  public ErrorHelper.ErrorCode getErrorCode(ErrorInterface appError) {
     if (appError.hasPazpar2Error()) {
       Pazpar2Error pz2err = appError.getPazpar2Error();
       String pz2errcode = pz2err.getCode();
@@ -70,11 +70,13 @@ public class ErrorHelper implements Serializable {
       return ErrorCode.LOCAL_SERVICE_DEF_FILE_NOT_FOUND;    
     } else if (appError.getMessage().contains("Cannot query Pazpar2 while there are configuration errors")) {
       return ErrorCode.SKIP_SUGGESTIONS;
+    } else if (appError.getMessage().contains("Missing mandatory parameter")) {
+      return ErrorCode.MISSING_MANDATORY_PARAMETER;
     }
     return ErrorCode.NOT_RESOLVED;
   }
     
-  public ArrayList<String> getSuggestions(ApplicationError error) {
+  public ArrayList<String> getSuggestions(ErrorInterface error) {
     ArrayList<String> suggestions = new ArrayList<String>();
     ErrorCode code = getErrorCode(error);
     switch (code) {
@@ -104,6 +106,11 @@ public class ErrorHelper implements Serializable {
     case LOCAL_SETTINGS_FILE_NOT_FOUND:
       suggestions.add("A configuration using local target settings file was found, but " +
       		" the file itself could not be found. Please check the configuration.");
+      addConfigurationDocumentation(suggestions);
+      break;
+    case MISSING_MANDATORY_PARAMETER:
+      suggestions.add("A mandatory configuration parameter was not found in the MK2 config properties" +
+      		" file used. Please check the property file for the parameter given in the error message ");
       addConfigurationDocumentation(suggestions);
       break;
     case NOT_RESOLVED:

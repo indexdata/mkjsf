@@ -7,7 +7,7 @@ import com.indexdata.pz2utils4jsf.errors.ErrorHelper.ErrorCode;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Error;
 
 
-public interface ApplicationError extends Serializable {
+public interface ErrorInterface extends Serializable {
   
   public String getLabel();
   public String getMessage(); 
