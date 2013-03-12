@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.indexdata</groupId>
-  <artifactId>pz2utils4jsf</artifactId>
+  <artifactId>pz2utils4jsf-as</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>pz2utils4jsf</name>
+  <name>pz2utils4jsf-as</name>
   <packaging>jar</packaging>
-  <description>Components for building Pazpar2 application using JSF</description>
+  <description>Components for building Pazpar2 application using JSF. Application server version</description>
     <dependencies>
     <dependency>
       <groupId>javax</groupId>
@@ -43,8 +43,8 @@
   </dependencies>
 
   <build>
-    <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
+    <directory>target-as</directory>
+    <outputDirectory>target-as/classes</outputDirectory>
     <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
       <resource>
