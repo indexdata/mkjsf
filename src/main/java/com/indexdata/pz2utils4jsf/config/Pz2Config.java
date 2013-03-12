@@ -87,7 +87,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
 
   @Override
   public String getConfigFilePath() {
-    return moduleConfig.getConfigFilePath();
+    return (moduleConfig != null ? moduleConfig.getConfigFilePath() : "nopath");
   }
   
   
