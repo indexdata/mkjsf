@@ -27,6 +27,7 @@ public class Pz2ConfigureByWebXml implements Pz2Configurator {
     logger.info("Instantiating Pazpar2 service configuration by web.xml parameters");
   }
   
+  @Override
   public Pz2Config getConfig() throws IOException {
     if (pz2config == null) {
       createConfig();

@@ -29,7 +29,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
   }
   
   public Pz2Config (Map<String,String> parameters) {
-    logger.debug(Utils.objectId(this) + " being constructed with parameter map argument");
+    //logger.debug(Utils.objectId(this) + " being constructed with parameter map argument");
     setDefaults();
     for (String key : parameters.keySet()) {
       properties.put(key, parameters.get(key));
@@ -87,7 +87,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
 
   @Override
   public String getConfigFilePath() {
-    return moduleConfig.getConfigFilePath();
+    return ""; // moduleConfig.getConfigFilePath();
   }
   
   
