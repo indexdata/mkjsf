@@ -43,7 +43,9 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <directory>target</directory>
+    <outputDirectory>target/classes</outputDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
       <resource>
         <directory>src</directory>
