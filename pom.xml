@@ -19,20 +19,17 @@
       <groupId>org.glassfish</groupId>
       <artifactId>javax.faces</artifactId>
       <version>2.1.16</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp.jstl</groupId>
       <artifactId>javax.servlet.jsp.jstl-api</artifactId>
-      <version>1.2.1</version>
-      <scope>compile</scope>
+      <version>1.2.1</version>      
     </dependency>
     <!-- Weld, Dependency Injection (CDI) -->
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet</artifactId>
-      <version>1.1.10.Final</version>
-      <scope>compile</scope>
+      <version>1.1.10.Final</version>      
     </dependency>
     
     <dependency>
