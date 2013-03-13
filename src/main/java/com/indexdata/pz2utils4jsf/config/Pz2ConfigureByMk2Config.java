@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.config.MasterkeyConfiguration;
 import com.indexdata.masterkey.config.ModuleConfiguration;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
@@ -32,29 +33,37 @@ public class Pz2ConfigureByMk2Config implements Pz2Configurator  {
   }
     
   @Override
-  public Pz2Config getConfig() throws IOException {
+  public Pz2Config getConfig() throws ConfigurationException {
     if (pz2config == null) {
       createConfig();
     }
     return pz2config;
   }
   
-  private void createConfig () throws IOException {
+  private void createConfig () throws ConfigurationException {
     ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
     ServletContext servletContext = (ServletContext) externalContext.getContext();  
-    MasterkeyConfiguration mkConfigContext =
-        MasterkeyConfiguration.getInstance(servletContext,
-        "pazpar-application-jsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());
-    configFilePathAndName = mkConfigContext.getConfigFileLocation().getConfigFilePath();
-    ModuleConfiguration moduleConfig = mkConfigContext.getModuleConfiguration("pz2client");
-    pz2config = new Pz2Config(moduleConfig);
-    logger.info(document());
+    MasterkeyConfiguration mkConfigContext;
+    try {
+      mkConfigContext = MasterkeyConfiguration.getInstance(servletContext,
+      "pazpar-application-jsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());
+    } catch (IOException e) {
+      throw new ConfigurationException("Pz2ConfigureByMk2Config could not configure Pazpar2 client using MasterKey configuration scheme: "+e.getMessage(),e);
+    }
+    configFilePathAndName = mkConfigContext.getConfigFileLocation().getConfigFilePath();    
+    try {
+      ModuleConfiguration moduleConfig = mkConfigContext.getModuleConfiguration("pz2client");
+      pz2config = new Pz2Config(moduleConfig);
+      logger.info(document());
+    } catch (IOException e) {
+      throw new ConfigurationException("Pz2ConfigureByMk2Config could not get configuration for module 'pz2client': "+e.getMessage(),e);
+    }        
   }
   
 
   public List<String> document() {
     List<String> doc = new ArrayList<String>();
-    doc.add("Attempted to configure service using the file " + configFilePathAndName);
+    doc.add(":"+nl+"Attempted to configure service using the file " + configFilePathAndName);
     doc.add(nl+"-- Configured to access Pazpar2 at: " +pz2config.get("PAZPAR2_URL"));
     if (pz2config.get("PAZPAR2_SERVICE_XML") != null) {
       doc.add(nl+"-- Configured to use the service definition contained in " + pz2config.getConfigFilePath() + "/" + pz2config.get("PAZPAR2_SERVICE_XML"));
