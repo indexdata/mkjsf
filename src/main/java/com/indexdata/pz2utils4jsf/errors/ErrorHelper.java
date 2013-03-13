@@ -24,6 +24,7 @@ public class ErrorHelper implements Serializable {
                          LOCAL_SETTINGS_FILE_NOT_FOUND,
                          MASTERKEY_CONFIG_FILE_NOT_FOUND,
                          MISSING_MANDATORY_PARAMETER,
+                         MISSING_MK2_CONFIG_INIT_PARAMETER,
                          NOT_RESOLVED,
                          SKIP_SUGGESTIONS};
 
@@ -72,6 +73,10 @@ public class ErrorHelper implements Serializable {
       return ErrorCode.SKIP_SUGGESTIONS;
     } else if (appError.getMessage().contains("Missing mandatory parameter")) {
       return ErrorCode.MISSING_MANDATORY_PARAMETER;
+    } else if (appError.getMessage().contains("Init parameter")
+               && appError.getMessage().contains("MASTERKEY")
+               && appError.getMessage().contains("missing in deployment descriptor")) {
+      return ErrorCode.MISSING_MK2_CONFIG_INIT_PARAMETER;
     }
     return ErrorCode.NOT_RESOLVED;
   }
@@ -112,6 +117,12 @@ public class ErrorHelper implements Serializable {
       suggestions.add("A mandatory configuration parameter was not found in the MK2 config properties" +
       		" file used. Please check the property file for the parameter given in the error message ");
       addConfigurationDocumentation(suggestions);
+      break;
+    case MISSING_MK2_CONFIG_INIT_PARAMETER:
+      suggestions.add("A mandatory init parameter was not found in the deployment descriptor (web.xml)." +
+      		" Following init parameters must be present in web.xml when using the Masterkey (MK2) configuration scheme:" +
+      		" MASTERKEY_ROOT_CONFIG_DIR (i.e. '/etc/masterkey'), MASTERKEY_COMPONENT_CONFIG_DIR (i.e. '/myapp'), " +
+      		"MASTERKEY_CONFIG_FILE_NAME (i.e. 'myapp.properties'");      
       break;
     case NOT_RESOLVED:
       suggestions.add("Unforeseen error situation. No suggestions prepared.");
