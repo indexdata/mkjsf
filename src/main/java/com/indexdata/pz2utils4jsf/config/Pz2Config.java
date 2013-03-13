@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
 import com.indexdata.masterkey.config.ModuleConfiguration;
 import com.indexdata.masterkey.config.ModuleConfigurationGetter;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named @SessionScoped
@@ -36,11 +37,15 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
     }
   }
   
-  public Pz2Config (ModuleConfiguration moduleConfig) throws IOException {
+  public Pz2Config (ModuleConfiguration moduleConfig) throws ConfigurationException {
     logger.debug(Utils.objectId(this) + " being constructed with moduleConfig argument.");
     this.moduleConfig = moduleConfig;
-    for (String key : moduleConfig.getConfigMap().keySet()) {
-      properties.put(key, moduleConfig.getConfigParameter(key));
+    try {
+      for (String key : moduleConfig.getConfigMap().keySet()) {
+        properties.put(key, moduleConfig.getConfigParameter(key));
+      }
+    } catch (IOException e) {
+      throw new ConfigurationException("Could not instantiate Pazpar2 configuration: "+e.getMessage(),e);
     }
   }
   

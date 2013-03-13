@@ -18,6 +18,7 @@ import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
 import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
@@ -64,7 +65,7 @@ public class Pz2Session implements Pz2Interface {
       } catch (ProxyErrorException pe) {
         logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
         configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + pe.getMessage(),errorHelper));
-      } catch (IOException io) {
+      } catch (ConfigurationException io) {
         logger.error("Could not configure Pazpar2 client: " + io.getMessage());
         configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + io.getMessage(),errorHelper));
       }
@@ -75,7 +76,7 @@ public class Pz2Session implements Pz2Interface {
           logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
           configurationErrors.add(new ConfigurationError("Pz2Client error","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
         } 
-        logger.info("Got " + configurationErrors.size() + " configuration errors");        
+        logger.info("Found " + configurationErrors.size() + " configuration errors");        
       }
       resetDataObjects();
     } else {
