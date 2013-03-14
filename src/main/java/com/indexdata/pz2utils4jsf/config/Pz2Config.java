@@ -29,8 +29,7 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
     setDefaults();
   }
   
-  public Pz2Config (Map<String,String> parameters) {
-    //logger.debug(Utils.objectId(this) + " being constructed with parameter map argument");
+  public Pz2Config (Map<String,String> parameters) {    
     setDefaults();
     for (String key : parameters.keySet()) {
       properties.put(key, parameters.get(key));
@@ -65,14 +64,6 @@ public class Pz2Config implements ModuleConfigurationGetter, Serializable {
     properties.put(key, value);
   }
   
-  public void setPazpar2Url (String value) {
-    properties.put("PAZPAR2_URL", value);
-  }
-  
-  public void setPazpar2ServiceId (String value) {
-    properties.put("PAZPAR2_SERVICE_ID",value);
-  }
-
   @Override
   public String get(String key, String defaultValue) {
     if (properties.containsKey(key)) {

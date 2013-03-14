@@ -1,5 +1,6 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +13,20 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.masterkey.pazpar2.client.ClientCommand;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
+import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
-import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
-import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
-import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
+import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
+import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
+import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
@@ -71,12 +74,14 @@ public class Pz2Session implements Pz2Interface {
       }
       if (cfg != null) {
         try {
-          client = new Pazpar2ClientGeneric(cfg);     
+          client = new Pazpar2ClientGeneric(cfg);  
         } catch (ProxyErrorException pe) {
           logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
           configurationErrors.add(new ConfigurationError("Pz2Client error","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
         } 
-        logger.info("Found " + configurationErrors.size() + " configuration errors");        
+        if (hasConfigurationErrors()) {
+          logger.info("Found " + configurationErrors.size() + " configuration errors");
+        }
       }
       resetDataObjects();
     } else {
