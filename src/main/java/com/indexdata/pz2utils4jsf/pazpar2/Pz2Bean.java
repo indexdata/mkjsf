@@ -28,8 +28,9 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   private static Logger logger = Logger.getLogger(Pz2Bean.class);
   
   Pz2Session pz2;  
-  @Inject Pz2Configurator pz2conf;
-  
+  @Inject Pz2Configurator configurator;
+  @Inject SearchClient    searchClient;
+    
   public Pz2Bean () {
     logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");
   }
@@ -38,8 +39,10 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   public void initiatePz2Session() {
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session next.");
     pz2 = new Pz2Session();
-    logger.debug(Utils.objectId(this) + " will forward configuration to the new Pz2Session [" + Utils.objectId(pz2) + "]");
-    pz2.init(pz2conf);
+    logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
+                          + Utils.objectId(configurator) + "] on session [" 
+                          + Utils.objectId(pz2) + "]" );
+    pz2.init(searchClient,configurator);
   }
   
   /* (non-Javadoc)

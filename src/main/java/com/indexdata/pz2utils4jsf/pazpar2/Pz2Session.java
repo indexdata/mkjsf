@@ -1,7 +1,5 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +11,8 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.masterkey.pazpar2.client.ClientCommand;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
-import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
-import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
@@ -40,53 +31,42 @@ import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named @SessionScoped  
 public class Pz2Session implements Pz2Interface {
-  
+    
+  private static final long serialVersionUID = 3947514708343320514L;
   private static Logger logger = Logger.getLogger(Pz2Session.class);
   
   private Map<String,Pazpar2ResponseData> dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
   private QueryStates queryStates = new QueryStates();
+  private ErrorHelper errorHelper = null;
   
-  private static final long serialVersionUID = 3947514708343320514L;  
-  private Pazpar2ClientConfiguration cfg = null;
-  private Pazpar2Client client = null;   
+  private List<ErrorInterface> configurationErrors = null;
+  private SearchClient searchClient = null;   
   private TargetFilter targetFilter = null;  
   private ResultsPager pager = null; 
-  private ErrorHelper errorHelper = null;
-  private List<ErrorInterface> configurationErrors = null;
-  
+    
   public Pz2Session () {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
   }
     
-  public void init(Pz2Configurator pz2conf) {
-    if (client==null) {
-      configurationErrors = new ArrayList<ErrorInterface>();
-      errorHelper = new ErrorHelper(pz2conf);
-      logger.info(Utils.objectId(this) + " is configuring itself using the provided " + Utils.objectId(pz2conf));
-      try {
-        cfg = new Pazpar2ClientConfiguration(pz2conf.getConfig());
-      } catch (ProxyErrorException pe) {
-        logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
-        configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + pe.getMessage(),errorHelper));
-      } catch (ConfigurationException io) {
-        logger.error("Could not configure Pazpar2 client: " + io.getMessage());
-        configurationErrors.add(new ConfigurationError("Pz2Client Config","ProxyError","Could not configure Pazpar2 client: " + io.getMessage(),errorHelper));
-      }
-      if (cfg != null) {
-        try {
-          client = new Pazpar2ClientGeneric(cfg);  
-        } catch (ProxyErrorException pe) {
-          logger.error("Could not instantiate Pazpar2 client: " + pe.getMessage());
-          configurationErrors.add(new ConfigurationError("Pz2Client error","ProxyError","Could not create Pazpar2 client: " +pe.getMessage(),errorHelper));                
-        } 
-        if (hasConfigurationErrors()) {
-          logger.info("Found " + configurationErrors.size() + " configuration errors");
-        }
-      }
-      resetDataObjects();
-    } else {
-      logger.warn("Attempt to configure session but it already has a configured client");
-    }
+  public void init(SearchClient searchClient, Pz2Configurator configurator) {
+    configurationErrors = new ArrayList<ErrorInterface>();
+    errorHelper = new ErrorHelper(configurator);    
+    logger.debug(Utils.objectId(this) + " will configure search client for the session");
+    try {
+      searchClient.configure(configurator);
+      
+      // The cloning is a hack: 
+      // At the time of writing this search client is injected using Weld. 
+      // However, the client is used for asynchronously sending off requests
+      // to the server AND propagation of context to threads is not supported.
+      // Trying so will throw a WELD-001303 error. To avoid that, a context
+      // free client is spawned from the context dependent one. 
+      this.searchClient = searchClient.cloneMe();
+      
+    } catch (ConfigurationException e) {
+      logger.info("Found " + configurationErrors.size() + " configuration errors");    
+    }        
+    resetDataObjects();
   }
     
   public void doSearch(String query) {
@@ -126,7 +106,7 @@ public class Pz2Session implements Pz2Interface {
         List<CommandThread> threadList = new ArrayList<CommandThread>();
         StringTokenizer tokens = new StringTokenizer(commands,",");
         while (tokens.hasMoreElements()) {
-          threadList.add(new CommandThread(getCommand(tokens.nextToken()),client));            
+          threadList.add(new CommandThread(getCommand(tokens.nextToken()),searchClient));            
         }
         for (CommandThread thread : threadList) {
           thread.start();
@@ -140,7 +120,9 @@ public class Pz2Session implements Pz2Interface {
         }
         for (CommandThread thread : threadList) {
            String commandName = thread.getCommand().getName();
-           Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(thread.getResponse());
+           String response = thread.getResponse();
+           logger.debug("Response was: " + response);
+           Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
            dataObjects.put(commandName, responseObject);        
         }
         return getActiveClients();

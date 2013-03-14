@@ -5,9 +5,6 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.masterkey.pazpar2.client.ClientCommand;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
-import com.indexdata.masterkey.pazpar2.client.Pazpar2HttpResponse;
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 
@@ -15,11 +12,11 @@ public class CommandThread extends Thread {
 
   private static Logger logger = Logger.getLogger(CommandThread.class);
   Pazpar2Command command;
-  Pazpar2Client client;
+  SearchClient client;
   private ByteArrayOutputStream baos = new ByteArrayOutputStream();
   private StringBuilder response = new StringBuilder("");  
   
-  public CommandThread (Pazpar2Command command, Pazpar2Client client) {
+  public CommandThread (Pazpar2Command command, SearchClient client) {
     this.command = command;
     this.client = client;
   }
@@ -35,22 +32,22 @@ public class CommandThread extends Thread {
    *  
    */
   public void run() {
-    ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
+    
     if (command.getName().equals("search")) {
-      client.setSearchCommand(clientCommand);
+      client.setSearchCommand(command);
     }
     try {
       long start = System.currentTimeMillis();
-      Pazpar2HttpResponse httpResponse = client.executeCommand(clientCommand, baos);
-      if (httpResponse.getStatusCode()==200) {
-        response.append(baos.toString("UTF-8"));  
-      } else if (httpResponse.getStatusCode()==417) {
+      CommandResponse commandResponse = client.executeCommand(command, baos);
+      if (commandResponse.getStatusCode()==200) {
+        response.append(commandResponse.getResponseString());  
+      } else if (commandResponse.getStatusCode()==417) {
         logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
         response.append(CommandError.insertPazpar2ErrorXml(command.getName(), "Expectation failed (417)", baos.toString("UTF-8")));        
       } else {
         String resp = baos.toString("UTF-8");
-        logger.error("Pazpar2 status code was " + httpResponse.getStatusCode() + ": " + resp);
-        throw new Pazpar2ErrorException(resp,httpResponse.getStatusCode(),resp,null);
+        logger.error("Pazpar2 status code was " + commandResponse.getStatusCode() + ": " + resp);
+        throw new Pazpar2ErrorException(resp,commandResponse.getStatusCode(),resp,null);
       }       
       long end = System.currentTimeMillis();      
       logger.debug("Executed " + command.getName() + " in " + (end-start) + " ms." );
