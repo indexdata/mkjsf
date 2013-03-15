@@ -1,7 +1,13 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
+import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
@@ -9,6 +15,8 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.masterkey.config.MissingMandatoryParameterException;
+import com.indexdata.masterkey.config.ModuleConfigurationGetter;
 import com.indexdata.masterkey.pazpar2.client.ClientCommand;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2Client;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientConfiguration;
@@ -16,7 +24,8 @@ import com.indexdata.masterkey.pazpar2.client.Pazpar2ClientGeneric;
 import com.indexdata.masterkey.pazpar2.client.Pazpar2HttpResponse;
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
-import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.config.Configuration;
+import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
@@ -26,14 +35,24 @@ public class StraightPz2Client implements SearchClient {
   private static final long serialVersionUID = 5414266730169982028L;
   private static Logger logger = Logger.getLogger(StraightPz2Client.class);
   private Pazpar2Client client = null;
-  private Pazpar2ClientConfiguration cfg = null;  
+  private Pazpar2ClientConfiguration cfg = null;
+  public static final String MODULENAME = "pz2client";
+  public static Map<String,String> DEFAULTS = new HashMap<String,String>();
+  
+  static {    
+    DEFAULTS.put("PROXY_MODE","1");
+    DEFAULTS.put("SERIALIZE_REQUESTS", "false");
+    DEFAULTS.put("STREAMBUFF_SIZE", "4096");
+    DEFAULTS.put("PARSE_RESPONSES", "true");    
+  }
   
   public StraightPz2Client() {}
   
-  public void configure(Pz2Configurator configurator) throws ConfigurationException {
-    logger.info(Utils.objectId(this) + " is configuring itself using the provided " + Utils.objectId(configurator));
+  public void configure(ConfigurationReader configReader) throws ConfigurationException {    
+    logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
-      cfg = new Pazpar2ClientConfiguration(configurator.getConfig());
+      Configuration config = configReader.getConfiguration(this);
+      cfg = new Pazpar2ClientConfiguration(new ConfigurationGetter(config));
     } catch (ProxyErrorException pe) {
       logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
       throw new ConfigurationException("Could not configure StraightPz2Client:  "+ pe.getMessage(),pe);
@@ -50,12 +69,12 @@ public class StraightPz2Client implements SearchClient {
       throw new ConfigurationException("Pazpar2Client is null after configuration");
     } 
   }
-
+  
+  
   @Override
   public void setSearchCommand(Pazpar2Command command) {
     ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
-    client.setSearchCommand(clientCommand);
-    
+    client.setSearchCommand(clientCommand);    
   }
 
   @Override
@@ -73,4 +92,46 @@ public class StraightPz2Client implements SearchClient {
     clone.cfg = this.cfg;
     return clone;
   }
+
+  @Override
+  public Map<String, String> getDefaults() {
+    return DEFAULTS;
+  }
+
+  @Override
+  public String getModuleName() {
+    return MODULENAME;
+  }
+  
+  class ConfigurationGetter implements ModuleConfigurationGetter {
+    Configuration config = null;
+    ConfigurationGetter(Configuration configuration) {
+      config = configuration;
+    }
+    @Override
+    public String get(String value) {
+      return config.get(value);
+    }
+    @Override
+    public String get(String value, String defaultValue) {
+      return config.get(value,defaultValue);
+    }
+    @Override
+    public String getMandatory(String name)
+        throws MissingMandatoryParameterException {
+      return config.getMandatory(name);
+    }
+    @Override
+    public String getConfigFilePath() {
+      return config.getConfigFilePath();
+    }
+  }
+
+  @Override
+  public List<String> documentConfiguration() {
+    List<String> doc = new ArrayList<String>();
+    doc.add(nl+ MODULENAME + " was configured to access Pazpar2 at : " + cfg.PAZPAR2_URL);    
+    return new ArrayList<String>();
+  }
+
 }

@@ -10,7 +10,7 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
@@ -28,8 +28,8 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   private static Logger logger = Logger.getLogger(Pz2Bean.class);
   
   Pz2Session pz2;  
-  @Inject Pz2Configurator configurator;
-  @Inject SearchClient    searchClient;
+  @Inject ConfigurationReader configurator;
+  @Inject SearchClient searchClient;
     
   public Pz2Bean () {
     logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");
@@ -41,7 +41,7 @@ public class Pz2Bean implements Pz2Interface, Serializable {
     pz2 = new Pz2Session();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "] on session [" 
-                          + Utils.objectId(pz2) + "]" );
+                          + Utils.objectId(pz2) + "]" );    
     pz2.init(searchClient,configurator);
   }
   

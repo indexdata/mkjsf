@@ -5,8 +5,9 @@ import java.util.List;
 
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 
-public interface Pz2Configurator extends Serializable {
-  public Pz2Config getConfig() throws ConfigurationException;
+public interface ConfigurationReader extends Serializable {
+    
+  public Configuration getConfiguration(Configurable configurable) throws ConfigurationException;
   
   public List<String> document();
 }

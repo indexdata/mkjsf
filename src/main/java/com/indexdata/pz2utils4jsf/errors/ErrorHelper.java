@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 public class ErrorHelper implements Serializable {
@@ -32,9 +32,9 @@ public class ErrorHelper implements Serializable {
   
   private static Logger logger = Logger.getLogger(ErrorHelper.class);
   
-  private Pz2Configurator configurator = null;
+  private ConfigurationReader configurator = null;
   
-  public ErrorHelper(Pz2Configurator configurator) {
+  public ErrorHelper(ConfigurationReader configurator) {
     this.configurator = configurator;
   }
   
@@ -64,9 +64,9 @@ public class ErrorHelper implements Serializable {
       return ErrorCode.SKIP_SUGGESTIONS;
     } else if (errmsg.contains("Missing mandatory parameter")) {
       return ErrorCode.MISSING_MANDATORY_PROPERTY;
-    } else if (errmsg.contains("Pz2ConfigureByMk2Config") && errmsg.contains("Init parameter") && (errmsg.contains("missing"))) {                   
+    } else if (errmsg.contains("ConfigureByMk2Config") && errmsg.contains("Init parameter") && (errmsg.contains("missing"))) {                   
       return ErrorCode.MISSING_MK2_CONFIG_INIT_PARAMETER;
-    } else if (appError.getMessage().contains("Pz2ConfigureByWebXml could not find mandatory context-param")) {
+    } else if (appError.getMessage().contains("WebXmlConfigReader could not find mandatory context-param")) {
       return ErrorCode.MISSING_CONTEXT_PARAMETER;
     }
     return ErrorCode.NOT_RESOLVED;
@@ -78,13 +78,13 @@ public class ErrorHelper implements Serializable {
     switch (code) {
       case MISSING_MK2_CONFIG_INIT_PARAMETER:
         suggestions.add("A mandatory init parameter (context-param) was not found in the deployment descriptor (web.xml)." +
-          " Following init parameters must be present when using the MasterKey configuration scheme (Pz2ConfigureByMk2Config):" +
+          " Following init parameters must be present when using the MasterKey configuration scheme (ConfigureByMk2Config):" +
           " MASTERKEY_ROOT_CONFIG_DIR (i.e. '/etc/masterkey'), MASTERKEY_COMPONENT_CONFIG_DIR (i.e. '/myapp'), " +
           " MASTERKEY_CONFIG_FILE_NAME (i.e. 'myapp.properties'");      
         break;
       case MISSING_CONTEXT_PARAMETER:
         suggestions.add("A mandatory init parameter (context-param) was not found in the deployment descriptor (web.xml)." +
-        " Following init parameters must be present when using Pz2ConfigureByWebXml:" +
+        " Following init parameters must be present when using WebXmlConfigReader:" +
         " PAZPAR2_URL, PAZPAR2_SERVICE_ID");      
         break;
       case MISSING_MANDATORY_PROPERTY:

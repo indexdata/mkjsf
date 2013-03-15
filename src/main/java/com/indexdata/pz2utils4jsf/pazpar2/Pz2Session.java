@@ -11,7 +11,7 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.config.Pz2Configurator;
+import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
@@ -48,24 +48,26 @@ public class Pz2Session implements Pz2Interface {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
   }
     
-  public void init(SearchClient searchClient, Pz2Configurator configurator) {
+  public void init(SearchClient searchClient, ConfigurationReader configReader) {
     configurationErrors = new ArrayList<ErrorInterface>();
-    errorHelper = new ErrorHelper(configurator);    
+    errorHelper = new ErrorHelper(configReader);    
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
     try {
-      searchClient.configure(configurator);
-      
-      // The cloning is a hack: 
+      searchClient.configure(configReader);            
       // At the time of writing this search client is injected using Weld. 
       // However, the client is used for asynchronously sending off requests
-      // to the server AND propagation of context to threads is not supported.
-      // Trying so will throw a WELD-001303 error. To avoid that, a context
-      // free client is spawned from the context dependent one. 
+      // to the server AND propagation of context to threads is currently 
+      // not supported. Trying to do so throws a WELD-001303 error. 
+      // To avoid that, a context free client is cloned from the context 
+      // dependent one. 
+      // If propagation to threads gets supported, the cloning can go. 
       this.searchClient = searchClient.cloneMe();
       
     } catch (ConfigurationException e) {
+      // TODO: set errors
       logger.info("Found " + configurationErrors.size() + " configuration errors");    
-    }        
+    } 
+    logger.info(configReader.document());
     resetDataObjects();
   }
     
