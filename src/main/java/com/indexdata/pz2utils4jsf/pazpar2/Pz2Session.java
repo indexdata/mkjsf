@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
@@ -64,8 +65,7 @@ public class Pz2Session implements Pz2Interface {
       this.searchClient = searchClient.cloneMe();
       
     } catch (ConfigurationException e) {
-      // TODO: set errors
-      logger.info("Found " + configurationErrors.size() + " configuration errors");    
+      configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
     } 
     logger.info(configReader.document());
     resetDataObjects();
