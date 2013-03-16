@@ -48,6 +48,7 @@ public class StraightPz2Client implements SearchClient {
   
   public StraightPz2Client() {}
   
+  @Override
   public void configure(ConfigurationReader configReader) throws ConfigurationException {    
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {

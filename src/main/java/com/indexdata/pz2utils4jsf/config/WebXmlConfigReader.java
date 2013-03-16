@@ -19,6 +19,12 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 
+/**
+ * Reads a configuration from the context parameters of the deployment descriptor (web.xml)
+ * 
+ * @author Niels Erik
+ *
+ */
 @Named @SessionScoped @Alternative
 public class WebXmlConfigReader implements ConfigurationReader {
 
