@@ -22,6 +22,13 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
+/**
+ * Reads configuration from a MasterKey configuration scheme
+ * 
+ * 
+ * @author Niels Erik
+ *
+ */
 @Named @SessionScoped @Alternative
 public class Mk2ConfigReader implements ConfigurationReader  {
 
@@ -58,7 +65,7 @@ public class Mk2ConfigReader implements ConfigurationReader  {
     try {
       ModuleConfiguration moduleConfig = mkConfigContext.getModuleConfiguration(configurable.getModuleName());      
       config.addAll(configurable.getDefaults(),moduleConfig.getConfigMap());
-      config.set("configpath", mkConfigContext.getConfigFileLocation().getConfigFilePath());            
+      config.set("configpath", moduleConfig.getConfigFilePath());            
     } catch (IOException e) {
       throw new ConfigurationException(Mk2ConfigReader.class + " could not read configuration for '"+ configurable.getModuleName() + "': "+e.getMessage(),e);
     }        

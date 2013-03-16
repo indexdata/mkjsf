@@ -9,6 +9,12 @@ import org.apache.log4j.Logger;
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
+/**
+ * Represents a configuration as a set of key-value pairs
+ * 
+ * @author Niels Erik
+ *
+ */
 public class Configuration implements Serializable {
 
   private static final long serialVersionUID = -6801241975338182197L;
@@ -62,7 +68,7 @@ public class Configuration implements Serializable {
   }
 
   public String getConfigFilePath() {
-    return get("configfilepath","nopathgiven");
+    return get("configpath","nopathgiven");
   }
   
   public Map<String,String> getConfigMap() {
