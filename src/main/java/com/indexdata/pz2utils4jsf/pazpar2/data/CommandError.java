@@ -88,8 +88,8 @@ public class CommandError extends Pazpar2ResponseData implements ErrorInterface 
    * 
    * @param commandName The name of the command during which's execution the error was encountered
    * @param exceptionName The (possibly loosely defined) name of the exception that was thrown
-   * @param pazpar2ErrorXml The error document as created by Pazpar2 -- or, for some errors, by the 
-   *                        Pazpar2 client. 
+   * @param pazpar2ErrorXml The error document as created by Pazpar2, or the Service Proxy or 
+   *                        by the Pazpar2 client itself. 
    * @return
    */
   public static String insertPazpar2ErrorXml (String commandName, String exceptionName, String pazpar2ErrorXml) {

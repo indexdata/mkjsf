@@ -132,7 +132,13 @@ public class ErrorHelper implements Serializable {
               suggestions.add("Please check the service ID set in the configuration and compare it with the " +
                   " configuration on the Pazpar2 server-side.");
               addConfigurationDocumentation(suggestions);    
-              break;          
+              break;
+            case "100":
+              suggestions.add("Pazpar2 Service Proxy error");
+              suggestions.add("A request was made to the Pazpar2 Service Proxy, but the Service Proxy reports ");
+              suggestions.add(" that authentication is lacking. Could be no successful authentication request was made or");
+              suggestions.add(" that the Service Proxy session timed out.");
+              break;
             default:
               suggestions.add("Pazpar2 error: " + error.getPazpar2Error().getMsg() + " (Pazpar2 # "+error.getPazpar2Error().getCode()+")");
           }

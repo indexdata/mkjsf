@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -21,15 +22,15 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named("pz2") @SessionScoped
+@Named("pz2") @SessionScoped @Alternative
 public class Pz2Bean implements Pz2Interface, Serializable {
 
   private static final long serialVersionUID = 3440277287081557861L;
   private static Logger logger = Logger.getLogger(Pz2Bean.class);
   
-  Pz2Session pz2;  
   @Inject ConfigurationReader configurator;
-  @Inject SearchClient searchClient;
+  protected Pz2Session pz2;  
+  protected SearchClient searchClient;  
     
   public Pz2Bean () {
     logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");
@@ -39,11 +40,13 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   public void initiatePz2Session() {
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session next.");
     pz2 = new Pz2Session();
+    searchClient = new StraightPz2Client();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "] on session [" 
                           + Utils.objectId(pz2) + "]" );    
     pz2.init(searchClient,configurator);
   }
+  
   
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch(java.lang.String)

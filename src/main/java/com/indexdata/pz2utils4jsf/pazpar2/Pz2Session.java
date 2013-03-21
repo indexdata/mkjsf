@@ -36,14 +36,14 @@ public class Pz2Session implements Pz2Interface {
   private static final long serialVersionUID = 3947514708343320514L;
   private static Logger logger = Logger.getLogger(Pz2Session.class);
   
-  private Map<String,Pazpar2ResponseData> dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
-  private QueryStates queryStates = new QueryStates();
-  private ErrorHelper errorHelper = null;
+  protected Map<String,Pazpar2ResponseData> dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
+  protected QueryStates queryStates = new QueryStates();
+  protected ErrorHelper errorHelper = null;
   
-  private List<ErrorInterface> configurationErrors = null;
-  private SearchClient searchClient = null;   
-  private TargetFilter targetFilter = null;  
-  private ResultsPager pager = null; 
+  protected List<ErrorInterface> configurationErrors = null;
+  protected SearchClient searchClient = null;   
+  protected TargetFilter targetFilter = null;  
+  protected ResultsPager pager = null; 
     
   public Pz2Session () {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
@@ -62,7 +62,7 @@ public class Pz2Session implements Pz2Interface {
       // To avoid that, a context free client is cloned from the context 
       // dependent one. 
       // If propagation to threads gets supported, the cloning can go. 
-      this.searchClient = searchClient.cloneMe();
+      this.searchClient = searchClient.cloneMe();   
       
     } catch (ConfigurationException e) {
       configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
@@ -70,7 +70,7 @@ public class Pz2Session implements Pz2Interface {
     logger.info(configReader.document());
     resetDataObjects();
   }
-    
+      
   public void doSearch(String query) {
     setCommandParameter("search",new CommandParameter("query","=",query));     
     doSearch();
@@ -336,11 +336,11 @@ public class Pz2Session implements Pz2Interface {
   }
 
     
-  private boolean hasTargetFilter(TargetFilter targetFilter) {
+  protected boolean hasTargetFilter(TargetFilter targetFilter) {
     return hasTargetFilter() && targetFilter.equals(this.targetFilter);
   }
   
-  private boolean hasQuery() {
+  protected boolean hasQuery() {
     return !(getCommand("search").getParameter("query") == null);
   }
     
@@ -366,7 +366,7 @@ public class Pz2Session implements Pz2Interface {
     return errorHelper;
   }
   
-  private void handleQueryStateChanges (String commands) {
+  protected void handleQueryStateChanges (String commands) {
     if (queryStates.hasPendingStateChange("search")) { 
       logger.debug("Found pending search change. Doing search before updating " + commands);
       doSearch();
@@ -383,7 +383,7 @@ public class Pz2Session implements Pz2Interface {
     }    
   }
 
-  private String getActiveClients() {    
+  protected String getActiveClients() {    
     if (getShow()!=null) {
       logger.debug("Active clients: "+getShow().getActiveClients());
       return getShow().getActiveClients();
@@ -392,25 +392,25 @@ public class Pz2Session implements Pz2Interface {
     }
   }
 
-  private Pazpar2Command getCommand(String name) {
+  protected Pazpar2Command getCommand(String name) {
     return queryStates.getCurrentState().getCommand(name);
   }
   
-  private void setCommandParameter(String commandName, CommandParameter parameter) {
+  protected void setCommandParameter(String commandName, CommandParameter parameter) {
     logger.debug("Setting parameter for " + commandName + ": " + parameter);
     queryStates.getCurrentState().setCommandParameter(commandName, parameter, queryStates);    
   }
   
   
-  private void removeCommandParameter(String commandName, String parameterName) {
+  protected void removeCommandParameter(String commandName, String parameterName) {
     queryStates.getCurrentState().removeCommandParameter(commandName,parameterName,queryStates);    
   }
   
-  private void removeCommand (String commandName) {
+  protected void removeCommand (String commandName) {
     queryStates.getCurrentState().removeCommand(commandName, queryStates);
   }
     
-  private String getCommandParameterValue (String commandName, String parameterName, String defaultValue) {    
+  protected String getCommandParameterValue (String commandName, String parameterName, String defaultValue) {    
     Pazpar2Command command = getCommand(commandName);
     if (command != null) {
       CommandParameter parameter = command.getParameter(parameterName);
@@ -421,7 +421,7 @@ public class Pz2Session implements Pz2Interface {
     return defaultValue;    
   }
   
-  private String getCommandParameterValueSimple (String commandName, String parameterName, String defaultValue) {    
+  protected String getCommandParameterValueSimple (String commandName, String parameterName, String defaultValue) {    
     Pazpar2Command command = getCommand(commandName);
     if (command != null) {
       CommandParameter parameter = command.getParameter(parameterName);
@@ -433,7 +433,7 @@ public class Pz2Session implements Pz2Interface {
   }
 
   
-  private int getCommandParameterValue (String commandName, String parameterName, int defaultValue) {
+  protected int getCommandParameterValue (String commandName, String parameterName, int defaultValue) {
     Pazpar2Command command = getCommand(commandName);
     if (command != null) {
       CommandParameter parameter = command.getParameter(parameterName);
@@ -444,13 +444,13 @@ public class Pz2Session implements Pz2Interface {
     return defaultValue;    
   }
 
-  private String doCommand(String commandName) {      
+  protected String doCommand(String commandName) {     
     Pazpar2Command command = getCommand(commandName);    
     logger.debug(command.getEncodedQueryString() + ": Results for "+ getCommand("search").getEncodedQueryString());
-    return update(commandName);      
+    return update(commandName);
   }
   
-  private void resetDataObjects() {
+  protected void resetDataObjects() {
     logger.debug("Resetting show,stat,termlist,bytarget,search response objects.");
     dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
     dataObjects.put("show", new ShowResponse());

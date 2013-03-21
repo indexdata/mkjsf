@@ -332,5 +332,5 @@ public interface Pz2Interface extends Serializable {
    * @return
    */
   public List<ErrorInterface> getConfigurationErrors();
-   
+     
 }

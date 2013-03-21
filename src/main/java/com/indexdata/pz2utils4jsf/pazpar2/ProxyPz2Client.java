@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Named;
 
 import org.apache.http.HttpEntity;
@@ -34,11 +33,13 @@ import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
+import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.AuthenticationEntity;
+import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named @SessionScoped @Alternative
+@Named @SessionScoped 
 public class ProxyPz2Client implements SearchClient {
-
+    
   private static final long serialVersionUID = -4031644009579840277L;
   private static Logger logger = Logger.getLogger(ProxyPz2Client.class);
   public static final String MODULENAME = "proxyclient";
@@ -46,12 +47,13 @@ public class ProxyPz2Client implements SearchClient {
   
   ProxyPz2ResponseHandler handler = new ProxyPz2ResponseHandler();
   private HttpClient client;
+  private ServiceProxyUser user;
 
   public ProxyPz2Client () {
     SchemeRegistry schemeRegistry = new SchemeRegistry();
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
     ClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
-    client = new DefaultHttpClient(cm);
+    client = new DefaultHttpClient(cm);    
   }
     
   @Override
@@ -59,31 +61,70 @@ public class ProxyPz2Client implements SearchClient {
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
       Configuration config = configReader.getConfiguration(this);      
-      serviceUrl = config.getMandatory("SERVICE_PROXY_URL");
-      authenticate();
+      serviceUrl = config.getMandatory("SERVICE_PROXY_URL");      
     } catch (ConfigurationException c) {
-      // TODO Auto-generated catch block
       c.printStackTrace();
     } catch (MissingMandatoryParameterException mmp) {
       mmp.printStackTrace();
-    }
+    }    
   }
   
-  public void authenticate () {
-    try {
+  public boolean authenticate (AuthenticationEntity user) {
+    try {      
+      logger.info("Authenticating [" + user.getProperty("name") + "]");
+      this.user = (ServiceProxyUser) user;
       Pazpar2Command auth = new Pazpar2Command("auth");
       auth.setParameter(new CommandParameter("action","=","login"));
-      auth.setParameter(new CommandParameter("username","=","demo"));
-      auth.setParameter(new CommandParameter("password","=","demo"));
-      send(auth);
+      auth.setParameter(new CommandParameter("username","=",user.getProperty("name")));
+      auth.setParameter(new CommandParameter("password","=",user.getProperty("password")));
+      byte[] response = send(auth);
+      String responseStr = new String(response,"UTF-8");
+      logger.info(responseStr);      
+      if (responseStr.contains("FAIL")) {
+        return false;
+      } else {
+        return true;
+      }      
     } catch (ClientProtocolException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      return false;
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }
+      return false;
+    }        
+  }
+  
+  public boolean checkAuthentication () {
+    try {
+      Pazpar2Command check = new Pazpar2Command("auth");
+      check.setParameter(new CommandParameter("action","=","check"));
+      byte[] response = send(check);
+      logger.info(new String(response,"UTF-8"));
+    } catch (ClientProtocolException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return false;
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return false;
+    }    
+    return true;
     
+  }
+  
+  public boolean isAuthenticatingClient () {
+    return true;
+  }
+  
+  public boolean isAuthenticated () {
+    if (user.getProperty("name") != null && user.getProperty("password") != null) {
+      return checkAuthentication();
+    } else {
+      return false;
+    }
   }
   
   /**
@@ -93,12 +134,12 @@ public class ProxyPz2Client implements SearchClient {
    * @throws ClientProtocolException
    * @throws IOException
    */
-  private String send(Pazpar2Command command) throws ClientProtocolException, IOException {
+  private byte[] send(Pazpar2Command command) throws ClientProtocolException, IOException {
     String url = serviceUrl + "?" + command.getEncodedQueryString(); 
     logger.info("Sending request "+url);    
     HttpGet httpget = new HttpGet(url);     
     byte[] response = client.execute(httpget, handler);    
-    return new String(response);
+    return response;
   }
 
   
@@ -138,8 +179,9 @@ public class ProxyPz2Client implements SearchClient {
   @Override
   public CommandResponse executeCommand(Pazpar2Command command,
       ByteArrayOutputStream baos) throws Pazpar2ErrorException, IOException {
-    String response = send(command);
-    return new ProxyPz2ClientCommandResponse(getStatusCode(), response);    
+    byte[] response = send(command);
+    baos.write(response);
+    return new ProxyPz2ClientCommandResponse(getStatusCode(), new String(response,"UTF-8"));    
   }
 
   public ProxyPz2Client cloneMe() {

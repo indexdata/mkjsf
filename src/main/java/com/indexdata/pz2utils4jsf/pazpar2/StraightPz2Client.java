@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Named;
 
 import org.apache.log4j.Logger;
@@ -29,7 +28,7 @@ import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named @SessionScoped @Alternative
+@Named @SessionScoped 
 public class StraightPz2Client implements SearchClient {
 
   private static final long serialVersionUID = 5414266730169982028L;
@@ -71,6 +70,17 @@ public class StraightPz2Client implements SearchClient {
     } 
   }
   
+  public boolean isAuthenticatingClient () {
+    return false;
+  }
+  
+  public boolean isAuthenticated() {
+    return false;
+  }
+  
+  public boolean authenticate() {
+    throw new UnsupportedOperationException("No authentication mechanism for straight pazpar2 client");
+  }
   
   @Override
   public void setSearchCommand(Pazpar2Command command) {

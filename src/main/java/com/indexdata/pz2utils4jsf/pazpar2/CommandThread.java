@@ -41,9 +41,9 @@ public class CommandThread extends Thread {
       CommandResponse commandResponse = client.executeCommand(command, baos);
       if (commandResponse.getStatusCode()==200) {
         response.append(commandResponse.getResponseString());  
-      } else if (commandResponse.getStatusCode()==417) {
+      } else if (commandResponse.getStatusCode()==417) {        
         logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
-        response.append(CommandError.insertPazpar2ErrorXml(command.getName(), "Expectation failed (417)", baos.toString("UTF-8")));        
+        response.append(CommandError.insertPazpar2ErrorXml(command.getName(), "Expectation failed (417)", commandResponse.getResponseString()));        
       } else {
         String resp = baos.toString("UTF-8");
         logger.error("Pazpar2 status code was " + commandResponse.getStatusCode() + ": " + resp);
