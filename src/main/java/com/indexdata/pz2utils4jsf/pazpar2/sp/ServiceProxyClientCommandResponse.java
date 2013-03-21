@@ -1,11 +1,13 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
-public class ProxyPz2ClientCommandResponse implements CommandResponse {
+import com.indexdata.pz2utils4jsf.pazpar2.CommandResponse;
+
+public class ServiceProxyClientCommandResponse implements CommandResponse {
 
   private int statusCode = 0;
   private String content = null;
   
-  public ProxyPz2ClientCommandResponse(int statusCode, String content) {
+  public ServiceProxyClientCommandResponse(int statusCode, String content) {
     this.statusCode = statusCode;
     this.content = content;
   }

@@ -5,12 +5,12 @@ import java.io.UnsupportedEncodingException;
 
 import com.indexdata.masterkey.pazpar2.client.Pazpar2HttpResponse;
 
-public class StraightPz2CommandResponse implements CommandResponse {
+public class Pz2CommandResponse implements CommandResponse {
   
   private Pazpar2HttpResponse pz2httpResponse = null;
   private ByteArrayOutputStream content = null;
   
-  public StraightPz2CommandResponse(Pazpar2HttpResponse pz2response, ByteArrayOutputStream content) {
+  public Pz2CommandResponse(Pazpar2HttpResponse pz2response, ByteArrayOutputStream content) {
     pz2httpResponse = pz2response;
     this.content = content;
   }

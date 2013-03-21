@@ -1,4 +1,4 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
 import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
@@ -33,15 +33,19 @@ import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
+import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.CommandResponse;
+import com.indexdata.pz2utils4jsf.pazpar2.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.pazpar2.SearchClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.AuthenticationEntity;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named @SessionScoped 
-public class ProxyPz2Client implements SearchClient {
+public class ServiceProxyClient implements SearchClient {
     
   private static final long serialVersionUID = -4031644009579840277L;
-  private static Logger logger = Logger.getLogger(ProxyPz2Client.class);
+  private static Logger logger = Logger.getLogger(ServiceProxyClient.class);
   public static final String MODULENAME = "proxyclient";
   private String serviceUrl = "undefined";
   
@@ -49,7 +53,7 @@ public class ProxyPz2Client implements SearchClient {
   private HttpClient client;
   private ServiceProxyUser user;
 
-  public ProxyPz2Client () {
+  public ServiceProxyClient () {
     SchemeRegistry schemeRegistry = new SchemeRegistry();
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
     ClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
@@ -181,12 +185,12 @@ public class ProxyPz2Client implements SearchClient {
       ByteArrayOutputStream baos) throws Pazpar2ErrorException, IOException {
     byte[] response = send(command);
     baos.write(response);
-    return new ProxyPz2ClientCommandResponse(getStatusCode(), new String(response,"UTF-8"));    
+    return new ServiceProxyClientCommandResponse(getStatusCode(), new String(response,"UTF-8"));    
   }
 
-  public ProxyPz2Client cloneMe() {
-    logger.debug("Cloning StraightPz2Client");
-    ProxyPz2Client clone = new ProxyPz2Client();
+  public ServiceProxyClient cloneMe() {
+    logger.debug("Cloning Pz2Client");
+    ServiceProxyClient clone = new ServiceProxyClient();
     clone.client = this.client;
     clone.serviceUrl = this.serviceUrl;
     return clone;

@@ -29,10 +29,10 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named @SessionScoped 
-public class StraightPz2Client implements SearchClient {
+public class Pz2Client implements SearchClient {
 
   private static final long serialVersionUID = 5414266730169982028L;
-  private static Logger logger = Logger.getLogger(StraightPz2Client.class);
+  private static Logger logger = Logger.getLogger(Pz2Client.class);
   private Pazpar2Client client = null;
   private Pazpar2ClientConfiguration cfg = null;
   public static final String MODULENAME = "pz2client";
@@ -45,7 +45,7 @@ public class StraightPz2Client implements SearchClient {
     DEFAULTS.put("PARSE_RESPONSES", "true");    
   }
   
-  public StraightPz2Client() {}
+  public Pz2Client() {}
   
   @Override
   public void configure(ConfigurationReader configReader) throws ConfigurationException {    
@@ -55,17 +55,17 @@ public class StraightPz2Client implements SearchClient {
       cfg = new Pazpar2ClientConfiguration(new ConfigurationGetter(config));
     } catch (ProxyErrorException pe) {
       logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
-      throw new ConfigurationException("Could not configure StraightPz2Client:  "+ pe.getMessage(),pe);
+      throw new ConfigurationException("Could not configure Pz2Client:  "+ pe.getMessage(),pe);
     } 
     if (cfg != null) {
       try {
         client = new Pazpar2ClientGeneric(cfg);  
       } catch (ProxyErrorException pe) {
         logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
-        throw new ConfigurationException("Could not configure StraightPz2Client:  "+ pe.getMessage(),pe);
+        throw new ConfigurationException("Could not configure Pz2Client:  "+ pe.getMessage(),pe);
       }
     } else {
-      logger.error("There was a problem creating StraightPz2Client. Client is null after configuration.");
+      logger.error("There was a problem creating Pz2Client. Client is null after configuration.");
       throw new ConfigurationException("Pazpar2Client is null after configuration");
     } 
   }
@@ -93,12 +93,12 @@ public class StraightPz2Client implements SearchClient {
        throws Pazpar2ErrorException, IOException {
     ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
     Pazpar2HttpResponse pz2HttpResponse = client.executeCommand(clientCommand, baos);
-    return new StraightPz2CommandResponse(pz2HttpResponse,baos);
+    return new Pz2CommandResponse(pz2HttpResponse,baos);
   }
 
-  public StraightPz2Client cloneMe() {
-    logger.debug("Cloning StraightPz2Client");
-    StraightPz2Client clone = new StraightPz2Client();
+  public Pz2Client cloneMe() {
+    logger.debug("Cloning Pz2Client");
+    Pz2Client clone = new Pz2Client();
     clone.client = this.client;
     clone.cfg = this.cfg;
     return clone;
