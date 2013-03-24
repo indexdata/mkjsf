@@ -204,7 +204,7 @@ public interface Pz2Interface extends Serializable {
    * @return pazpar2 'show' response object
    */
   public ShowResponse getShow();
-  
+    
   /**
    * Returns the 'stat' data as retrieved from pazpar2 by the most 
    * recent update request

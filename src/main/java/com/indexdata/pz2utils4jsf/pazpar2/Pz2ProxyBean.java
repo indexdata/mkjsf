@@ -1,5 +1,8 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
@@ -19,7 +22,7 @@ import com.indexdata.pz2utils4jsf.utils.Utils;
 public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     
   private static final long serialVersionUID = 4221824985678758225L;
-  private static Logger logger = Logger.getLogger(Pz2ProxyBean.class);
+  private static Logger logger = Logger.getLogger(Pz2ProxyBean.class);  
     
   @Inject ConfigurationReader configurator;
   @Inject ServiceProxyUser user;
@@ -28,21 +31,55 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   }
   
   @PostConstruct
-  public void initiatePz2Session() {
-    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session next.");
+  public void instantiatePz2SessionObject() {
+    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session object next.");
     pz2 = new ServiceProxySession();
     searchClient = new ServiceProxyClient();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "] on session [" 
                           + Utils.objectId(pz2) + "]" );    
-    pz2.init(searchClient,configurator);
+    pz2.configureClient(searchClient,configurator);
   }
 
-
+  @Override
   public String login(String navigateTo) {
     logger.info("doing login");
     ((ServiceProxySession) pz2).setUser(user);
-    return ((ServiceProxySession)pz2).login(navigateTo);
+    return session().login(navigateTo);
+  }
+
+  @Override
+  public void setInitFileName(String fileName) {
+    session().setInitFileName(fileName);      
+  }
+
+  @Override
+  public String getInitFileName() {
+    return session().getInitFileName();
+  }
+
+  @Override
+  public String postInit() throws UnsupportedEncodingException, IOException {
+    return session().postInit();
+  }
+
+  @Override
+  public void setServiceProxyUrl(String url) {
+     session().setServiceProxyUrl(url);    
+  }
+
+  @Override
+  public String getServiceProxyUrl() {
+    return session().getServiceProxyUrl();    
+  }
+  
+  public ServiceProxySession session() {
+    return (ServiceProxySession)pz2;
+  }
+
+  @Override
+  public String getInitResponse() {
+    return session().getInitResponse();
   }
 
 }

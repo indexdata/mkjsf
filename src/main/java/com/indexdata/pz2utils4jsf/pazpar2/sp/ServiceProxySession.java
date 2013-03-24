@@ -1,5 +1,8 @@
 package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
@@ -11,6 +14,8 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
   private ServiceProxyUser user; 
   private static final long serialVersionUID = -5770410029361522854L;
   private static Logger logger = Logger.getLogger(ServiceProxySession.class);
+  private String initDocFileName = "";
+  private String initDocResponse = "";
   
   public ServiceProxySession() {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");
@@ -22,12 +27,54 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
 
   @Override
   public String login(String navigateTo) {
-    if (((ServiceProxyClient)searchClient).authenticate(user)) {
+    if (client().authenticate(user)) {
       return navigateTo;
     } else {
       return null;
     }      
   }
+
+  @Override
+  public void setInitFileName(String fileName) {
+    this.initDocFileName = fileName;
+    
+  }
+
+  @Override
+  public String getInitFileName() {
+    return initDocFileName;
+  }
+
+  @Override
+  public String postInit() throws UnsupportedEncodingException, IOException {
+    String initDocPath = client().getInitDocPaths()[0];
+    logger.info("Paths: " + client().getInitDocPaths());
+    logger.info("Path: " + initDocPath);
+    byte[] response = client().postInitDoc(initDocPath + getInitFileName());
+    initDocResponse = new String(response,"UTF-8");
+    return initDocResponse;
+  }
+
+  @Override
+  public void setServiceProxyUrl(String url) {
+    client().setServiceProxyUrl(url);
+    
+  }
+
+  @Override
+  public String getServiceProxyUrl() {
+    return client().getServiceProxyUrl();
+  }
+  
+  private ServiceProxyClient client () {
+    return (ServiceProxyClient)searchClient;
+  }
+
+  @Override
+  public String getInitResponse() {
+    return initDocResponse;
+  }
+  
   
 
 }

@@ -49,7 +49,7 @@ public class Pz2Session implements Pz2Interface {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");      
   }
     
-  public void init(SearchClient searchClient, ConfigurationReader configReader) {
+  public void configureClient(SearchClient searchClient, ConfigurationReader configReader) {
     configurationErrors = new ArrayList<ErrorInterface>();
     errorHelper = new ErrorHelper(configReader);    
     logger.debug(Utils.objectId(this) + " will configure search client for the session");

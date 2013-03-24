@@ -37,14 +37,14 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   }
   
   @PostConstruct
-  public void initiatePz2Session() {
+  public void instantiatePz2SessionObject() {
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session next.");
     pz2 = new Pz2Session();
     searchClient = new Pz2Client();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "] on session [" 
                           + Utils.objectId(pz2) + "]" );    
-    pz2.init(searchClient,configurator);
+    pz2.configureClient(searchClient,configurator);
   }
   
   

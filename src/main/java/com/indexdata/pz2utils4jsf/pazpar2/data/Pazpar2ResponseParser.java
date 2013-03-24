@@ -36,6 +36,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
   private Pazpar2ResponseData currentElement = null;
   private Stack<Pazpar2ResponseData> dataElements = new Stack<Pazpar2ResponseData>();
   private Pazpar2ResponseData result = null;
+  private String xml = null;
 
   private static final List<String> docTypes = 
       Arrays.asList("bytarget","termlist","show","stat","record","search");
@@ -72,6 +73,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
    * @return Response data object
    */
   public Pazpar2ResponseData getDataObject (String response) {
+    this.xml = response;
     try {      
       xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getBytes("UTF-8"))));
     } catch (UnsupportedEncodingException e) {
@@ -94,19 +96,19 @@ public class Pazpar2ResponseParser extends DefaultHandler {
   @Override
   public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
     if (localName.equals("show")) {
-      currentElement = new ShowResponse();
+      currentElement = new ShowResponse();      
     } else if (localName.equals("hit")) {
       currentElement = new Hit();
     } else if (localName.equals("location")) {
       currentElement = new Location();
     } else if (localName.equals("bytarget")) {
-      currentElement = new ByTarget();
+      currentElement = new ByTarget();      
     } else if (localName.equals("target")) {
       currentElement = new Target();
     } else if (localName.equals("stat")) {
-      currentElement = new StatResponse();
+      currentElement = new StatResponse();      
     } else if (localName.equals("termlist")) {
-      currentElement = new TermListsResponse();
+      currentElement = new TermListsResponse();      
     } else if (localName.equals("list")) {
       currentElement = new TermListResponse();
       ((TermListResponse)currentElement).setName(atts.getValue("name"));
@@ -119,7 +121,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
       }
       ((TermListResponse)dataElements.peek()).addTerm((TermResponse)currentElement);
     } else if (localName.equals("record")) {
-      currentElement = new RecordResponse();
+      currentElement = new RecordResponse();      
     } else if (localName.equals("search")) {
       currentElement = new SearchResponse();
     } else if (localName.equals("applicationerror")) {
@@ -135,6 +137,10 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     }
     if (!docTypes.contains(localName)) {
       dataElements.peek().addElement(localName, currentElement);
+    }
+    if (this.xml != null) { // Store XML for doc level elements
+      currentElement.setXml(xml);
+      xml = null;
     }
     dataElements.push(currentElement);    
   }
