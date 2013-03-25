@@ -50,6 +50,7 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
     String initDocPath = client().getInitDocPaths()[0];
     logger.info("Paths: " + client().getInitDocPaths());
     logger.info("Path: " + initDocPath);
+    this.resetDataObjects();
     byte[] response = client().postInitDoc(initDocPath + getInitFileName());
     initDocResponse = new String(response,"UTF-8");
     return initDocResponse;
