@@ -19,6 +19,10 @@ public class ListenerFieldIds implements Serializable {
     return ":pz2watch:activeclientsForm:activeclientsField";
   }
   
+  public String getActiveclientsRecord () {
+    return ":pz2watch:activeclientsForm:activeclientsFieldRecord";
+  }
+  
   public String getErrorMessages () {
     return ":pz2watch:activeclientsForm:errorMessages";
   }

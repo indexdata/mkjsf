@@ -1,4 +1,5 @@
   var renderTargetsReqVar;
+  var renderOnRecordTargetsReqVar;
     
   function renderTargets(doRefresh)
   {
@@ -17,6 +18,26 @@
     	//console.log("No further updates from server requested");
     }
   }
+  
+  function renderOnRecordTargets(doRefresh)
+  {
+	console.log('rendering ' + renderWhileActiveclientsRecord);
+	var sourcecomp = document.getElementById("pz2watch:activeclientsFieldRecord");
+    jsf.ajax.request(sourcecomp, null,{render: renderWhileActiveclientsRecord});
+    if (doRefresh) {
+		console.log('Will do another ajax request after a timeout in order to render: pz2watch:activeclientsFieldRecord');  
+	    renderOnRecordTargetsReqVar=setTimeout(
+	     function() {              
+	       console.log('Making request for pz2watch:activeclientsFieldRecord');
+	       jsf.ajax.request(sourcecomp, null,{render: "pz2watch:activeclientsFieldRecord"});       
+	     }
+	     ,2000);
+    } else {
+    	console.log("No further updates from server requested");
+    	jsf.ajax.request(sourcecomp, null,{render: renderWhileActiveclientsRecord});
+    }
+  }
+
 
   function windowlocationhashListener () {
 	  if (trackHistory) {
@@ -85,6 +106,22 @@
       }
 	};
   };
+  
+  var ActiveclientsRecordListener = function () {
+	    this.invoke = function (field) {
+	      var updateDoc = StringtoXML(field.textContent || field.text);
+	      var activeClientsRecordValue = (updateDoc.childNodes[0].textContent || updateDoc.childNodes[0].text);
+	      console.log('Activeclients response for record detected: ' + activeClientsRecordValue);
+	      clearTimeout(renderOnRecordTargetsReqVar);
+	      if (activeClientsRecordValue > '0') {
+	        renderOnRecordTargets(true);
+	      } else {
+	    	console.log('Active clients is 0, final rendering');
+	    	renderOnRecordTargets(false);
+	      }
+		};
+	  };
+
     
   jsf.ajax.addOnEvent(fieldUpdateListener);
   
@@ -104,6 +141,7 @@
   var setUpListeners = function () {
     //console.log("Starts tracking activeclientsField");
     fieldListeners.addListener("pz2watch:activeclientsField", new ActiveclientsListener());
+    fieldListeners.addListener("pz2watch:activeclientsFieldRecord", new ActiveclientsRecordListener());
     if (trackHistory) {
         //console.log("Starts tracking windowlocationhash field");
         fieldListeners.addListener("pz2watch:windowlocationhash", new StateListener());

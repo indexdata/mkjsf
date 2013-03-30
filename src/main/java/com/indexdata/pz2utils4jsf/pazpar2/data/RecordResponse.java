@@ -55,5 +55,9 @@ public class RecordResponse extends Pazpar2ResponseData {
     return getLocations().size()>0 ? getLocations().get(0) : null;
   }
   
+  public String getActiveClients () {
+    return getOneElementValue("activeclients");
+  }
+
   
 }

@@ -13,6 +13,7 @@
 
   <cc:interface>
     <cc:attribute name="renderWhileActiveclients"/>
+    <cc:attribute name="renderWhileActiveclientsRecord"/>
     <cc:attribute name="trackHistory"/>
     <cc:attribute name="renderOnHitoryChange"/> 
     <cc:attribute name="debug"/>   
@@ -26,6 +27,7 @@
     <script>
      //<![CDATA[
        var renderWhileActiveclients = "${cc.attrs.renderWhileActiveclients}";
+       var renderWhileActiveclientsRecord = "${cc.attrs.renderWhileActiveclientsRecord}";
        var renderOnHistoryChange = "${cc.attrs.renderOnHistoryChange}";
        var trackHistory = ("${cc.attrs.trackHistory}" == "true");  
        setUpListeners();
@@ -35,6 +37,8 @@
     <h:form id="activeclientsForm" prependId="false">
       <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
       <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
+      <h:outputText id="activeclientsFieldRecord" value="${pz2.update('record')}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
+      
       <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
         <h:dataTable value="#{pz2.configurationErrors}" var="error" cellspace="0" cellpadding="0" style="${pz2.hasConfigurationErrors() ? 'display: block; vertical-align: top;' : 'display: none;'}">
           <h:column valign="top">

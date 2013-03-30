@@ -126,7 +126,12 @@ public class Pz2Session implements Pz2Interface {
            Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
            dataObjects.put(commandName, responseObject);        
         }
-        return getActiveClients();
+        if (commands.equals("record")) {
+          logger.debug("Record: Active clients: "+getRecord().getActiveClients());
+          return getRecord().getActiveClients();
+        } else {
+          return getActiveClients();
+        }  
       } else {
         logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
         resetDataObjects();
