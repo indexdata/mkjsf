@@ -181,7 +181,7 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   public int getStart() {
     return pz2.getStart();
   }
-
+  
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#toggleRecord(java.lang.String)
    */
@@ -300,6 +300,16 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   @Override
   public boolean hasConfigurationErrors() {
     return pz2.hasConfigurationErrors();
+  }
+
+  @Override
+  public void setRecordId(String recId) {
+    pz2.setRecordId(recId);    
+  }
+
+  @Override
+  public String getRecordId() {
+    return pz2.getRecordId();
   }
 
 }

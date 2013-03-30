@@ -62,8 +62,7 @@ public class Pz2Session implements Pz2Interface {
       // To avoid that, a context free client is cloned from the context 
       // dependent one. 
       // If propagation to threads gets supported, the cloning can go. 
-      this.searchClient = searchClient.cloneMe();   
-      
+      this.searchClient = searchClient.cloneMe();         
     } catch (ConfigurationException e) {
       configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
     } 
@@ -228,22 +227,29 @@ public class Pz2Session implements Pz2Interface {
   public int getStart() {
     return getCommandParameterValue("show","start",0);
   }
-        
+          
   public String toggleRecord (String recId) {
     if (hasRecord(recId)) {
       removeCommand("record");  
       dataObjects.put("record", new RecordResponse());
       return "";
     } else {
-      return updateRecord(recId);
+      setRecordId(recId);
+      return doCommand("record");
     }
   }
   
-  private String updateRecord(String recId) {    
-    setCommandParameter("record",new CommandParameter("id","=",recId));    
-    return doCommand("record");    
+  @Override
+  public void setRecordId(String recId) {
+    setCommandParameter("record",new CommandParameter("id","=",recId));
   }
   
+  @Override
+  public String getRecordId () {
+    return getCommandParameterValue("record","recid","");
+  }
+  
+  @Override
   public boolean hasRecord (String recId) {
     return getCommand("record").hasParameters() && getRecord().getRecId().equals(recId);
   }
@@ -375,7 +381,7 @@ public class Pz2Session implements Pz2Interface {
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       queryStates.hasPendingStateChange("record",false);
       if (getCommand("record").hasParameters()) {
-        updateRecord(getCommand("record").getParameter("id").getSimpleValue());
+        update("record");
       } else {
         removeCommand("record");  
         dataObjects.put("record", new RecordResponse());
