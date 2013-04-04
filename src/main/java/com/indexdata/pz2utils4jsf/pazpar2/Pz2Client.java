@@ -37,6 +37,7 @@ public class Pz2Client implements SearchClient {
   private Pazpar2ClientConfiguration cfg = null;
   public static final String MODULENAME = "pz2client";
   public static Map<String,String> DEFAULTS = new HashMap<String,String>();
+  Configuration config = null;
   
   static {    
     DEFAULTS.put("PROXY_MODE","1");
@@ -51,7 +52,7 @@ public class Pz2Client implements SearchClient {
   public void configure(ConfigurationReader configReader) throws ConfigurationException {    
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
-      Configuration config = configReader.getConfiguration(this);
+      config = configReader.getConfiguration(this);
       cfg = new Pazpar2ClientConfiguration(new ConfigurationGetter(config));
     } catch (ProxyErrorException pe) {
       logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
@@ -143,6 +144,10 @@ public class Pz2Client implements SearchClient {
     List<String> doc = new ArrayList<String>();
     doc.add(nl+ MODULENAME + " was configured to access Pazpar2 at : " + cfg.PAZPAR2_URL);    
     return new ArrayList<String>();
+  }
+  
+  public Configuration getConfiguration () {
+    return config;
   }
 
 }

@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.pz2utils4jsf.config.Configurable;
+import com.indexdata.pz2utils4jsf.config.Configuration;
 
 public interface SearchClient extends Configurable, Serializable {
   
@@ -13,4 +14,5 @@ public interface SearchClient extends Configurable, Serializable {
   public CommandResponse executeCommand(Pazpar2Command command, ByteArrayOutputStream baos) throws Pazpar2ErrorException, IOException;
   public SearchClient cloneMe();
   public boolean isAuthenticatingClient();  
+  public Configuration getConfiguration();
 }
