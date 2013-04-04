@@ -2,13 +2,18 @@ package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
 import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
@@ -54,6 +59,7 @@ public class ServiceProxyClient implements SearchClient {
   public static final String SP_INIT_DOC_PATHS = "SP_INIT_DOC_PATHS";
   private String serviceUrl = "undefined";
   private String[] initDocPaths = null;
+  private Configuration config = null;
   
   ProxyPz2ResponseHandler handler = new ProxyPz2ResponseHandler();
   private HttpClient client;
@@ -70,7 +76,7 @@ public class ServiceProxyClient implements SearchClient {
   public void configure (ConfigurationReader configReader) {
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
-      Configuration config = configReader.getConfiguration(this);      
+      config = configReader.getConfiguration(this);      
       serviceUrl = config.getMandatory(SERVICE_PROXY_URL);  
       this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));            
     } catch (ConfigurationException c) {
@@ -160,7 +166,6 @@ public class ServiceProxyClient implements SearchClient {
     byte[] response = client.execute(httpget, handler);    
     return response;
   }
-
   
   public class ProxyPz2ResponseHandler implements ResponseHandler<byte[]> {
     private StatusLine statusLine = null;
@@ -233,9 +238,18 @@ public class ServiceProxyClient implements SearchClient {
     logger.info("Looking to post the file in : [" + filePath +"]");
     HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
     File initDoc = new File(filePath);
+    logger.info("Posting to SP: ");
+    Path path = Paths.get(filePath);
+    if (logger.isDebugEnabled()) {
+      try (Scanner scanner =  new Scanner(path, "UTF-8")){
+        while (scanner.hasNextLine()){
+          System.out.println(scanner.nextLine());
+        }      
+      }     
+    }
     post.setEntity(new FileEntity(initDoc));
     byte[] response = client.execute(post, handler);
-    logger.info("Response on POST was: " + new String(response,"UTF-8"));
+    logger.info("Response on POST was: " + new String(response,"UTF-8"));    
     return response;
   }
   
@@ -252,5 +266,9 @@ public class ServiceProxyClient implements SearchClient {
   public String getServiceProxyUrl () {
     return serviceUrl;
   }
-
+  
+  public Configuration getConfiguration () {
+    return config;
+  }
+  
 }
