@@ -97,26 +97,36 @@ public interface Pz2Interface extends Serializable {
    */
   public void setFacetOnQuery(String facetKey, String term);
   
+  
+  public void setFilter(String filterExpression);
+  
+  public String getFilter();
+
+  
   /**
-   * Adds a target filter to limit the current query by, then
-   * executes the current search.
+   * Adds a single target filter to restrict the current query by, 
+   * then executes the current search.
+   * 
+   * This is a special case of the general setFilter function, 
+   * allowing to associate a descriptive target name with the 
+   * filter expression for display in UI. 
    * 
    * @param targetId pazpar2's ID for the target to limit by
    * @param targetName a descriptive name for the target
    */
-  public void setTargetFilter (String targetId, String targetName);
+  public void setSingleTargetFilter (String targetId, String targetName);
   
   /**
    * Removes the current target filter from the search
    * 
    */
-  public void removeTargetFilter ();
+  public void removeSingleTargetFilter ();
   
   /**
    * 
    * @return The target filter set on the current search command
    */
-  public TargetFilter getTargetFilter();
+  public SingleTargetFilter getSingleTargetFilter();
   
   /**
    * Resolves if the current search command has a target filter - to
@@ -125,8 +135,8 @@ public interface Pz2Interface extends Serializable {
    * @return true if the current search command is limited by a target 
    * filter
    */
-  public boolean hasTargetFilter();
-  
+  public boolean hasSingleTargetFilter();
+    
   /**
    * Sets the ordering of records (hits) in the 'show' display object
    */

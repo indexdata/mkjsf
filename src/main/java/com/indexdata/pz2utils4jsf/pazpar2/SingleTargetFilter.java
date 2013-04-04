@@ -2,16 +2,16 @@ package com.indexdata.pz2utils4jsf.pazpar2;
 
 import java.io.Serializable;
 
-import com.indexdata.pz2utils4jsf.pazpar2.TargetFilter;
+import com.indexdata.pz2utils4jsf.pazpar2.SingleTargetFilter;
 
-public class TargetFilter implements Serializable {
+public class SingleTargetFilter implements Serializable {
 
   private static final long serialVersionUID = 2389085467202526537L;
 
   private String targetName;
   private String targetId;
   
-  public TargetFilter (String targetId, String targetName) {
+  public SingleTargetFilter (String targetId, String targetName) {
     this.targetId = targetId;
     this.targetName = targetName;
   }
@@ -30,9 +30,9 @@ public class TargetFilter implements Serializable {
   
   @Override
   public boolean equals(Object o) {
-    if (o instanceof TargetFilter) {
-      return targetName.equals(((TargetFilter) o).getTargetName()) && 
-             targetId.equals(((TargetFilter) o).getTargetId());
+    if (o instanceof SingleTargetFilter) {
+      return targetName.equals(((SingleTargetFilter) o).getTargetName()) && 
+             targetId.equals(((SingleTargetFilter) o).getTargetId());
     } else {
       return false;
     }

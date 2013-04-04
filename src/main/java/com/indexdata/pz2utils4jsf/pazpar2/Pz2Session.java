@@ -42,7 +42,7 @@ public class Pz2Session implements Pz2Interface {
   
   protected List<ErrorInterface> configurationErrors = null;
   protected SearchClient searchClient = null;   
-  protected TargetFilter targetFilter = null;  
+  protected SingleTargetFilter singleTargetFilter = null;  
   protected ResultsPager pager = null; 
     
   public Pz2Session () {
@@ -78,6 +78,7 @@ public class Pz2Session implements Pz2Interface {
   public void doSearch() { 
     queryStates.hasPendingStateChange("search",false);
     resetDataObjects();
+    removeCommand("record");
     setCommandParameter("show",new CommandParameter("start","=",0));    
     logger.debug(Utils.objectId(this) + " is searching using "+getCommand("search").getParameter("query").getEncodedQueryString());
     doCommand("search");    
@@ -173,29 +174,29 @@ public class Pz2Session implements Pz2Interface {
     doSearch();
   }
   
-  public void setTargetFilter (String targetId, String targetName) {    
-    if (hasTargetFilter(new TargetFilter(targetId,targetName))) {
-      logger.debug("Already using target filter " + this.targetFilter.getFilterExpression());
+  public void setSingleTargetFilter (String targetId, String targetName) {    
+    if (hasSingleTargetFilter(new SingleTargetFilter(targetId,targetName))) {
+      logger.debug("Already using target filter " + this.singleTargetFilter.getFilterExpression());
     } else {      
-      this.targetFilter = new TargetFilter(targetId,targetName);
-      setCommandParameter("search",new CommandParameter("filter","=",this.targetFilter.getFilterExpression()));      
+      this.singleTargetFilter = new SingleTargetFilter(targetId,targetName);
+      setCommandParameter("search",new CommandParameter("filter","=",this.singleTargetFilter.getFilterExpression()));      
       doSearch();
     }    
   }
 
-  public TargetFilter getTargetFilter () {
-    return targetFilter;
+  public SingleTargetFilter getSingleTargetFilter () {
+    return singleTargetFilter;
   }
     
-  public void removeTargetFilter () {
-    logger.debug("Removing target filter " + targetFilter.getFilterExpression());
-    this.targetFilter = null;
+  public void removeSingleTargetFilter () {
+    logger.debug("Removing target filter " + singleTargetFilter.getFilterExpression());
+    this.singleTargetFilter = null;
     removeCommandParameter("search","filter");         
     doSearch();
   }
   
-  public boolean hasTargetFilter() {
-    return targetFilter != null;    
+  public boolean hasSingleTargetFilter() {
+    return singleTargetFilter != null;    
   }
         
   public void setSort (String sortOption) {
@@ -347,8 +348,8 @@ public class Pz2Session implements Pz2Interface {
   }
 
     
-  protected boolean hasTargetFilter(TargetFilter targetFilter) {
-    return hasTargetFilter() && targetFilter.equals(this.targetFilter);
+  protected boolean hasSingleTargetFilter(SingleTargetFilter targetFilter) {
+    return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
   }
   
   protected boolean hasQuery() {
@@ -379,7 +380,7 @@ public class Pz2Session implements Pz2Interface {
   
   protected void handleQueryStateChanges (String commands) {
     if (queryStates.hasPendingStateChange("search")) { 
-      logger.debug("Found pending search change. Doing search before updating " + commands);
+      logger.debug("Found pending search change. Doing search before updating " + commands);      
       doSearch();
     } 
     if (queryStates.hasPendingStateChange("record") && ! commands.equals("record")) {        
@@ -470,6 +471,20 @@ public class Pz2Session implements Pz2Interface {
     dataObjects.put("bytarget", new ByTarget());
     dataObjects.put("record", new RecordResponse());
     dataObjects.put("search", new SearchResponse());
+  }
+
+  @Override
+  public void setFilter(String filterExpression) {
+    logger.debug("Setting filter to " + filterExpression);
+    setCommandParameter("search",new CommandParameter("filter","=",filterExpression));    
+  }
+  
+  public String getFilter() {
+    return getCommandParameterValueSimple("search", "filter", "");
+  }
+  
+  public boolean hasFilter () {
+    return getFilter().length()>0;
   }
   
 }

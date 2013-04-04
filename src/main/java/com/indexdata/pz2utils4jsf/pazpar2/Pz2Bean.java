@@ -115,30 +115,40 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setTargetFilter(java.lang.String, java.lang.String)
    */
-  public void setTargetFilter(String targetId, String targetName) {
-    pz2.setTargetFilter(targetId, targetName);
+  public void setSingleTargetFilter(String targetId, String targetName) {
+    pz2.setSingleTargetFilter(targetId, targetName);
+  }
+  
+  /* (non-Javadoc)
+   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getTargetFilter()
+   */
+  public SingleTargetFilter getSingleTargetFilter() {
+    return pz2.getSingleTargetFilter();
   }
   
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#removeTargetFilter()
    */
-  public void removeTargetFilter () {
-    pz2.removeTargetFilter();
+  public void removeSingleTargetFilter () {
+    pz2.removeSingleTargetFilter();
   }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getTargetFilter()
-   */
-  public TargetFilter getTargetFilter() {
-    return pz2.getTargetFilter();
-  }
-
+  
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#hasTargetFilter()
    */
-  public boolean hasTargetFilter() {
-    return pz2.hasTargetFilter();
+  public boolean hasSingleTargetFilter() {
+    return pz2.hasSingleTargetFilter();
   }
+
+  
+  public String getFilter () {
+    return pz2.getFilter();
+  }
+  
+  public void setFilter (String filterExpression) {
+    pz2.setFilter(filterExpression);
+  }
+
 
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setSort(java.lang.String)

@@ -11,6 +11,7 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyInterface;
@@ -50,6 +51,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
 
   @Override
   public void setInitFileName(String fileName) {
+    logger.info("Setting init file name: " + fileName);
     session().setInitFileName(fileName);      
   }
 
@@ -57,15 +59,26 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public String getInitFileName() {
     return session().getInitFileName();
   }
+  
+  public void setAceFilter (String filterExpression) {
+    session().setAceFilter(filterExpression);
+  }
+  
+  public String getAceFilter () {
+    return session().getAceFilter();
+  }
 
   @Override
   public String postInit() throws UnsupportedEncodingException, IOException {
-    return session().postInit();
+    logger.info("Posting init: " + System.currentTimeMillis());
+    session().postInit();
+    return "";
   }
 
   @Override
   public void setServiceProxyUrl(String url) {
-     session().setServiceProxyUrl(url);    
+    logger.info("Setting Service Proxy url: " + url);
+    session().setServiceProxyUrl(url);    
   }
 
   @Override
@@ -80,6 +93,14 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   @Override
   public String getInitResponse() {
     return session().getInitResponse();
+  }
+  
+  public Configuration getClientConfiguration() {
+    return session().client().getConfiguration();
+  }
+  
+  public String getInitDocPath () {
+    return session().client().getConfiguration().get("INIT_DOC_PATH");
   }
 
 }

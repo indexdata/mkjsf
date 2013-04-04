@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
@@ -15,8 +16,8 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
   private static final long serialVersionUID = -5770410029361522854L;
   private static Logger logger = Logger.getLogger(ServiceProxySession.class);
   private String initDocFileName = "";
-  private String initDocResponse = "";
-  
+  private String initDocResponse = "";  
+    
   public ServiceProxySession() {
     logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");
   }
@@ -46,7 +47,7 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
   }
 
   @Override
-  public String postInit() throws UnsupportedEncodingException, IOException {
+  public String postInit() throws UnsupportedEncodingException, IOException {    
     String initDocPath = client().getInitDocPaths()[0];
     logger.info("Paths: " + client().getInitDocPaths());
     logger.info("Path: " + initDocPath);
@@ -67,7 +68,7 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
     return client().getServiceProxyUrl();
   }
   
-  private ServiceProxyClient client () {
+  public ServiceProxyClient client () {
     return (ServiceProxyClient)searchClient;
   }
 
@@ -76,6 +77,12 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
     return initDocResponse;
   }
   
+  public void setAceFilter(String filterExpression) {
+    setCommandParameter("record",new CommandParameter("acefilter","=",filterExpression));
+  }
   
-
+  public String getAceFilter () {
+    return getCommandParameterValue("record","acefilter","");
+  }
+  
 }
