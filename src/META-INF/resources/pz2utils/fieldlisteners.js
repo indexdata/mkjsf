@@ -31,10 +31,9 @@
 	       console.log('Making request for pz2watch:activeclientsFieldRecord');
 	       jsf.ajax.request(sourcecomp, null,{render: "pz2watch:activeclientsFieldRecord"});       
 	     }
-	     ,2000);
+	     ,1000);
     } else {
-    	console.log("No further updates from server requested");
-    	jsf.ajax.request(sourcecomp, null,{render: renderWhileActiveclientsRecord});
+    	//console.log("No further updates from server requested");
     }
   }
 
