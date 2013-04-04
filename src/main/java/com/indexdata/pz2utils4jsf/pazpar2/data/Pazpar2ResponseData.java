@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 
 public class Pazpar2ResponseData implements Serializable {
-  
+
+  Logger logger = Logger.getLogger(Pazpar2ResponseData.class);
   private static final long serialVersionUID = -3909755656714679959L;
   String type = null;
   HashMap<String,String> attributes = new HashMap<String,String>();
@@ -112,7 +115,10 @@ public class Pazpar2ResponseData implements Serializable {
   }
   
   public String getXml() {
-    return xml;
+    if (type != null && type.equals("record")) {
+      logger.debug("Getting XML for "+type + ": "+xml);
+    }      
+    return xml == null ? "" : xml;
   }
         
 }
