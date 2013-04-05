@@ -2,10 +2,8 @@ package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
 import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
@@ -241,6 +238,7 @@ public class ServiceProxyClient implements SearchClient {
     File initDoc = new File(filePath);
     logger.info("Posting to SP: ");
     Path path = Paths.get(filePath);
+    /*
     if (logger.isDebugEnabled()) {
       try (Scanner scanner =  new Scanner(path, "UTF-8")){
         while (scanner.hasNextLine()){
@@ -248,6 +246,7 @@ public class ServiceProxyClient implements SearchClient {
         }      
       }     
     }
+    */
     post.setEntity(new FileEntity(initDoc));
     byte[] response = client.execute(post, handler);
     logger.info("Response on POST was: " + new String(response,"UTF-8"));    

@@ -121,19 +121,19 @@ public class ErrorHelper implements Serializable {
             + "that a pazpar2 service is running at the given address." + nl);
         break;           
       case PAZPAR2_ERRORS:
-        if (error.hasPazpar2Error()) {
-          String pz2code = error.getPazpar2Error().getCode();
+        if (error.hasPazpar2Error()) {          
+          int pz2code = Integer.parseInt(error.getPazpar2Error().getCode());
           switch (pz2code) {
-            case "3":
+            case 3:
               suggestions.add("Query terms not supported.");
               break;
-            case "12":
+            case 12:
               suggestions.add("The Pazpar2 server does not have a service defined by the requested ID ");
               suggestions.add("Please check the service ID set in the configuration and compare it with the " +
                   " configuration on the Pazpar2 server-side.");
               addConfigurationDocumentation(suggestions);    
               break;
-            case "100":
+            case 100:
               suggestions.add("Pazpar2 Service Proxy error");
               suggestions.add("A request was made to the Pazpar2 Service Proxy, but the Service Proxy reports ");
               suggestions.add(" that authentication is lacking. Could be no successful authentication request was made or");
@@ -151,7 +151,7 @@ public class ErrorHelper implements Serializable {
         break;       
       case NOT_RESOLVED:
         suggestions.add("Sorry, no troubleshooting suggestions were written for this error scenario just yet.");
-        break;
+        break;                
     }
     return suggestions;
   }
