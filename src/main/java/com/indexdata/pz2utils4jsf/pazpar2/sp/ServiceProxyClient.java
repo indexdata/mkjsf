@@ -30,6 +30,7 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
@@ -257,6 +258,14 @@ public class ServiceProxyClient implements SearchClient {
     logger.info("Get init doc paths ");
     logger.info("length: " + initDocPaths.length);
     return initDocPaths;
+  }
+  
+  public byte[] postInitDoc(byte[] initDoc) throws IOException {
+    HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
+    post.setEntity(new ByteArrayEntity(initDoc));
+    byte[] response = client.execute(post, handler);
+    logger.info("Response on POST was: " + new String(response,"UTF-8"));    
+    return response;
   }
   
   public void setServiceProxyUrl (String url) {

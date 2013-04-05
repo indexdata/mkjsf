@@ -56,6 +56,15 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
     initDocResponse = new String(response,"UTF-8");
     return initDocResponse;
   }
+  
+  @Override
+  public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException {    
+    this.resetDataObjects();
+    byte[] response = client().postInitDoc(initDoc);
+    initDocResponse = new String(response,"UTF-8");
+    return initDocResponse;
+  }
+
 
   @Override
   public void setServiceProxyUrl(String url) {

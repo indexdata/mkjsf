@@ -10,6 +10,7 @@ public interface ServiceProxyInterface extends Pz2Interface {
   public void setInitFileName (String fileName);  
   public String getInitFileName();
   public String postInit() throws UnsupportedEncodingException, IOException;
+  public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException;
   public String getInitResponse();
   public void setServiceProxyUrl(String url);
   public String getServiceProxyUrl();
