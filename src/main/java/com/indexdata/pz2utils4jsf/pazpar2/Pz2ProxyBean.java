@@ -74,11 +74,20 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     session().postInit();
     return "";
   }
+  
+  public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException {
+    logger.info("Posting init: " + System.currentTimeMillis());
+    session().postInit(initDoc);
+    return "";
+    
+  }
 
   @Override
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
-    session().setServiceProxyUrl(url);    
+    session().setServiceProxyUrl(url); 
+    session().setQuery(null);
+    session().resetDataObjects();
   }
 
   @Override

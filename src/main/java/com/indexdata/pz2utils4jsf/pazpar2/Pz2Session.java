@@ -107,7 +107,7 @@ public class Pz2Session implements Pz2Interface {
         logger.debug("Processing request for " + commands); 
         List<CommandThread> threadList = new ArrayList<CommandThread>();
         StringTokenizer tokens = new StringTokenizer(commands,",");
-        while (tokens.hasMoreElements()) {
+        while (tokens.hasMoreElements()) {          
           threadList.add(new CommandThread(getCommand(tokens.nextToken()),searchClient));            
         }
         for (CommandThread thread : threadList) {
@@ -353,7 +353,7 @@ public class Pz2Session implements Pz2Interface {
   }
   
   protected boolean hasQuery() {
-    return !(getCommand("search").getParameter("query") == null);
+    return getCommand("search").getParameter("query") != null && getCommand("search").getParameter("query").getValueWithExpressions().length()>0;
   }
     
   public boolean hasRecords () {
@@ -379,7 +379,7 @@ public class Pz2Session implements Pz2Interface {
   }
   
   protected void handleQueryStateChanges (String commands) {
-    if (queryStates.hasPendingStateChange("search")) { 
+    if (queryStates.hasPendingStateChange("search") && hasQuery()) { 
       logger.debug("Found pending search change. Doing search before updating " + commands);      
       doSearch();
     } 
