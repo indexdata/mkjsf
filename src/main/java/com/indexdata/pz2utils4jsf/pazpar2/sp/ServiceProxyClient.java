@@ -5,8 +5,6 @@ import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -237,7 +235,7 @@ public class ServiceProxyClient implements SearchClient {
     HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
     File initDoc = new File(filePath);
     logger.info("Posting to SP: ");
-    Path path = Paths.get(filePath);
+    //Path path = Paths.get(filePath);
     /*
     if (logger.isDebugEnabled()) {
       try (Scanner scanner =  new Scanner(path, "UTF-8")){
