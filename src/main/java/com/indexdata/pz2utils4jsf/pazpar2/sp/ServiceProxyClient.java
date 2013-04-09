@@ -2,8 +2,10 @@ package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
 import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -235,25 +237,23 @@ public class ServiceProxyClient implements SearchClient {
     HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
     File initDoc = new File(filePath);
     logger.info("Posting to SP: ");
-    //Path path = Paths.get(filePath);
-    /*
     if (logger.isDebugEnabled()) {
-      try (Scanner scanner =  new Scanner(path, "UTF-8")){
-        while (scanner.hasNextLine()){
-          System.out.println(scanner.nextLine());
-        }      
-      }     
+      BufferedReader reader = new BufferedReader(new FileReader(initDoc));
+      String line;
+      while ( (line = reader.readLine()) != null) {
+        System.out.println(line);
+      }
+      reader.close();
     }
-    */
     post.setEntity(new FileEntity(initDoc));
     byte[] response = client.execute(post, handler);
-    logger.info("Response on POST was: " + new String(response,"UTF-8"));    
+    logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
     return response;
   }
   
   public String[] getInitDocPaths () {
-    logger.info("Get init doc paths ");
-    logger.info("length: " + initDocPaths.length);
+    logger.debug("Get init doc paths ");
+    logger.debug("length: " + initDocPaths.length);
     return initDocPaths;
   }
   
@@ -261,7 +261,7 @@ public class ServiceProxyClient implements SearchClient {
     HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
     post.setEntity(new ByteArrayEntity(initDoc));
     byte[] response = client.execute(post, handler);
-    logger.info("Response on POST was: " + new String(response,"UTF-8"));    
+    logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
     return response;
   }
   
