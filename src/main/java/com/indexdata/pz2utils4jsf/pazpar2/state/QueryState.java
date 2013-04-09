@@ -118,24 +118,11 @@ public class QueryState implements Serializable {
       return key;
     }
   }
-  
-  public void setKey(String key) {
-    logger.debug("Setting key on demand to: " + key);
-    this.key = key;
-  }
-  
+    
   public String toString () {
     return pz2commands.toString();
   }
-  
-  public boolean searchEquals(Object otherQueryState) {
-    if (otherQueryState instanceof QueryState) {
-      return getCommand("search").equals(((QueryState) otherQueryState).getCommand("search"));
-    } else {
-      return false;
-    }
-  }
-  
+    
   public boolean equals (Object otherQueryState) {
     if (otherQueryState instanceof QueryState) {
       return this.toString().equals(otherQueryState.toString());              
