@@ -27,7 +27,7 @@ import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.StatResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
-import com.indexdata.pz2utils4jsf.pazpar2.state.QueryStates;
+import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named @SessionScoped  
@@ -37,7 +37,7 @@ public class Pz2Session implements Pz2Interface {
   private static Logger logger = Logger.getLogger(Pz2Session.class);
   
   protected Map<String,Pazpar2ResponseData> dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
-  protected QueryStates queryStates = new QueryStates();
+  protected StateManager stateManager = new StateManager();
   protected ErrorHelper errorHelper = null;
   
   protected List<ErrorInterface> configurationErrors = null;
@@ -76,7 +76,7 @@ public class Pz2Session implements Pz2Interface {
   }
 
   public void doSearch() { 
-    queryStates.hasPendingStateChange("search",false);
+    stateManager.hasPendingStateChange("search",false);
     resetDataObjects();
     removeCommand("record");
     setCommandParameter("show",new CommandParameter("start","=",0));    
@@ -155,8 +155,10 @@ public class Pz2Session implements Pz2Interface {
   }
   
   public void setFacet (String facetKey, String term) {           
-    if (term != null && term.length()>0) {
-      queryStates.getCurrentState().setCommandParameterExpression("search","query",new Expression(facetKey,"=",term),queryStates);
+    if (term != null && term.length()>0) {   
+      Pazpar2Command command = getCommand("search");
+      command.getParameter("query").addExpression(new Expression(facetKey,"=",term));
+      stateManager.checkIn(command);
       doSearch();
     }            
   }
@@ -170,7 +172,9 @@ public class Pz2Session implements Pz2Interface {
   }
       
   public void removeFacet(String facetKey, String term) {
-    queryStates.getCurrentState().removeCommandParameterExpression("search","query",new Expression(facetKey,"=",term),queryStates);
+    Pazpar2Command command = getCommand("search");
+    command.getParameter("query").removeExpression(new Expression(facetKey,"=",term));
+    stateManager.checkIn(command);
     doSearch();
   }
   
@@ -290,11 +294,11 @@ public class Pz2Session implements Pz2Interface {
   
   
   public String getCurrentStateKey () {    
-    return queryStates.getCurrentStateKey();
+    return stateManager.getCurrentState().getKey();
   }
       
   public void setCurrentStateKey(String key) {       
-    queryStates.setCurrentStateKey(key);
+    stateManager.setCurrentStateKey(key);
   }
   
   public boolean hasConfigurationErrors () {
@@ -379,13 +383,13 @@ public class Pz2Session implements Pz2Interface {
   }
   
   protected void handleQueryStateChanges (String commands) {
-    if (queryStates.hasPendingStateChange("search") && hasQuery()) { 
+    if (stateManager.hasPendingStateChange("search") && hasQuery()) { 
       logger.debug("Found pending search change. Doing search before updating " + commands);      
       doSearch();
     } 
-    if (queryStates.hasPendingStateChange("record") && ! commands.equals("record")) {        
+    if (stateManager.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
-      queryStates.hasPendingStateChange("record",false);
+      stateManager.hasPendingStateChange("record",false);
       if (getCommand("record").hasParameters()) {
         update("record");
       } else {
@@ -404,22 +408,40 @@ public class Pz2Session implements Pz2Interface {
     }
   }
 
+  /**
+   * Returns a Pazpar2 command 'detached' from the current Pazpar2 state.
+   * 
+   * 'Detached' is meant to imply that this is a copy of a command in the 
+   * current state, detached so as to NOT change the current state if 
+   * modified. It can be viewed and executed, however. 
+   * 
+   * In order to modify the command with effect for subsequent searches,
+   * it must be checked back into the StateManager, which will
+   * then create a new current Pazpar2 state as needed.
+   *  
+   * @param name
+   * @return
+   */
   protected Pazpar2Command getCommand(String name) {
-    return queryStates.getCurrentState().getCommand(name);
+    return stateManager.checkOut(name);
   }
   
   protected void setCommandParameter(String commandName, CommandParameter parameter) {
     logger.debug("Setting parameter for " + commandName + ": " + parameter);
-    queryStates.getCurrentState().setCommandParameter(commandName, parameter, queryStates);    
+    Pazpar2Command command = getCommand(commandName);
+    command.setParameter(parameter);
+    stateManager.checkIn(command);    
   }
   
   
   protected void removeCommandParameter(String commandName, String parameterName) {
-    queryStates.getCurrentState().removeCommandParameter(commandName,parameterName,queryStates);    
+    Pazpar2Command command = getCommand(commandName);
+    command.removeParameter(parameterName);
+    stateManager.checkIn(command);    
   }
   
   protected void removeCommand (String commandName) {
-    queryStates.getCurrentState().removeCommand(commandName, queryStates);
+    stateManager.checkIn(new Pazpar2Command(commandName));
   }
     
   protected String getCommandParameterValue (String commandName, String parameterName, String defaultValue) {    
@@ -472,7 +494,7 @@ public class Pz2Session implements Pz2Interface {
     dataObjects.put("record", new RecordResponse());
     dataObjects.put("search", new SearchResponse());
   }
-
+  
   @Override
   public void setFilter(String filterExpression) {
     logger.debug("Setting filter to " + filterExpression);

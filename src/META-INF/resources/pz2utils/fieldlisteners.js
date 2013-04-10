@@ -82,7 +82,7 @@
       var stateKeyDoc = StringtoXML(field.textContent || field.text);
       var stateKeyValue = stateKeyDoc.childNodes[0].getAttribute("value");
       //console.log('Application hash update detected. New value: ' + stateKeyValue);
-      if (stateKeyValue != window.location.hash) {
+      if (stateKeyValue !== window.location.hash) {
         window.location.hash = stateKeyValue;
         //console.log("Browsers hash updated accordingly.");
       } else {

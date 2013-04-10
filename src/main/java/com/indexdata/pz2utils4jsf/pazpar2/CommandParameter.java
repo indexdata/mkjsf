@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
-import com.indexdata.pz2utils4jsf.pazpar2.Expression;
 
 public class CommandParameter implements Serializable {
 
