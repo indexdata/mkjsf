@@ -19,6 +19,13 @@ public class Pazpar2State {
     key = "#initial";
   }
   
+  /**
+   * Creates new state by cloning all commands of the provided state and 
+   * then overriding one of them with the provided state changing command.
+   * 
+   * @param previousState
+   * @param newCommand
+   */
   public Pazpar2State (Pazpar2State previousState, Pazpar2Command newCommand) {
     for (String commandName : previousState.commands.keySet()) {
       this.commands.put(commandName, previousState.commands.get(commandName).copy());
@@ -50,7 +57,7 @@ public class Pazpar2State {
   }
   
   /**
-   * Checks if the provided command represents a state change
+   * Checks if a command represents a change of this state
    * 
    * @param command
    * @return true if the command causes a change of state
@@ -67,6 +74,12 @@ public class Pazpar2State {
     }
   } 
   
+  /**
+   * Returns a command from this state
+   * 
+   * @param name
+   * @return
+   */  
   public Pazpar2Command getCommand(String name) {
     return commands.get(name);
   }

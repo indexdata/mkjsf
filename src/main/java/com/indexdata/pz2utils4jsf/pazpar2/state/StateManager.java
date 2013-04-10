@@ -47,6 +47,14 @@ public class StateManager {
     }
   }
   
+  /**
+   * Gets a detached copy of a command. For the change manager
+   * to become aware of any changes to the copy it must be 
+   * checked back in with 'checkIn(Pazpar2Command)'
+   * 
+   * @param commandName
+   * @return Copy this state's instance of the given command
+   */
   public Pazpar2Command checkOut (String commandName) {
     return getCurrentState().getCommand(commandName).copy();
   }
@@ -55,6 +63,12 @@ public class StateManager {
     return states.get(currentKey);
   }
   
+  /**
+   * Changes the current state key. Invoked from the UI to have the state 
+   * manager switch to another state than the current one. 
+   * 
+   * @param key
+   */
   public void setCurrentStateKey(String key) {    
     if (currentKey.equals(key)) {
       logger.debug("setCurrentStateKey: no key change detected");
@@ -74,11 +88,27 @@ public class StateManager {
     }
   }
 
-  
+  /**
+   * Sets a pending-state-change flag for the given command. Used by
+   * the beans to decide whether, say, a search should be executed before
+   * doing the next show. 
+   * 
+   * It is up to the client to set and reset this flag since the state
+   * manager is not otherwise informed about actual request activities 
+   * (only about the definition of commands to be executed)
+   * 
+   * @param command
+   * @param bool
+   */
   public void hasPendingStateChange(String command, boolean bool) {
     pendingStateChanges.put(command, new Boolean(bool));
   }
   
+  /**
+   * 
+   * @param command
+   * @return true if there is a non-executed command change in this state
+   */
   public boolean hasPendingStateChange (String command) {
     return pendingStateChanges.get(command).booleanValue();
   }
