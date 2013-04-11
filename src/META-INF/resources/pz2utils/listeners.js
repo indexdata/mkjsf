@@ -1,6 +1,8 @@
   var renderTargetsReqVar;
   var renderOnRecordTargetsReqVar;
-    
+  
+  // Renders UI elements listed in 'renderWhileActiveclients', optionally doing 
+  // another update round-trip to Pazpar2 when done.
   function renderTargets(doRefresh)
   {
 	//console.log('rendering ' + renderWhileActiveclients);
@@ -19,6 +21,8 @@
     }
   }
   
+  // Renders UI elements listed in 'renderWhileActiveclientsRecord', optionally doing 
+  // another record request when done.
   function renderOnRecordTargets(doRefresh)
   {
 	console.log('rendering ' + renderWhileActiveclientsRecord);
@@ -37,7 +41,8 @@
     }
   }
 
-
+  // Listens for browser initiated changes to 'window.location.hash' and sends the hash
+  // changes to the back-end (to have the back-end pull up a previous Pazpar2 state)
   function windowlocationhashListener () {
 	  if (trackHistory) {
 	      //console.log("browser hash update detected");
@@ -53,6 +58,8 @@
 	  }	  
   }
   
+  // Listens for ViewExpiredException message. Reloads the current page, stripped of
+  // it's jsessionid and hash content
   function viewExpirationListener (data) {
 	  if (data.status === "success" && data.responseXML) {  
 		  var errorElements = data.responseXML.getElementsByTagName("error-name");
@@ -60,14 +67,15 @@
 			  var errorname = errorElements.item(0).textContent || errorElements.item(0).text;
 			  if (errorname === "class javax.faces.application.ViewExpiredException") {
 				  var newloc = window.location.protocol + "//" + window.location.host + window.location.pathname.replace(/;jsessionid.*/,'');
-				  alert('Sorry, but this session has expired, will load a new one for you.');
+				  alert('Sorry, this session has expired. A new one will be loaded.');
 				  window.location.replace(newloc);
 			  }			  
 		  }
 	  }
-
+	  
   }
 
+  // Composite listener, invoking all field update listeners
   function fieldUpdateListener (data) {
 	  if (data.status === "success") {
 		var updates = data.responseXML.getElementsByTagName("update");
@@ -92,6 +100,8 @@
 
   var fieldListeners = new Pz2listeners();
 
+  // Listens for back-end initiated changes to the state key and updates
+  // window.location.hash with changes, to record them in browsing history
   var StateListener = function () {
 	this.invoke = function (field) {
       var stateKeyDoc = StringtoXML(field.textContent || field.text);
@@ -103,10 +113,10 @@
       } else {
         //console.log("Browsers hash already has the value of the state hash. Not updating browser hash."); 
       }
-
 	};
   };
   
+  // Listens for updates to general 'activeclients' field, then invokes renderTargets
   var ActiveclientsListener = function () {
     this.invoke = function (field) {
       var updateDoc = StringtoXML(field.textContent || field.text);
@@ -121,6 +131,7 @@
 	};
   };
   
+  // Listens for updates to record 'activeclients' field, then invokes renderOnRecordTargets
   var ActiveclientsRecordListener = function () {
 	    this.invoke = function (field) {
 	      var updateDoc = StringtoXML(field.textContent || field.text);
@@ -137,6 +148,8 @@
 	  };
 
     
+  // Inserts field update listeners, state listeners, view expired listener
+  // into Ajax response handling 	  
   jsf.ajax.addOnEvent(fieldUpdateListener);
   jsf.ajax.addOnEvent(viewExpirationListener);
   
@@ -153,6 +166,7 @@
 	    return doc;
   }
 
+  // Sets up field update listeners
   var setUpListeners = function () {
     //console.log("Starts tracking activeclientsField");
     fieldListeners.addListener("pz2watch:activeclientsField", new ActiveclientsListener());
