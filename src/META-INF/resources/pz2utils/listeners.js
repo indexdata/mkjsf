@@ -51,7 +51,22 @@
 	        //console.log("State hash already has the value of the new browser hash - not updating state hash");
 	      }    	  
 	  }	  
-  }      
+  }
+  
+  function viewExpirationListener (data) {
+	  if (data.status === "success" && data.responseXML) {  
+		  var errorElements = data.responseXML.getElementsByTagName("error-name");
+		  if (errorElements.length>0) {
+			  var errorname = errorElements.item(0).textContent || errorElements.item(0).text;
+			  if (errorname === "class javax.faces.application.ViewExpiredException") {
+				  var newloc = window.location.protocol + "//" + window.location.host + window.location.pathname.replace(/;jsessionid.*/,'');
+				  alert('Sorry, but this session has expired, will load a new one for you.');
+				  window.location.replace(newloc);
+			  }			  
+		  }
+	  }
+
+  }
 
   function fieldUpdateListener (data) {
 	  if (data.status === "success") {
@@ -62,7 +77,7 @@
 				lsnri.invoke(updates[i]);
 			}
 		}
-	  }
+	  } 
   }
         
   var Pz2listeners = function () {
@@ -123,6 +138,7 @@
 
     
   jsf.ajax.addOnEvent(fieldUpdateListener);
+  jsf.ajax.addOnEvent(viewExpirationListener);
   
   function StringtoXML(text){
 		var doc;
