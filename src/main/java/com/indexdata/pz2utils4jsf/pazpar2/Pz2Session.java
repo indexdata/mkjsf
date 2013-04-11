@@ -441,7 +441,9 @@ public class Pz2Session implements Pz2Interface {
   }
   
   protected void removeCommand (String commandName) {
-    stateManager.checkIn(new Pazpar2Command(commandName));
+    Pazpar2Command command = getCommand(commandName);
+    command.removeParameters();
+    stateManager.checkIn(command);
   }
     
   protected String getCommandParameterValue (String commandName, String parameterName, String defaultValue) {    
