@@ -45,7 +45,10 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   @Override
   public String login(String navigateTo) {
     logger.info("doing login");
-    ((ServiceProxySession) pz2).setUser(user);
+    session().setUser(user);
+    session().resetDataObjects();
+    session().removeCommand("record");
+    session().setQuery(null);
     return session().login(navigateTo);
   }
 
