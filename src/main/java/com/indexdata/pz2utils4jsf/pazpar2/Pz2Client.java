@@ -26,6 +26,7 @@ import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named @SessionScoped 

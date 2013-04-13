@@ -1,4 +1,4 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.commands;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -8,7 +8,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.Expression;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 
 public class CommandParameter implements Serializable {
 
@@ -36,14 +37,14 @@ public class CommandParameter implements Serializable {
   }
 
   public CommandParameter (String name, String operator, String value) {
-    logger.debug("Instantiating command parameter (3) " + name + " ("+this+") with " + name + " and " + value);
+    logger.debug("Instantiating command parameter (3) " + name + " ("+this+") with " + value);
     this.name = name;
     this.operator = operator;
     this.value = value;    
   }
   
   public CommandParameter (String name, String operator, int value) {
-    logger.debug("Instantiating command parameter (4) " + name + " ("+this+") with " + name + " and " + value);
+    logger.debug("Instantiating command parameter (4) " + name + " ("+this+") with " + value);
     this.name = name;
     this.operator = operator;
     this.value = value+"";    

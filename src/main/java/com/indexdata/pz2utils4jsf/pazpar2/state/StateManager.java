@@ -1,27 +1,53 @@
 package com.indexdata.pz2utils4jsf.pazpar2.state;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.pazpar2.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.utils.Utils;
 
-public class StateManager {
+@SessionScoped
+public class StateManager implements Serializable {
   
+  private static final long serialVersionUID = 8152558351351730035L;
+
   Map<String, Pazpar2State> states = new HashMap<String, Pazpar2State>();
   String currentKey = "";
+  private static List<String> allCommands = new ArrayList<String>(Arrays.asList("init","ping","settings","search","stat","show","record","termlist","bytarget"));
   Map<String,Boolean> pendingStateChanges = new HashMap<String,Boolean>();
   private static Logger logger = Logger.getLogger(StateManager.class);
+  private List<StateListener> listeners = new ArrayList<StateListener>();
   
   public StateManager () {
-    Pazpar2State initialState = new Pazpar2State();
+    logger.info("Initializing a Pazpar2 state manager [" + Utils.objectId(this) + "]");
+    Pazpar2State initialState = new Pazpar2State(this);
     states.put(initialState.getKey(), initialState);
     currentKey = initialState.getKey();
-    for (String command : Pazpar2Command.allCommands) {
+    for (String command : allCommands) {
       pendingStateChanges.put(command, new Boolean(false));
     }
-
+  }
+  
+  public void addStateListener(StateListener listener) {
+    listeners.add(listener);
+  }
+  
+  public void removeStateListener (StateListener listener) {
+    listeners.remove(listener);
+  }
+  
+  private void updateListeners (String command) {
+    for (StateListener lsnr : listeners) {
+      lsnr.stateUpdate(command);
+    }
   }
   
   /**
@@ -38,6 +64,7 @@ public class StateManager {
    */
   public void checkIn(Pazpar2Command command) {
     if (getCurrentState().stateMutating(command)) {
+      logger.debug("State changed by: " + command.getName());
       Pazpar2State state = new Pazpar2State(getCurrentState(),command);
       states.put(state.getKey(), state);
       currentKey = state.getKey();
@@ -56,13 +83,14 @@ public class StateManager {
    * @return Copy this state's instance of the given command
    */
   public Pazpar2Command checkOut (String commandName) {
+    logger.info("Getting " + commandName + " from state manager.");
     return getCurrentState().getCommand(commandName).copy();
   }
   
   public Pazpar2State getCurrentState () {
     return states.get(currentKey);
   }
-  
+    
   /**
    * Changes the current state key. Invoked from the UI to have the state 
    * manager switch to another state than the current one. 
@@ -89,19 +117,20 @@ public class StateManager {
   }
 
   /**
-   * Sets a pending-state-change flag for the given command. Used by
-   * the beans to decide whether, say, a search should be executed before
-   * doing the next show. 
+   * Sets a pending-state-change flag for the given command and notifies
+   * registered listeners. 
    * 
-   * It is up to the client to set and reset this flag since the state
-   * manager is not otherwise informed about actual request activities 
-   * (only about the definition of commands to be executed)
+   * It is up to the listener to reset the flag as needed.
    * 
    * @param command
    * @param bool
    */
   public void hasPendingStateChange(String command, boolean bool) {
     pendingStateChanges.put(command, new Boolean(bool));
+    if (bool) {
+      logger.debug("Updating listeners with state change from " + command);
+      updateListeners(command);
+    }
   }
   
   /**

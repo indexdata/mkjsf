@@ -1,24 +1,45 @@
 package com.indexdata.pz2utils4jsf.pazpar2.state;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.indexdata.pz2utils4jsf.pazpar2.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.BytargetCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.InitCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.PingCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.RecordCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.SearchCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.SettingsCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.ShowCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.StatCommand;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.TermlistCommand;
 
-
+/**
+ * Holds a 'pazpar2 state', understood as a full set of pazpar2 commands and 
+ * all their parameter settings at a given point in time.
+ *  
+ * @author Niels Erik
+ *
+ */
 public class Pazpar2State {
 
   String key = null;
   Map<String,Pazpar2Command> commands = new HashMap<String,Pazpar2Command>();;
 
-  public Pazpar2State () {    
-    for (String command : Arrays.asList("init","ping","settings","search","stat","show","record","termlist","bytarget")) {
-      commands.put(command, new Pazpar2Command(command));
-    }
+  public Pazpar2State (StateManager mgr) {
+    commands.put(Pazpar2Commands.INIT,     new InitCommand(mgr));
+    commands.put(Pazpar2Commands.PING,     new PingCommand(mgr));
+    commands.put(Pazpar2Commands.SETTINGS, new SettingsCommand(mgr));
+    commands.put(Pazpar2Commands.SEARCH,   new SearchCommand(mgr));
+    commands.put(Pazpar2Commands.STAT,     new StatCommand(mgr));
+    commands.put(Pazpar2Commands.SHOW,     new ShowCommand(mgr));
+    commands.put(Pazpar2Commands.RECORD,   new RecordCommand(mgr));
+    commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand(mgr));
+    commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand(mgr));    
     key = "#initial";
   }
-  
+    
   /**
    * Creates new state by cloning all commands of the provided state and 
    * then overriding one of them with the provided state changing command.

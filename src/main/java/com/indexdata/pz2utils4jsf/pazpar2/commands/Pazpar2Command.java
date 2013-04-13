@@ -1,35 +1,32 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.commands;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
-import com.indexdata.pz2utils4jsf.pazpar2.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 
 public class Pazpar2Command implements Serializable  {
-
+  
   private static Logger logger = Logger.getLogger(Pazpar2Command.class);
-  private static final long serialVersionUID = -6825491856480675917L;
-  public static List<String> allCommands = new ArrayList<String>(Arrays.asList("init","ping","settings","search","stat","show","record","termlist","bytarget"));
-
+  private static final long serialVersionUID = -6825491856480675917L;   
   private String name = "";
-  private Map<String,CommandParameter> parameters = new HashMap<String,CommandParameter>();
+  protected Map<String,CommandParameter> parameters = new HashMap<String,CommandParameter>();
   
-  public Pazpar2Command (String name) {    
+  StateManager stateMgr;
+    
+  public Pazpar2Command (String name, StateManager stateMgr) {
     this.name = name;
+    this.stateMgr = stateMgr;
   }
-  
+      
   public Pazpar2Command copy () {
-    Pazpar2Command newCommand = new Pazpar2Command(name);
+    Pazpar2Command newCommand = new Pazpar2Command(name,stateMgr);
     for (String parameterName : parameters.keySet()) {
-      newCommand.setParameter(parameters.get(parameterName).copy());      
-    }
+      newCommand.setParameterSilently(parameters.get(parameterName).copy());      
+    }    
     return newCommand;
   }
   
@@ -40,22 +37,44 @@ public class Pazpar2Command implements Serializable  {
   public void setParameter (CommandParameter parameter) {
     logger.debug("Setting parameter " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
     parameters.put(parameter.getName(),parameter);
+    stateMgr.checkIn(this);
   }
+  
+  public void setParameters (CommandParameter... params) {
+    for (CommandParameter param : params) {
+      logger.debug("Setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
+      parameters.put(param.getName(),param);
+    }
+    stateMgr.checkIn(this);
+  }
+  
+  
+  public void setParameterSilently (CommandParameter parameter) {
+    logger.debug("Setting parameter silently " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
+    parameters.put(parameter.getName(),parameter);    
+  }
+  
   
   public CommandParameter getParameter (String name) {
     return parameters.get(name);
   }
   
   public void removeParameter (String name) {
-    parameters.remove(name);    
+    parameters.remove(name);
+    stateMgr.checkIn(this);
   }
   
   public void removeParameters() {
     parameters = new HashMap<String,CommandParameter>();
+    stateMgr.checkIn(this);
   }
   
   public boolean hasParameters () {
     return (parameters.keySet().size()>0);
+  }
+  
+  public boolean hasParameterSet(String parameterName) {
+    return (parameters.get(parameterName) != null);
   }
   
   public String getEncodedQueryString () {

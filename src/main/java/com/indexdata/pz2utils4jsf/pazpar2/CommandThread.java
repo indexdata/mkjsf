@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 
 public class CommandThread extends Thread {

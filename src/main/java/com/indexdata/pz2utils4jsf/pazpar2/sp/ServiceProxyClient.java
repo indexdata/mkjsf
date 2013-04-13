@@ -39,10 +39,10 @@ import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
-import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.CommandResponse;
-import com.indexdata.pz2utils4jsf.pazpar2.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.SearchClient;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.AuthenticationEntity;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
@@ -96,7 +96,7 @@ public class ServiceProxyClient implements SearchClient {
     try {      
       logger.info("Authenticating [" + user.getProperty("name") + "]");
       this.user = (ServiceProxyUser) user;
-      Pazpar2Command auth = new Pazpar2Command("auth");
+      Pazpar2Command auth = new Pazpar2Command("auth",null);
       auth.setParameter(new CommandParameter("action","=","login"));
       auth.setParameter(new CommandParameter("username","=",user.getProperty("name")));
       auth.setParameter(new CommandParameter("password","=",user.getProperty("password")));
@@ -121,7 +121,7 @@ public class ServiceProxyClient implements SearchClient {
   
   public boolean checkAuthentication () {
     try {
-      Pazpar2Command check = new Pazpar2Command("auth");
+      Pazpar2Command check = new Pazpar2Command("auth",null);
       check.setParameter(new CommandParameter("action","=","check"));
       byte[] response = send(check);
       logger.info(new String(response,"UTF-8"));

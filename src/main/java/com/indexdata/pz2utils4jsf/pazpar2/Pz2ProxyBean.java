@@ -28,13 +28,14 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   @Inject ConfigurationReader configurator;
   @Inject ServiceProxyUser user;
   
+  @Inject @ForServiceProxy ServiceProxySession pz2;
+  
   public Pz2ProxyBean() {
   }
   
   @PostConstruct
   public void instantiatePz2SessionObject() {
-    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session object next.");
-    pz2 = new ServiceProxySession();
+    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session object next.");    
     searchClient = new ServiceProxyClient();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "] on session [" 

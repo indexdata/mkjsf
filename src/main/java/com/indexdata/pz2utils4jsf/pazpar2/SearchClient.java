@@ -7,6 +7,7 @@ import java.io.Serializable;
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.pz2utils4jsf.config.Configurable;
 import com.indexdata.pz2utils4jsf.config.Configuration;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 
 public interface SearchClient extends Configurable, Serializable {
   

@@ -5,11 +5,13 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.pazpar2.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.ForServiceProxy;
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
+@ForServiceProxy
 public class ServiceProxySession extends Pz2Session implements ServiceProxyInterface {
 
   private ServiceProxyUser user; 
