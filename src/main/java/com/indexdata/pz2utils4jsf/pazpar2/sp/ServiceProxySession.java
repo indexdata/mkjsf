@@ -3,15 +3,16 @@ package com.indexdata.pz2utils4jsf.pazpar2.sp;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.enterprise.context.SessionScoped;
+
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.pazpar2.ForServiceProxy;
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@ForServiceProxy
+@ForServiceProxy @SessionScoped
 public class ServiceProxySession extends Pz2Session implements ServiceProxyInterface {
 
   private ServiceProxyUser user; 
@@ -21,7 +22,7 @@ public class ServiceProxySession extends Pz2Session implements ServiceProxyInter
   private String initDocResponse = "";  
     
   public ServiceProxySession() {
-    logger.info("Instantiating pz2 session object [" + Utils.objectId(this) + "]");
+    logger.info("Instantiating SP pz2 session object [" + Utils.objectId(this) + "]");
   }
   
   public void setUser(ServiceProxyUser user) {

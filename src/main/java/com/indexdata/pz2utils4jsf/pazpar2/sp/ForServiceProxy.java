@@ -1,4 +1,4 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.sp;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

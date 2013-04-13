@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
+import com.indexdata.pz2utils4jsf.pazpar2.sp.ForServiceProxy;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxySession;
@@ -26,16 +27,15 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   private static Logger logger = Logger.getLogger(Pz2ProxyBean.class);  
     
   @Inject ConfigurationReader configurator;
-  @Inject ServiceProxyUser user;
-  
+  @Inject ServiceProxyUser user;  
   @Inject @ForServiceProxy ServiceProxySession pz2;
   
   public Pz2ProxyBean() {
   }
   
   @PostConstruct
-  public void instantiatePz2SessionObject() {
-    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Session object next.");    
+  public void instantiateServiceProxyClient() {
+    logger.debug(Utils.objectId(this) + " will instantiate a ServiceProxyClient next.");    
     searchClient = new ServiceProxyClient();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "] on session [" 
