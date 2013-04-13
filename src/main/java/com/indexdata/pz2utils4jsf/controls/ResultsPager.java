@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.indexdata.pz2utils4jsf.controls.PageLink;
 import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
 
 public class ResultsPager implements Serializable {
@@ -13,14 +14,16 @@ public class ResultsPager implements Serializable {
   private static final long serialVersionUID = 8854795222615583071L;
   private Pz2Session pz2session = null;
   private int pageRangeLength = 13;
+  private Pazpar2Commands req;
   
   public ResultsPager(Pz2Session session) {
     this.pz2session = session;     
   }
   
-  public ResultsPager(Pz2Session session, int pageRange) {
+  public ResultsPager(Pz2Session session, int pageRange, Pazpar2Commands req) {
     this.pz2session = session;
     this.pageRangeLength = pageRange;
+    this.req = req;
   }
   
   private boolean hasHits () {
@@ -110,7 +113,7 @@ public class ResultsPager implements Serializable {
   }
   
   public void goToPage(int page) {    
-    pz2session.setStart((page-1)*getPageSize());
+    req.getShow().setStart((page-1)*getPageSize());
   }
   
   public void goToPreviousPage() {

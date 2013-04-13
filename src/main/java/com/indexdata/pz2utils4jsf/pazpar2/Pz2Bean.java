@@ -79,43 +79,6 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   }
 
   /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setQuery(java.lang.String)
-   */
-  public void setQuery(String query) {
-    pz2.req.getSearch().setQuery(query);
-  }
-    
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getQuery()
-   */
-  /*
-  public String getQuery() {
-    return pz2.getQuery();
-  }
-  */
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setFacet(java.lang.String, java.lang.String)
-   */
-  public void setFacet(String facetKey, String term) {
-    pz2.setFacet(facetKey, term);
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#removeFacet(java.lang.String, java.lang.String)
-   */
-  public void removeFacet(String facetKey, String term) {
-    pz2.removeFacet(facetKey, term);
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setFacetOnQuery(java.lang.String, java.lang.String)
-   */
-  public void setFacetOnQuery(String facetKey, String term) {
-    pz2.setFacetOnQuery(facetKey, term);
-  }
-
-  /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setTargetFilter(java.lang.String, java.lang.String)
    */
   public void setSingleTargetFilter(String targetId, String targetName) {
@@ -150,49 +113,6 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   
   public void setFilter (String filterExpression) {
     pz2.setFilter(filterExpression);
-  }
-
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setSort(java.lang.String)
-   */
-  public void setSort(String sortOption) {
-    pz2.setSort(sortOption);
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getSort()
-   */
-  public String getSort() {
-    return pz2.getSort();
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setPageSize(int)
-   */
-  public void setPageSize(int perPageOption) {
-    pz2.setPageSize(perPageOption);
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getPageSize()
-   */
-  public int getPageSize() {
-    return pz2.getPageSize();
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setStart(int)
-   */
-  public void setStart(int start) {
-    pz2.setStart(start);
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getStart()
-   */
-  public int getStart() {
-    return pz2.getStart();
   }
   
   /* (non-Javadoc)

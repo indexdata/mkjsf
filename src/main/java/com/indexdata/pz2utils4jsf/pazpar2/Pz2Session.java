@@ -221,42 +221,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
   public boolean hasSingleTargetFilter() {
     return singleTargetFilter != null;    
   }
-        
-  public void setSort (String sortOption) {
-    logger.debug("Setting sort option: " + sortOption);
-    setCommandParameter("show",new CommandParameter("sort","=",sortOption));
-    update("show");
-  }
-  
-  public String getSort () {
-    return getCommandParameterValue("show","sort","relevance");
-  }
-    
-  public void setPageSize (int perPageOption) {
-    if (getPageSize()!=perPageOption) {
-     logger.debug("Setting perpage option to " + perPageOption + " and resetting start page.");
-     setCommandParameter("show",new CommandParameter("num","=",perPageOption));
-     setCommandParameter("show",new CommandParameter("start","=",0));
-     update("show");
-    } else {
-      logger.debug("Not updating page size, already is " + perPageOption);
-    }
-  }
-  
-  public int getPageSize () {
-    return getCommandParameterValue("show","num",20);
-  }
-  
-  public void setStart (int start) {
-    logger.debug("Setting start num to " + start);
-    setCommandParameter("show", new CommandParameter("start","=",start));  
-    update("show");
-  }
-  
-  public int getStart() {
-    return getCommandParameterValue("show","start",0);
-  }
-          
+                    
   public String toggleRecord (String recId) {
     if (hasRecord(recId)) {
       removeCommand("record");  
@@ -393,7 +358,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
   }
   
   public ResultsPager setPager (int pageRange) {
-    pager =  new ResultsPager(this,pageRange);
+    pager =  new ResultsPager(this,pageRange,req);
     return pager;
   }
   

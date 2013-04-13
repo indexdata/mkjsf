@@ -51,54 +51,7 @@ public interface Pz2Interface extends Serializable {
    */
   public String update (String commands);
   
-  /**
-   * Sets a query to used by the next search command
-   * 
-   * @param query a query on pazpar2 query syntax
-   * 
-   */
-  //public void setQuery (String query);
-  
-  
-  /**
-   * Gets the current query  
-   * @return a pazpar2 query string
-   */
-  //public String getQuery ();
-  
-  /**
-   * Sets a facet to limit the current query by,
-   * then executes the search 
-   * 
-   * @param facetKey  i.e.  'au' for author
-   * @param term  i.e. 'Dickens, Charles'
-   */
-  public void setFacet(String facetKey, String term);
-  
-  /**
-   * Removes a facet set by setFacet(...), then executes
-   * the search.
-   * 
-   * Will not remove facets set by setFacetOnQuery(...)
-   *  
-   * @param facetKey i.e. 'au' for author
-   * @param term i.e. 'Dickens, Charles'
-   */
-  public void removeFacet (String facetKey, String term);
-  
-  /**
-   * Sets a facet to limit the current query by. The 
-   * facet is appended to the query string itself (rather
-   * as a separately managed entity. It will thus appear
-   * in a query field as retrieved by getQuery(). It will
-   * not be removed by removeFacet(...)
-   * 
-   * @param facetKey  i.e. 'au' for author
-   * @param term i.e. 'Dickens, Charles'
-   */
-  public void setFacetOnQuery(String facetKey, String term);
-  
-  
+    
   public void setFilter(String filterExpression);
   
   public String getFilter();
@@ -137,66 +90,7 @@ public interface Pz2Interface extends Serializable {
    * filter
    */
   public boolean hasSingleTargetFilter();
-    
-  /**
-   * Sets the ordering of records (hits) in the 'show' display object
-   */
-  
-  /**
-   * Sets the sort order for results, the updates the 'show' data object
-   * from pazpar2. Set valid sort options in the documentation for pazpar2.
-   * 
-   * The parts of the UI that display 'show' data should be rendered following
-   * this request.
-   * 
-   * @param sortOption
-   */
-  public void setSort(String sortOption);
-  
-  /**
-   * Retrieves the current sort order for results
-   * @return sort order - i.e. 'relevance'
-   */
-  public String getSort();
-  
-  /**
-   * Sets the number of records that pazpar2 should show at a time. Is 
-   * followed by an update of the show data object from pazpar2.  
-   * 
-   * To be used by the UI for paging. After setting page size the parts
-   * of the UI that displays 'show' data should be rendered. 
-   * 
-   * @param perPageOption i.e. 10, default is 20.
-   */
-  public void setPageSize (int perPageOption);
-  
-  /**
-   * Retrieves the currently defined number of items to show at a time
-   * 
-   * @return number of result records that will be shown from pazpar2
-   */
-  public int getPageSize();
-  
-  /**
-   * Sets the first record to show - starting at record '0'. After setting
-   * first record number, the 'show' data object will be updated from pazpar2,
-   * and the parts of the UI displaying show data should be re-rendered.
-   * 
-   * To be used by the UI for paging.
-   * 
-   * @param start first record to show
-   */
-  public void setStart (int start);
-  
-  /**
-   * Retrieves the sequence number of the record that pazpaz2 will return as
-   * the first record in 'show'
-   * 
-   * @return sequence number of the first record to be shown (numbering starting at '0')
-   * 
-   */
-  public int getStart();
-  
+          
   /**
    * Will retrieve or remove the record with the given recid from memory.
    * 
