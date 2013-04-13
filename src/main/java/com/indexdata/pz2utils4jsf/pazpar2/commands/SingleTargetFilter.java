@@ -1,8 +1,8 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.commands;
 
 import java.io.Serializable;
 
-import com.indexdata.pz2utils4jsf.pazpar2.SingleTargetFilter;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.SingleTargetFilter;
 
 public class SingleTargetFilter implements Serializable {
 

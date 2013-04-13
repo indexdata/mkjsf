@@ -5,7 +5,6 @@ import javax.enterprise.context.SessionScoped;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.pazpar2.Expression;
-import com.indexdata.pz2utils4jsf.pazpar2.SingleTargetFilter;
 import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 
 @SessionScoped

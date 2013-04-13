@@ -49,8 +49,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
   protected ErrorHelper errorHelper = null;
   
   protected List<ErrorInterface> configurationErrors = null;
-  protected SearchClient searchClient = null;   
-  protected SingleTargetFilter singleTargetFilter = null;  
+  protected SearchClient searchClient = null;       
   protected ResultsPager pager = null; 
     
   public Pz2Session () {
