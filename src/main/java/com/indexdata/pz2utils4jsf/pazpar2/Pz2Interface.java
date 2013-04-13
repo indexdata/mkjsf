@@ -238,8 +238,5 @@ public interface Pz2Interface extends Serializable {
    */
   public List<ErrorInterface> getConfigurationErrors();
 
-  void setRecordId(String recId);
-
-  String getRecordId();
      
 }

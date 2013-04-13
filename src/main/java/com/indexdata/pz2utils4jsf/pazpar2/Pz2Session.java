@@ -21,7 +21,6 @@ import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.SearchCommand;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
@@ -160,43 +159,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
     }
     
   }
-        
-  /*
-  public void setQuery (String query) {
-    logger.debug("Creating new command parameter for " + query);
-    setCommandParameter("search",new CommandParameter("query","=",query));
-  }
-  
-  public String getQuery () {
-    return getCommandParameterValueSimple("search","query",null);
-  }
-  */
-  
-  public void setFacet (String facetKey, String term) {           
-    if (term != null && term.length()>0) {   
-      Pazpar2Command command = req.getCommand("search");
-      command.getParameter("query").addExpression(new Expression(facetKey,"=",term));
-      stateMgr.checkIn(command);
-      doSearch();
-    }            
-  }
-  
-  public void setFacetOnQuery (String facetKey, String term) {
-    String facetExpression = facetKey + "=" + term;    
-    if (term != null && term.length()>0) {
-      String currentQuery= req.getCommandReadOnly("search").getParameterValue("query");
-      setCommandParameter("search",new CommandParameter("query","=", currentQuery + " and " + facetExpression));
-      doSearch();        
-    }            
-  }
-      
-  public void removeFacet(String facetKey, String term) {
-    SearchCommand command = req.getSearch();
-    command.getParameter("query").removeExpression(new Expression(facetKey,"=",term));
-    stateMgr.checkIn(command);
-    doSearch();
-  }
-  
+            
   public void setSingleTargetFilter (String targetId, String targetName) {    
     if (hasSingleTargetFilter(new SingleTargetFilter(targetId,targetName))) {
       logger.debug("Already using target filter " + this.singleTargetFilter.getFilterExpression());
@@ -228,19 +191,9 @@ public class Pz2Session implements Pz2Interface, StateListener {
       dataObjects.put("record", new RecordResponse());
       return "";
     } else {
-      setRecordId(recId);
+      req.getRecord().setRecordId(recId);
       return doCommand("record");
     }
-  }
-  
-  @Override
-  public void setRecordId(String recId) {
-    setCommandParameter("record",new CommandParameter("id","=",recId));
-  }
-  
-  @Override
-  public String getRecordId () {
-    return getCommandParameterValue("record","recid","");
   }
   
   @Override
@@ -499,12 +452,12 @@ public class Pz2Session implements Pz2Interface, StateListener {
   }
 
   @Override
-  public void stateUpdate(String commandName) {
+  public void stateUpdated(String commandName) {
     logger.debug("State change reported for [" + commandName + "]");
     if (commandName.equals("show")) {
       logger.debug("Updating show");
       update(commandName);
-    }
+    } 
   }
   
 }

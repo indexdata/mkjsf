@@ -47,7 +47,7 @@ public class StateManager implements Serializable {
   
   private void updateListeners (String command) {
     for (StateListener lsnr : listeners) {
-      lsnr.stateUpdate(command);
+      lsnr.stateUpdated(command);
     }
   }
   
@@ -69,7 +69,9 @@ public class StateManager implements Serializable {
       Pazpar2State state = new Pazpar2State(getCurrentState(),command);
       states.put(state.getKey(), state);
       currentKey = state.getKey();
-      hasPendingStateChange(command.getName(),new Boolean(true));
+      hasPendingStateChange(command.getName(),new Boolean(true));      
+      logger.debug("Updating listeners with state change from " + command);
+      updateListeners(command.getName());      
     } else {
       logger.debug("Command " + command.getName() + " not found to change the state [" + command.getEncodedQueryString() + "]");
     }
@@ -132,10 +134,6 @@ public class StateManager implements Serializable {
    */
   public void hasPendingStateChange(String command, boolean bool) {
     pendingStateChanges.put(command, new Boolean(bool));
-    if (bool) {
-      logger.debug("Updating listeners with state change from " + command);
-      updateListeners(command);
-    }
   }
   
   /**
