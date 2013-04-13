@@ -11,6 +11,7 @@ import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
@@ -83,8 +84,12 @@ public class StateManager implements Serializable {
    * @return Copy this state's instance of the given command
    */
   public Pazpar2Command checkOut (String commandName) {
-    logger.info("Getting " + commandName + " from state manager.");
+    logger.debug("Getting " + commandName + " from state manager.");
     return getCurrentState().getCommand(commandName).copy();
+  }
+  
+  public CommandReadOnly getCommand (String commandName) {
+    return getCurrentState().getCommand(commandName);
   }
   
   public Pazpar2State getCurrentState () {

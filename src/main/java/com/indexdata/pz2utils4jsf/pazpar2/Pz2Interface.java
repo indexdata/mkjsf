@@ -57,13 +57,14 @@ public interface Pz2Interface extends Serializable {
    * @param query a query on pazpar2 query syntax
    * 
    */
-  public void setQuery (String query);
+  //public void setQuery (String query);
+  
   
   /**
    * Gets the current query  
    * @return a pazpar2 query string
    */
-  public String getQuery ();
+  //public String getQuery ();
   
   /**
    * Sets a facet to limit the current query by,

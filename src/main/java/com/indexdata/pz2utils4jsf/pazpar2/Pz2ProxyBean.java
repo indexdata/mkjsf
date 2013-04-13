@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.SearchCommand;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ForServiceProxy;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyInterface;
@@ -49,7 +50,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     session().setUser(user);
     session().resetDataObjects();
     session().removeCommand("record");
-    session().setQuery(null);
+    ((SearchCommand)session().getCommand("search")).setQuery(null);
     return session().login(navigateTo);
   }
 
@@ -90,7 +91,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
     session().setServiceProxyUrl(url); 
-    session().setQuery(null);
+    ((SearchCommand)session().getCommand("search")).setQuery(null);
     session().resetDataObjects();
   }
 

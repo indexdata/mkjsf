@@ -7,7 +7,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
@@ -19,8 +18,10 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.SearchCommand;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
@@ -95,7 +96,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
     resetDataObjects();
     removeCommand("record");
     setCommandParameter("show",new CommandParameter("start","=",0));    
-    logger.debug(Utils.objectId(this) + " is searching using "+getCommand("search").getParameter("query").getEncodedQueryString());
+    logger.debug(Utils.objectId(this) + " is searching using "+req.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
     doCommand("search");    
   }
       
@@ -123,7 +124,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
         List<CommandThread> threadList = new ArrayList<CommandThread>();
         StringTokenizer tokens = new StringTokenizer(commands,",");
         while (tokens.hasMoreElements()) {          
-          threadList.add(new CommandThread(getCommand(tokens.nextToken()),searchClient));            
+          threadList.add(new CommandThread(req.getCommandReadOnly(tokens.nextToken()),searchClient));            
         }
         for (CommandThread thread : threadList) {
           thread.start();
@@ -160,6 +161,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
     
   }
         
+  /*
   public void setQuery (String query) {
     logger.debug("Creating new command parameter for " + query);
     setCommandParameter("search",new CommandParameter("query","=",query));
@@ -168,10 +170,11 @@ public class Pz2Session implements Pz2Interface, StateListener {
   public String getQuery () {
     return getCommandParameterValueSimple("search","query",null);
   }
+  */
   
   public void setFacet (String facetKey, String term) {           
     if (term != null && term.length()>0) {   
-      Pazpar2Command command = getCommand("search");
+      Pazpar2Command command = req.getCommand("search");
       command.getParameter("query").addExpression(new Expression(facetKey,"=",term));
       stateMgr.checkIn(command);
       doSearch();
@@ -181,13 +184,14 @@ public class Pz2Session implements Pz2Interface, StateListener {
   public void setFacetOnQuery (String facetKey, String term) {
     String facetExpression = facetKey + "=" + term;    
     if (term != null && term.length()>0) {
-      setCommandParameter("search",new CommandParameter("query","=", getQuery() + " and " + facetExpression));
+      String currentQuery= req.getCommandReadOnly("search").getParameterValue("query");
+      setCommandParameter("search",new CommandParameter("query","=", currentQuery + " and " + facetExpression));
       doSearch();        
     }            
   }
       
   public void removeFacet(String facetKey, String term) {
-    Pazpar2Command command = getCommand("search");
+    SearchCommand command = req.getSearch();
     command.getParameter("query").removeExpression(new Expression(facetKey,"=",term));
     stateMgr.checkIn(command);
     doSearch();
@@ -276,7 +280,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
   
   @Override
   public boolean hasRecord (String recId) {
-    return getCommand("record").hasParameters() && getRecord().getRecId().equals(recId);
+    return req.getCommandReadOnly("record").hasParameters() && getRecord().getRecId().equals(recId);
   }
       
   public ShowResponse getShow () {
@@ -371,8 +375,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
     return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
   }
   
-  protected boolean hasQuery() {
-    logger.debug("req is " + req);
+  protected boolean hasQuery() {    
     return req.getSearch().getParameter("query") != null && req.getSearch().getParameter("query").getValueWithExpressions().length()>0;
   }
     
@@ -406,7 +409,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
-      if (getCommand("record").hasParameters()) {
+      if (req.getCommandReadOnly("record").hasParameters()) {
         update("record");
       } else {
         removeCommand("record");  
@@ -439,66 +442,69 @@ public class Pz2Session implements Pz2Interface, StateListener {
    * @return
    */
   protected Pazpar2Command getCommand(String name) {
-    return stateMgr.checkOut(name);
+    return req.getCommand(name);
   }
+  
+  /** 
+   * Returns an interface to a Pazpar2Command with only String getters.
+   * 
+   * Since the command cannot be modified (unless it is cast) we can avoid 
+   * cloning it before returning it from the current state. 
+   * It can be used for log statements, checks and for performing the 
+   * actual pazpar2 request. 
+   * 
+   * @param name
+   * @return
+   */
+  protected CommandReadOnly getCommandReadOnly(String name) {
+    return req.getCommandReadOnly(name);
+  }
+
   
   protected void setCommandParameter(String commandName, CommandParameter parameter) {
     logger.debug("Setting parameter for " + commandName + ": " + parameter);
-    Pazpar2Command command = getCommand(commandName);
+    Pazpar2Command command = req.getCommand(commandName);
     command.setParameter(parameter);
     stateMgr.checkIn(command);    
   }
   
   
   protected void removeCommandParameter(String commandName, String parameterName) {
-    Pazpar2Command command = getCommand(commandName);
+    Pazpar2Command command = req.getCommand(commandName);
     command.removeParameter(parameterName);
     stateMgr.checkIn(command);    
   }
   
   protected void removeCommand (String commandName) {
-    Pazpar2Command command = getCommand(commandName);
+    Pazpar2Command command = req.getCommand(commandName);
     command.removeParameters();
     stateMgr.checkIn(command);
   }
     
   protected String getCommandParameterValue (String commandName, String parameterName, String defaultValue) {    
-    Pazpar2Command command = getCommand(commandName);
+    CommandReadOnly command = req.getCommandReadOnly(commandName);
     if (command != null) {
-      CommandParameter parameter = command.getParameter(parameterName);
+      String parameter = command.getParameterValue(parameterName);
       if (parameter != null) {
-        return parameter.getValueWithExpressions();
+        return parameter;
       }
     }
     return defaultValue;    
   }
-  
-  protected String getCommandParameterValueSimple (String commandName, String parameterName, String defaultValue) {    
-    Pazpar2Command command = getCommand(commandName);
-    if (command != null) {
-      CommandParameter parameter = command.getParameter(parameterName);
-      if (parameter != null) {
-        return parameter.getSimpleValue();
-      }
-    }
-    return defaultValue;    
-  }
-
-  
+    
   protected int getCommandParameterValue (String commandName, String parameterName, int defaultValue) {
-    Pazpar2Command command = getCommand(commandName);
+    CommandReadOnly command = req.getCommandReadOnly(commandName);
     if (command != null) {
-      CommandParameter parameter = command.getParameter(parameterName);
+      String parameter = command.getParameterValue(parameterName);
       if (parameter != null) {
-        return Integer.parseInt(parameter.getSimpleValue());
+        return Integer.parseInt(parameter);
       }
     }
     return defaultValue;    
   }
 
-  protected String doCommand(String commandName) {     
-    Pazpar2Command command = req.getCommand(commandName);    
-    logger.debug(command.getEncodedQueryString() + ": Results for "+ getCommand("search").getEncodedQueryString());
+  protected String doCommand(String commandName) {             
+    logger.debug(req.getCommandReadOnly(commandName).getEncodedQueryString() + ": Results for "+ req.getCommandReadOnly("search").getEncodedQueryString());
     return update(commandName);
   }
   
@@ -520,7 +526,7 @@ public class Pz2Session implements Pz2Interface, StateListener {
   }
   
   public String getFilter() {
-    return getCommandParameterValueSimple("search", "filter", "");
+    return getCommandParameterValue("search", "filter", "");
   }
   
   public boolean hasFilter () {

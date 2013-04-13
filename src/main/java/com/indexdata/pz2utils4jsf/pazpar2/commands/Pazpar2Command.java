@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 
-public class Pazpar2Command implements Serializable  {
+public class Pazpar2Command implements CommandReadOnly, Serializable  {
   
   private static Logger logger = Logger.getLogger(Pazpar2Command.class);
   private static final long serialVersionUID = -6825491856480675917L;   
@@ -108,5 +108,18 @@ public class Pazpar2Command implements Serializable  {
   public String toString () {
     return parameters.toString();
   }
+
+  @Override
+  public String getParameterValue(String parameterName) {
+    return getParameter(parameterName).getValueWithExpressions();
+    
+  }
+
+  @Override
+  public String getUrlEncodedParameterValue(String parameterName) {
+    return getParameter(parameterName).getEncodedQueryString();
+  }
+  
+  
   
 }

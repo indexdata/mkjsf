@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
@@ -61,7 +60,7 @@ public class Pz2Bean implements Pz2Interface, Serializable {
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch()
    */
   public void doSearch() {
-    logger.info(Utils.objectId(this) + " doing search for "+this.getQuery());
+    logger.info(Utils.objectId(this) + " doing search for "+pz2.getCommandReadOnly("search").getParameterValue("query"));
     pz2.doSearch();
   }
 
@@ -89,9 +88,11 @@ public class Pz2Bean implements Pz2Interface, Serializable {
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getQuery()
    */
+  /*
   public String getQuery() {
     return pz2.getQuery();
   }
+  */
 
   /* (non-Javadoc)
    * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setFacet(java.lang.String, java.lang.String)
@@ -324,8 +325,4 @@ public class Pz2Bean implements Pz2Interface, Serializable {
     return pz2.getRecordId();
   }
   
-  public Pazpar2Command getSearchCommand () {
-    return pz2.getCommand("search");
-  }
-
 }

@@ -20,13 +20,11 @@ public class SearchCommand extends Pazpar2Command {
     setParameter(new CommandParameter("session","=",sessionId));
   }
   
-  public void setQuery(String query) {
-    logger.info("writing query: " + query);
+  public void setQuery(String query) {    
     setParameter(new CommandParameter("query","=",query));
   }
   
-  public String getQuery () {
-    logger.info("retrieving query");
+  public String getQuery () {    
     return getParameter("query") == null ? null  : getParameter("query").getValueWithExpressions();
   }
   

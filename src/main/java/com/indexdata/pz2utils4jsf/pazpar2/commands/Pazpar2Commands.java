@@ -78,5 +78,9 @@ public class Pazpar2Commands implements Serializable {
   public Pazpar2Command getCommand(String name) {
     return stateMgr.checkOut(name);
   }
+  
+  public CommandReadOnly getCommandReadOnly(String name) {
+    return stateMgr.getCommand(name);
+  }
     
 }

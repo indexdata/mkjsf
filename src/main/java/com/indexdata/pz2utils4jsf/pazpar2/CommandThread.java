@@ -6,18 +6,18 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.data.CommandError;
 
 public class CommandThread extends Thread {
 
   private static Logger logger = Logger.getLogger(CommandThread.class);
-  Pazpar2Command command;
+  CommandReadOnly command;
   SearchClient client;
   private ByteArrayOutputStream baos = new ByteArrayOutputStream();
   private StringBuilder response = new StringBuilder("");  
   
-  public CommandThread (Pazpar2Command command, SearchClient client) {
+  public CommandThread (CommandReadOnly command, SearchClient client) {
     this.command = command;
     this.client = client;
   }
@@ -72,7 +72,7 @@ public class CommandThread extends Thread {
     return response.toString();
   }
     
-  public Pazpar2Command getCommand() {
+  public CommandReadOnly getCommand() {
     return command;
   }
 
