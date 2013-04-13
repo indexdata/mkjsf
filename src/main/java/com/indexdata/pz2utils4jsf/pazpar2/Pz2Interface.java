@@ -50,47 +50,7 @@ public interface Pz2Interface extends Serializable {
    * 
    */
   public String update (String commands);
-  
-    
-  public void setFilter(String filterExpression);
-  
-  public String getFilter();
-
-  
-  /**
-   * Adds a single target filter to restrict the current query by, 
-   * then executes the current search.
-   * 
-   * This is a special case of the general setFilter function, 
-   * allowing to associate a descriptive target name with the 
-   * filter expression for display in UI. 
-   * 
-   * @param targetId pazpar2's ID for the target to limit by
-   * @param targetName a descriptive name for the target
-   */
-  public void setSingleTargetFilter (String targetId, String targetName);
-  
-  /**
-   * Removes the current target filter from the search
-   * 
-   */
-  public void removeSingleTargetFilter ();
-  
-  /**
-   * 
-   * @return The target filter set on the current search command
-   */
-  public SingleTargetFilter getSingleTargetFilter();
-  
-  /**
-   * Resolves if the current search command has a target filter - to
-   * be used by the UI for conditional rendering of target filter info.
-   * 
-   * @return true if the current search command is limited by a target 
-   * filter
-   */
-  public boolean hasSingleTargetFilter();
-          
+            
   /**
    * Will retrieve or remove the record with the given recid from memory.
    * 

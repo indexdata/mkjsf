@@ -160,30 +160,6 @@ public class Pz2Session implements Pz2Interface, StateListener {
     
   }
             
-  public void setSingleTargetFilter (String targetId, String targetName) {    
-    if (hasSingleTargetFilter(new SingleTargetFilter(targetId,targetName))) {
-      logger.debug("Already using target filter " + this.singleTargetFilter.getFilterExpression());
-    } else {      
-      this.singleTargetFilter = new SingleTargetFilter(targetId,targetName);
-      setCommandParameter("search",new CommandParameter("filter","=",this.singleTargetFilter.getFilterExpression()));      
-      doSearch();
-    }    
-  }
-
-  public SingleTargetFilter getSingleTargetFilter () {
-    return singleTargetFilter;
-  }
-    
-  public void removeSingleTargetFilter () {
-    logger.debug("Removing target filter " + singleTargetFilter.getFilterExpression());
-    this.singleTargetFilter = null;
-    removeCommandParameter("search","filter");         
-    doSearch();
-  }
-  
-  public boolean hasSingleTargetFilter() {
-    return singleTargetFilter != null;    
-  }
                     
   public String toggleRecord (String recId) {
     if (hasRecord(recId)) {
@@ -286,11 +262,6 @@ public class Pz2Session implements Pz2Interface, StateListener {
     }
     error.setErrorHelper(errorHelper);
     return error;         
-  }
-
-    
-  protected boolean hasSingleTargetFilter(SingleTargetFilter targetFilter) {
-    return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
   }
   
   protected boolean hasQuery() {    
@@ -437,19 +408,6 @@ public class Pz2Session implements Pz2Interface, StateListener {
     dataObjects.put("search", new SearchResponse());
   }
   
-  @Override
-  public void setFilter(String filterExpression) {
-    logger.debug("Setting filter to " + filterExpression);
-    setCommandParameter("search",new CommandParameter("filter","=",filterExpression));    
-  }
-  
-  public String getFilter() {
-    return getCommandParameterValue("search", "filter", "");
-  }
-  
-  public boolean hasFilter () {
-    return getFilter().length()>0;
-  }
 
   @Override
   public void stateUpdated(String commandName) {

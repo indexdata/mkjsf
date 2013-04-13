@@ -5,6 +5,7 @@ import javax.enterprise.context.SessionScoped;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.pazpar2.Expression;
+import com.indexdata.pz2utils4jsf.pazpar2.SingleTargetFilter;
 import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 
 @SessionScoped
@@ -12,6 +13,7 @@ public class SearchCommand extends Pazpar2Command {
   
   private static final long serialVersionUID = -1888520867838597236L;
   private static Logger logger = Logger.getLogger(SearchCommand.class);
+  private SingleTargetFilter singleTargetFilter = null;
   
   public SearchCommand(StateManager stateMgr) {
     super("search",stateMgr);
@@ -82,10 +84,69 @@ public class SearchCommand extends Pazpar2Command {
   public String getFilter() {
     return getParameter("filter") == null ? null : getParameter("filter").getValueWithExpressions();
   }
+  
+  public boolean hasFilter () {
+    return getFilter().length()>0;
+  }
+  
+  /**
+   * Adds a single target filter to restrict the current query by, 
+   * then executes the current search.
+   * 
+   * This is a special case of the general setFilter function, 
+   * allowing to associate a descriptive target name with the 
+   * filter expression for display in UI. 
+   * 
+   * @param targetId pazpar2's ID for the target to limit by
+   * @param targetName a descriptive name for the target
+   */
+  public void setSingleTargetFilter (String targetId, String targetName) {    
+    if (hasSingleTargetFilter(new SingleTargetFilter(targetId,targetName))) {
+      logger.debug("Already using target filter " + this.singleTargetFilter.getFilterExpression());
+    } else {      
+      this.singleTargetFilter = new SingleTargetFilter(targetId,targetName);
+      setParameter(new CommandParameter("filter","=",this.singleTargetFilter.getFilterExpression()));            
+    }    
+  }
+
+  public SingleTargetFilter getSingleTargetFilter () {
+    logger.debug("request to get the current single target filter");
+    return singleTargetFilter;
+  }
+   
+  /**
+   * Removes the current target filter from the search
+   * 
+   */
+  public void removeSingleTargetFilter () {
+    logger.debug("Removing target filter " + singleTargetFilter.getFilterExpression());
+    this.singleTargetFilter = null;
+    removeParameter("filter");             
+  }
+  
+  /**
+   * 
+   * @return The target filter set on the current search command
+   */
+  public boolean hasSingleTargetFilter() {
+    logger.debug("Checking if a single target filter is set: " + (singleTargetFilter != null));
+    return singleTargetFilter != null;    
+  }
+
+  /**
+   * Resolves if the current search command has a target filter - to
+   * be used by the UI for conditional rendering of target filter info.
+   * 
+   * @return true if the current search command is limited by a target 
+   * filter
+   */
+  protected boolean hasSingleTargetFilter(SingleTargetFilter targetFilter) {
+    return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
+  }
 
   
   public void setLimit (String limit) {
-    
+    // TODO
   }
       
   public void addFilter(String filterExpression) {
@@ -104,12 +165,13 @@ public class SearchCommand extends Pazpar2Command {
   public void removeFilter(String filterExpression) {
     
   }
-  
+    
   public SearchCommand copy () {
     SearchCommand newCommand = new SearchCommand(stateMgr);
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterSilently(parameters.get(parameterName).copy());      
-    }    
+    }
+    newCommand.singleTargetFilter = this.singleTargetFilter;
     return newCommand;
   }
 

@@ -17,6 +17,8 @@ public class RecordCommand extends Pazpar2Command {
   public String getRecordId () {
     return getParameterValue("id");
   }
+  
+  
 
   @Override
   public RecordCommand copy () {
@@ -26,7 +28,4 @@ public class RecordCommand extends Pazpar2Command {
     }    
     return newCommand;
   }
-
-  
-
 }
