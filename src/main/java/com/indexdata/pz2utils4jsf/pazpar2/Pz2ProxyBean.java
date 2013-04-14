@@ -50,9 +50,9 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public String login(String navigateTo) {
     logger.info("doing login");
     ((ServiceProxyClient)searchClient).authenticate(user);
-    data.reset();
-    req.getRecord().removeParameters();
-    req.getSearch().setQuery(null);
+    pzresp.reset();
+    pzreq.getRecord().removeParameters();
+    pzreq.getSearch().setQuery(null);
     
     return navigateTo;
   }
@@ -61,8 +61,8 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
     serviceProxyUrl = url;
-    req.getSearch().setQuery(null);
-    data.reset();
+    pzreq.getSearch().setQuery(null);
+    pzresp.reset();
   }
   
   public String getServiceProxyUrl() {
@@ -89,7 +89,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     String initDocPath = ((ServiceProxyClient)searchClient).getInitDocPaths()[0];
     logger.info("Paths: " + ((ServiceProxyClient)searchClient).getInitDocPaths());
     logger.info("Path: " + initDocPath);
-    data.reset();
+    pzresp.reset();
     byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDocPath + getInitFileName());
     initDocResponse = new String(response,"UTF-8");
     return initDocResponse;
@@ -97,7 +97,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   
   @Override
   public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException {    
-    data.reset();
+    pzresp.reset();
     byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDoc);
     initDocResponse = new String(response,"UTF-8");
     return initDocResponse;

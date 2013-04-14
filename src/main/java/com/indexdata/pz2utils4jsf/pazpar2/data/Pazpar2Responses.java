@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 
-@Named("data") @SessionScoped
+@Named("pzresp") @SessionScoped
 public class Pazpar2Responses implements Serializable {
   
   private static final long serialVersionUID = -7543231258346154642L;

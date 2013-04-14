@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named("req") @SessionScoped
+@Named("pzreq") @SessionScoped
 public class Pazpar2Commands implements Serializable {
 
   private static final long serialVersionUID = -5172466320351302413L;

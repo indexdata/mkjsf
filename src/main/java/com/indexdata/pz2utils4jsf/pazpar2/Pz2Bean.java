@@ -20,6 +20,7 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
@@ -39,8 +40,8 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   
   @Inject ConfigurationReader configurator;
   @Inject StateManager stateMgr;
-  @Inject Pazpar2Commands req;
-  @Inject Pazpar2Responses data;
+  @Inject Pazpar2Commands pzreq;
+  @Inject Pazpar2Responses pzresp;
   
   protected ResultsPager pager = null; 
 
@@ -82,22 +83,22 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
       configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
     } 
     logger.info(configReader.document());
-    data.reset();    
+    pzresp.reset();    
   }
 
     
   public void doSearch(String query) {
-    req.getSearch().setParameter(new CommandParameter("query","=",query));     
+    pzreq.getSearch().setParameter(new CommandParameter("query","=",query));     
     doSearch();
   }
 
   public void doSearch() { 
     stateMgr.hasPendingStateChange("search",false);
-    data.reset();
+    pzresp.reset();
     // TODO: avoid state proliferation here:
-    req.getRecord().removeParameters();
-    req.getShow().setParameter(new CommandParameter("start","=",0));    
-    logger.debug(Utils.objectId(this) + " is searching using "+req.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
+    pzreq.getRecord().removeParameters();
+    pzreq.getShow().setParameter(new CommandParameter("start","=",0));    
+    logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
     doCommand("search");    
   }
       
@@ -125,7 +126,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
         List<CommandThread> threadList = new ArrayList<CommandThread>();
         StringTokenizer tokens = new StringTokenizer(commands,",");
         while (tokens.hasMoreElements()) {          
-          threadList.add(new CommandThread(req.getCommandReadOnly(tokens.nextToken()),searchClient));            
+          threadList.add(new CommandThread(pzreq.getCommandReadOnly(tokens.nextToken()),searchClient));            
         }
         for (CommandThread thread : threadList) {
           thread.start();
@@ -142,17 +143,17 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
            String response = thread.getResponse();
            logger.debug("Response was: " + response);
            Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
-           data.put(commandName, responseObject);        
+           pzresp.put(commandName, responseObject);        
         }
         if (commands.equals("record")) {
-          logger.debug("Record: Active clients: "+data.getRecord().getActiveClients());
-          return data.getRecord().getActiveClients();
+          logger.debug("Record: Active clients: "+pzresp.getRecord().getActiveClients());
+          return pzresp.getRecord().getActiveClients();
         } else {
-          return data.getActiveClients();
+          return pzresp.getActiveClients();
         }  
       } else {
         logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
-        data.reset();
+        pzresp.reset();
         return "0";
       }
     } else {
@@ -164,18 +165,18 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
                                 
   public String toggleRecord (String recId) {
     if (hasRecord(recId)) {
-      req.getRecord().removeParameters();  
-      data.put("record", new RecordResponse());
+      pzreq.getRecord().removeParameters();  
+      pzresp.put("record", new RecordResponse());
       return "";
     } else {
-      req.getRecord().setRecordId(recId);
+      pzreq.getRecord().setRecordId(recId);
       return doCommand("record");
     }
   }
   
   @Override
   public boolean hasRecord (String recId) {
-    return req.getCommandReadOnly("record").hasParameters() && data.getRecord().getRecId().equals(recId);
+    return pzreq.getCommandReadOnly("record").hasParameters() && pzresp.getRecord().getRecId().equals(recId);
   }
         
   public String getCurrentStateKey () {    
@@ -191,7 +192,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   }
   
   public boolean hasCommandErrors () {
-    return data.hasApplicationError();
+    return pzresp.hasApplicationError();
   }
   
   /**
@@ -206,20 +207,20 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   }
   
   
-  protected boolean hasQuery() {    
-    return req.getSearch().getParameter("query") != null && req.getSearch().getParameter("query").getValueWithExpressions().length()>0;
+  protected boolean hasQuery() {        
+    return pzreq.getCommandReadOnly("search").hasParameterSet("query"); 
   }
     
     
   public ResultsPager getPager () {
     if (pager == null) {
-      pager = new ResultsPager(data);      
+      pager = new ResultsPager(pzresp);      
     } 
     return pager;      
   }
   
   public ResultsPager setPager (int pageRange) {
-    pager =  new ResultsPager(data,pageRange,req);
+    pager =  new ResultsPager(pzresp,pageRange,pzreq);
     return pager;
   }
   
@@ -235,16 +236,16 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
-      if (req.getCommandReadOnly("record").hasParameters()) {
+      if (pzreq.getCommandReadOnly("record").hasParameters()) {
         update("record");
       } else {         
-        data.put("record", new RecordResponse());
+        pzresp.put("record", new RecordResponse());
       }
     }
   }
   
   protected String doCommand(String commandName) {             
-    logger.debug(req.getCommandReadOnly(commandName).getEncodedQueryString() + ": Results for "+ req.getCommandReadOnly("search").getEncodedQueryString());
+    logger.debug(pzreq.getCommandReadOnly(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommandReadOnly("search").getEncodedQueryString());
     return update(commandName);
   }
   
