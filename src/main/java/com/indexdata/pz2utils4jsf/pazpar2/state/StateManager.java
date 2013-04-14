@@ -89,7 +89,7 @@ public class StateManager implements Serializable {
     logger.debug("Getting " + commandName + " from state manager.");
     return getCurrentState().getCommand(commandName).copy();
   }
-  
+    
   public CommandReadOnly getCommand (String commandName) {
     return getCurrentState().getCommand(commandName);
   }

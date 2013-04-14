@@ -8,6 +8,7 @@ public class ShowCommand extends Pazpar2Command {
 
   public ShowCommand(StateManager stateMgr) {
     super("show",stateMgr);
+    setParameterSilently(new CommandParameter("start","=","0"));
   }
 
   /**

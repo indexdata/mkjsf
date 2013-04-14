@@ -63,8 +63,16 @@ public class Pazpar2Commands implements Serializable {
     return (ShowCommand) (stateMgr.checkOut(SHOW));
   }
   
+  public ShowCommand getShowInState () {
+    return (ShowCommand) (stateMgr.getCurrentState().getCommand(SHOW));
+  }
+  
   public RecordCommand getRecord() {
     return (RecordCommand) (stateMgr.checkOut(RECORD));
+  }
+  
+  public RecordCommand getRecordInState() {
+    return (RecordCommand)stateMgr.getCurrentState().getCommand(RECORD);
   }
   
   public TermlistCommand getTermlist() {

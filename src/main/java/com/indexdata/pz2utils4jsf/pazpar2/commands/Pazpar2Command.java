@@ -40,14 +40,14 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
   }
     
   public void setParameter (CommandParameter parameter) {
-    logger.debug("Setting parameter " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
+    logger.debug(name + " setting parameter " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
     parameters.put(parameter.getName(),parameter);
     stateMgr.checkIn(this);
   }
   
   public void setParameters (CommandParameter... params) {
     for (CommandParameter param : params) {
-      logger.debug("Setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
+      logger.debug(name + " setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
       parameters.put(param.getName(),param);
     }
     stateMgr.checkIn(this);
@@ -55,7 +55,7 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
   
   
   public void setParameterSilently (CommandParameter parameter) {
-    logger.debug("Setting parameter silently " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
+    logger.debug(name + " setting parameter silently " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
     parameters.put(parameter.getName(),parameter);    
   }
   
@@ -73,6 +73,11 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
     parameters = new HashMap<String,CommandParameter>();
     stateMgr.checkIn(this);
   }
+  
+  public void removeParametersSilently() {
+    parameters = new HashMap<String,CommandParameter>();    
+  }
+
   
   public boolean hasParameters () {
     return (parameters.keySet().size()>0);
@@ -131,9 +136,5 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
   
   public String getSession() {
     return getParameterValue("session");
-  }
-
-  
-  
-  
+  }  
 }

@@ -34,6 +34,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
 
   private static final long serialVersionUID = 3440277287081557861L;
   private static Logger logger = Logger.getLogger(Pz2Bean.class);
+  private static Logger responseLogger = Logger.getLogger("com.indexdata.pz2utils4jsf.pazpar2.responses");
   
   protected SearchClient searchClient = null;
   
@@ -94,9 +95,10 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   public void doSearch() { 
     stateMgr.hasPendingStateChange("search",false);
     pzresp.reset();
-    // TODO: avoid state proliferation here:
-    pzreq.getRecord().removeParameters();
-    pzreq.getShow().setParameter(new CommandParameter("start","=",0));    
+    // resets some record and show command parameters without 
+    // changing state or creating state change feedback
+    pzreq.getRecordInState().removeParametersSilently();        
+    pzreq.getShowInState().setParameterSilently(new CommandParameter("start","=",0));    
     logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
     doCommand("search");    
   }
@@ -140,7 +142,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
         for (CommandThread thread : threadList) {
            String commandName = thread.getCommand().getName();
            String response = thread.getResponse();
-           logger.debug("Response was: " + response);
+           responseLogger.debug("Response was: " + response);
            Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
            pzresp.put(commandName, responseObject);        
         }
