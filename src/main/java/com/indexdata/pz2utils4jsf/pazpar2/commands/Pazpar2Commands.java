@@ -54,6 +54,15 @@ public class Pazpar2Commands implements Serializable {
   public SearchCommand getSearch() {
     return (SearchCommand) (stateMgr.checkOut(SEARCH));
   }
+  
+  /**
+   * Gets a mutable SearchCommand from current state (no checkout)
+   * Can be used for updating Search parameters without spawning new state.
+   * @return
+   */
+  public SearchCommand getSearchInState() {
+    return (SearchCommand) (stateMgr.getCurrentState().getCommand(SEARCH));
+  }
 
   public StatCommand getStat() {
     return (StatCommand) (stateMgr.checkOut(STAT));
@@ -63,6 +72,11 @@ public class Pazpar2Commands implements Serializable {
     return (ShowCommand) (stateMgr.checkOut(SHOW));
   }
   
+  /**
+   * Gets a mutable ShowCommand from current state (no checkout)
+   * Can be used for updating show parameters without spawning new state.
+   * @return
+   */
   public ShowCommand getShowInState () {
     return (ShowCommand) (stateMgr.getCurrentState().getCommand(SHOW));
   }
@@ -70,7 +84,12 @@ public class Pazpar2Commands implements Serializable {
   public RecordCommand getRecord() {
     return (RecordCommand) (stateMgr.checkOut(RECORD));
   }
-  
+
+  /**
+   * Gets a mutable RecordCommand from current state (no checkout)
+   * Can be used for updating record parameters without spawning new state.
+   * @return
+   */  
   public RecordCommand getRecordInState() {
     return (RecordCommand)stateMgr.getCurrentState().getCommand(RECORD);
   }

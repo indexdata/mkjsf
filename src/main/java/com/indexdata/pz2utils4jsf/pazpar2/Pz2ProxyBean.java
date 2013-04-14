@@ -12,6 +12,7 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
@@ -49,11 +50,10 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   @Override
   public String login(String navigateTo) {
     logger.info("doing login");
-    ((ServiceProxyClient)searchClient).authenticate(user);
+    ((ServiceProxyClient)searchClient).authenticate(user);    
+    pzreq.getRecordInState().removeParametersSilently();
+    pzreq.getSearchInState().removeParametersSilently();
     pzresp.reset();
-    pzreq.getRecord().removeParameters();
-    pzreq.getSearch().setQuery(null);
-    
     return navigateTo;
   }
 
@@ -61,7 +61,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
     serviceProxyUrl = url;
-    pzreq.getSearch().setQuery(null);
+    pzreq.getSearchInState().removeParametersSilently();
     pzresp.reset();
   }
   
