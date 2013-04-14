@@ -16,17 +16,76 @@ public class SearchCommand extends Pazpar2Command {
   public SearchCommand(StateManager stateMgr) {
     super("search",stateMgr);
   }
-  
-  public void setSession (String sessionId) {
-    setParameter(new CommandParameter("session","=",sessionId));
-  }
-  
+    
   public void setQuery(String query) {    
     setParameter(new CommandParameter("query","=",query));
   }
   
   public String getQuery () {    
     return getParameter("query") == null ? null  : getParameter("query").getValueWithExpressions();
+  }
+  
+  public void setFilter(String filterExpression) {
+    setParameter(new CommandParameter("filter","=",filterExpression));
+  }
+  
+  public String getFilter() {
+    return getParameter("filter") == null ? null : getParameter("filter").getValueWithExpressions();
+  }
+  
+  public void addFilter(String filterExpression) {
+    // TODO: implement
+    if (hasParameterSet("filter")) {
+      setFilter(filterExpression);
+    } else {
+      getParameter("filter");
+    }
+    throw new UnsupportedOperationException("removeFilter(filterExpression) yet to be implemented.");
+  }
+  
+  public void removeFilters () {
+    removeParameter("filter");
+  }
+  
+  public void removeFilter(String filterExpression) {
+    // TODO: implement
+    throw new UnsupportedOperationException("removeFilter(filterExpression) yet to be implemented.");
+  }
+
+  public boolean hasFilter () {
+    return getFilter().length()>0;
+  }
+  
+  public void setLimit (String limitExpression) {
+    setParameter(new CommandParameter("limit","=",limitExpression));
+  }
+  
+  public String getLimit () {
+    return getParameterValue("limit");
+  }
+      
+  public void setStartrecs (String startrecs) {
+    setParameter(new CommandParameter("startrecs","=",startrecs));
+  }
+  
+  public String getStartrecs () {
+    return getParameterValue("startrecs");
+  }
+  
+  public void setMaxrecs (String maxrecs) {
+    setParameter(new CommandParameter("maxrecs","=",maxrecs));
+  }
+  
+  public String getMaxrecs () {
+    return getParameterValue("maxrecs");
+  }
+  
+  public void setSort () {
+    setParameter(new CommandParameter("sort","=","sort"));
+  }
+  
+  public String getSort () {
+    return getParameterValue("sort");
   }
   
   /**
@@ -75,17 +134,6 @@ public class SearchCommand extends Pazpar2Command {
     }
   }
   
-  public void setFilter(String filterExpression) {
-    setParameter(new CommandParameter("filter","=",filterExpression));
-  }
-  
-  public String getFilter() {
-    return getParameter("filter") == null ? null : getParameter("filter").getValueWithExpressions();
-  }
-  
-  public boolean hasFilter () {
-    return getFilter().length()>0;
-  }
   
   /**
    * Adds a single target filter to restrict the current query by, 
@@ -141,28 +189,6 @@ public class SearchCommand extends Pazpar2Command {
   protected boolean hasSingleTargetFilter(SingleTargetFilter targetFilter) {
     return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
   }
-
-  
-  public void setLimit (String limit) {
-    // TODO
-  }
-      
-  public void addFilter(String filterExpression) {
-    if (hasParameterSet("filter")) {
-      setFilter(filterExpression);
-    } else {
-      //TODO
-      getParameter("filter");
-    }
-  }
-  
-  public void removeFilters () {
-    
-  }
-  
-  public void removeFilter(String filterExpression) {
-    
-  }
     
   public SearchCommand copy () {
     SearchCommand newCommand = new SearchCommand(stateMgr);
@@ -172,6 +198,5 @@ public class SearchCommand extends Pazpar2Command {
     newCommand.singleTargetFilter = this.singleTargetFilter;
     return newCommand;
   }
-
 
 }

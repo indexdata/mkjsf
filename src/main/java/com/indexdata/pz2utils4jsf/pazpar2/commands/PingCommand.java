@@ -9,5 +9,5 @@ public class PingCommand extends Pazpar2Command {
   public PingCommand(StateManager stateMgr) {
     super("ping",stateMgr);    
   }
-
+  
 }

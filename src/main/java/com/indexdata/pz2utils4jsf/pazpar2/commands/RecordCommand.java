@@ -10,11 +10,11 @@ public class RecordCommand extends Pazpar2Command {
     super("record",stateMgr);
   }
   
-  public void setRecordId(String recId) {
+  public void setId(String recId) {
     setParameter(new CommandParameter("id","=",recId));
   }
   
-  public String getRecordId () {
+  public String getId () {
     return getParameterValue("id");
   }    
 

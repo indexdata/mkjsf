@@ -10,10 +10,22 @@ public class InitCommand extends Pazpar2Command {
     super("init",stateMgr);
   }
   
-  public void setClear(String clear) {    
+  public void setClear(String clear) { 
+    setParameter(new CommandParameter("clear","=",clear));
   }
   
   public void setService(String serviceId) {    
+    setParameter(new CommandParameter("service","=",serviceId));
+  }
+  
+  @Override
+  public void setSession (String sessionId) {
+    throw new UnsupportedOperationException("Cannot set session id on init command");
+  }
+  
+  @Override
+  public String getSession () {
+    throw new UnsupportedOperationException("Cannot set or get session id on init command");
   }
 
 }

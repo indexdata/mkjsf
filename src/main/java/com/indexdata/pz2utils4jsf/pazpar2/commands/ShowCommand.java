@@ -77,6 +77,15 @@ public class ShowCommand extends Pazpar2Command {
   public int getStart() {
     return getParameter("start") != null ? Integer.parseInt(getParameter("start").value) : 0;
   }
+  
+  public void setNum (int num) {
+    setParameter(new CommandParameter("num","=",num));
+  }
+  
+  public int getNum () {
+    return getParameter("num") != null ? Integer.parseInt(getParameter("num").value) : 0;
+  }
+
 
   
   public ShowCommand copy () {

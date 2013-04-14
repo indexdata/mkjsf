@@ -125,6 +125,15 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
     return getParameter(parameterName).getEncodedQueryString();
   }
   
+  public void setSession (String sessionId) {
+    setParameter(new CommandParameter("session","=",sessionId));
+  }
+  
+  public String getSession() {
+    return getParameterValue("session");
+  }
+
+  
   
   
 }

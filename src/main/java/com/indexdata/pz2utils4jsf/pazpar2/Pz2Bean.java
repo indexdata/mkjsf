@@ -20,7 +20,6 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
@@ -169,7 +168,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
       pzresp.put("record", new RecordResponse());
       return "";
     } else {
-      pzreq.getRecord().setRecordId(recId);
+      pzreq.getRecord().setId(recId);
       return doCommand("record");
     }
   }
