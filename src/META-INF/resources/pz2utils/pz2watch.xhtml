@@ -36,7 +36,7 @@
 
     <h:form id="activeclientsForm" prependId="false">
       <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
-      <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
+      <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>#{' - '}
       <h:outputText id="activeclientsFieldRecord" value="${pz2.update('record')}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
       
       <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
