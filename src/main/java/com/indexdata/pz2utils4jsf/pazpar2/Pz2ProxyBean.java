@@ -41,7 +41,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
                             + Utils.objectId(configurator) + "]" );    
       configureClient(searchClient,configurator);
     } else {
-      logger.info("Pz2ProxyBean:postConstruct: searchClient already instantiated " +
+      logger.debug("Pz2ProxyBean:postConstruct: searchClient already instantiated " +
       		        "during construction of parent object Pz2Bean.");
     }
   }

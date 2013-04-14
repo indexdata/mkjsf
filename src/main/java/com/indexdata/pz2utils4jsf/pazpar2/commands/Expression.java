@@ -1,6 +1,6 @@
-package com.indexdata.pz2utils4jsf.pazpar2;
+package com.indexdata.pz2utils4jsf.pazpar2.commands;
 
-import com.indexdata.pz2utils4jsf.pazpar2.Expression;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Expression;
 
 public class Expression {
   

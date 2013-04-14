@@ -94,6 +94,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   public void doSearch() { 
     stateMgr.hasPendingStateChange("search",false);
     data.reset();
+    // TODO: avoid state proliferation here:
     req.getRecord().removeParameters();
     req.getShow().setParameter(new CommandParameter("start","=",0));    
     logger.debug(Utils.objectId(this) + " is searching using "+req.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
@@ -236,8 +237,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
       stateMgr.hasPendingStateChange("record",false);
       if (req.getCommandReadOnly("record").hasParameters()) {
         update("record");
-      } else {
-        req.getRecord().removeParameters();  
+      } else {         
         data.put("record", new RecordResponse());
       }
     }
