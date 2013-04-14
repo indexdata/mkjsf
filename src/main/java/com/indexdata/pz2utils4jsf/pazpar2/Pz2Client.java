@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
-
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
@@ -29,7 +26,6 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named @SessionScoped 
 public class Pz2Client implements SearchClient {
 
   private static final long serialVersionUID = 5414266730169982028L;

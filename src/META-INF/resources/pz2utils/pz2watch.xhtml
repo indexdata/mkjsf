@@ -52,9 +52,9 @@
         </h:dataTable>
         <h:panelGrid  style="${pz2.hasCommandErrors() ? 'display: block;' : 'display: none;'}">
           <h:column>
-            <h:outputText id="messages" value="#{pz2.commandError.message}" style="color: red;"/>
+            <h:outputText id="messages" value="#{data.commandError.message}" style="color: red;"/>
           </h:column>
-          <h:dataTable value="#{pz2.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
+          <h:dataTable value="#{data.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
            <h:column>
              #{suggestion}        
            </h:column>      

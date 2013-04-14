@@ -1,7 +1,9 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
@@ -13,189 +15,247 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
+import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
+import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
-import com.indexdata.pz2utils4jsf.pazpar2.data.ByTarget;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
+import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseParser;
+import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Responses;
 import com.indexdata.pz2utils4jsf.pazpar2.data.RecordResponse;
-import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
-import com.indexdata.pz2utils4jsf.pazpar2.data.StatResponse;
-import com.indexdata.pz2utils4jsf.pazpar2.data.TermListsResponse;
-import com.indexdata.pz2utils4jsf.pazpar2.data.TermResponse;
+import com.indexdata.pz2utils4jsf.pazpar2.state.StateListener;
+import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named("pz2") @SessionScoped @Alternative
-public class Pz2Bean implements Pz2Interface, Serializable {
+public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
 
   private static final long serialVersionUID = 3440277287081557861L;
   private static Logger logger = Logger.getLogger(Pz2Bean.class);
   
+  protected SearchClient searchClient = null;
+  
   @Inject ConfigurationReader configurator;
+  @Inject StateManager stateMgr;
+  @Inject Pazpar2Commands req;
+  @Inject Pazpar2Responses data;
   
-  @Inject @ForStraightPz2 Pz2Session pz2;  
-  
-  protected SearchClient searchClient;  
-    
+  protected ResultsPager pager = null; 
+
+  protected List<ErrorInterface> configurationErrors = null;
+  protected ErrorHelper errorHelper = null;
+              
   public Pz2Bean () {
-    logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");
+    logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");    
   }
   
   @PostConstruct
-  public void instantiatePz2SessionObject() {    
+  public void postConstruct() {    
     logger.debug("in start of Pz2Bean post-construct configurator is " + configurator);
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Client next.");
     searchClient = new Pz2Client();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
-                          + Utils.objectId(configurator) + "] on session [" 
-                          + Utils.objectId(pz2) + "]" );    
-    pz2.configureClient(searchClient,configurator);    
+                          + Utils.objectId(configurator) + "]" );    
+    configureClient(searchClient,configurator);
+    stateMgr.addStateListener(this);
   }  
   
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch(java.lang.String)
-   */
-  public void doSearch(String query) {    
-    pz2.doSearch(query);
+  public void configureClient(SearchClient searchClient, ConfigurationReader configReader) {
+    configurationErrors = new ArrayList<ErrorInterface>();
+    errorHelper = new ErrorHelper(configReader);    
+    logger.debug(Utils.objectId(this) + " will configure search client for the session");
+    try {
+      searchClient.configure(configReader);            
+      // At the time of writing this search client is injected using Weld. 
+      // However, the client is used for asynchronously sending off requests
+      // to the server AND propagation of context to threads is currently 
+      // not supported. Trying to do so throws a WELD-001303 error. 
+      // To avoid that, a context free client is cloned from the context 
+      // dependent one. 
+      // If propagation to threads gets supported, the cloning can go.
+      //
+      // Commented as I'm trying with regular instantiation instead
+      // this.searchClient = searchClient.cloneMe();         
+    } catch (ConfigurationException e) {
+      configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
+    } 
+    logger.info(configReader.document());
+    data.reset();    
   }
 
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#doSearch()
-   */
-  public void doSearch() {
-    logger.info(Utils.objectId(this) + " doing search for "+pz2.getCommandReadOnly("search").getParameterValue("query"));
-    pz2.doSearch();
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#update()
-   */
-  public String update() {
-    return pz2.update();
-  }
-
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#update(java.lang.String)
-   */
-  public String update(String commands) {
-    return pz2.update(commands);
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#toggleRecord(java.lang.String)
-   */
-  public String toggleRecord(String recid) {
-    return pz2.toggleRecord(recid);
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getShow()
-   */
-  public ShowResponse getShow() {
-    return pz2.getShow();
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getStat()
-   */
-  public StatResponse getStat() {
-    return pz2.getStat();
-  }
     
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#hasRecord(java.lang.String)
-   */
-  public boolean hasRecord(String recId) {    
-    return pz2.hasRecord(recId);
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getRecord()
-   */
-  public RecordResponse getRecord() {
-    return pz2.getRecord();
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getTermLists()
-   */
-  public TermListsResponse getTermLists() {
-    return pz2.getTermLists();
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getFacetTerms(java.lang.String, int)
-   */
-  public List<TermResponse> getFacetTerms(String facet, int count) {
-    return pz2.getFacetTerms(facet, count);
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getFacetTerms(java.lang.String)
-   */
-  public List<TermResponse> getFacetTerms(String facet) {  
-    return pz2.getFacetTerms(facet);
-  }  
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getByTarget()
-   */
-  public ByTarget getByTarget() {  
-    return pz2.getByTarget();
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#hasRecords()
-   */
-  public boolean hasRecords() {
-    return pz2.hasRecords();
-  }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setPager(int)
-   */
-  public ResultsPager setPager(int pageRange) {
-    return pz2.setPager(pageRange);
+  public void doSearch(String query) {
+    req.getSearch().setParameter(new CommandParameter("query","=",query));     
+    doSearch();
   }
 
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getPager()
-   */
-  public ResultsPager getPager() {
-    return pz2.getPager();
+  public void doSearch() { 
+    stateMgr.hasPendingStateChange("search",false);
+    data.reset();
+    req.getRecord().removeParameters();
+    req.getShow().setParameter(new CommandParameter("start","=",0));    
+    logger.debug(Utils.objectId(this) + " is searching using "+req.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
+    doCommand("search");    
   }
-  
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#getCurrentStateKey()
+      
+  /**
+   * Refreshes 'show', 'stat', 'termlist', and 'bytarget' data object from pazpar2
+   * 
+   * @return Number of activeclients at the time of the 'show' command.
    */
-  public String getCurrentStateKey() {
-    return pz2.getCurrentStateKey();
+  public String update () {
+    logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
+    return update("show,stat,termlist,bytarget");
   }
+   
+  /**
+   * Refreshes the data objects listed in 'commands' from pazpar2
+   * 
+   * @param commands
+   * @return Number of activeclients at the time of the 'show' command
+   */
+  public String update (String commands) {
+    if (! hasConfigurationErrors()) {
+      if (hasQuery()) {
+        handleQueryStateChanges(commands);
+        logger.debug("Processing request for " + commands); 
+        List<CommandThread> threadList = new ArrayList<CommandThread>();
+        StringTokenizer tokens = new StringTokenizer(commands,",");
+        while (tokens.hasMoreElements()) {          
+          threadList.add(new CommandThread(req.getCommandReadOnly(tokens.nextToken()),searchClient));            
+        }
+        for (CommandThread thread : threadList) {
+          thread.start();
+        }
+        for (CommandThread thread : threadList) {
+          try {
+            thread.join();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+        for (CommandThread thread : threadList) {
+           String commandName = thread.getCommand().getName();
+           String response = thread.getResponse();
+           logger.debug("Response was: " + response);
+           Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
+           data.put(commandName, responseObject);        
+        }
+        if (commands.equals("record")) {
+          logger.debug("Record: Active clients: "+data.getRecord().getActiveClients());
+          return data.getRecord().getActiveClients();
+        } else {
+          return data.getActiveClients();
+        }  
+      } else {
+        logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
+        data.reset();
+        return "0";
+      }
+    } else {
+      logger.error("Did not attempt to execute query since there are configuration errors.");
+      return "0";
+    }
     
-  /* (non-Javadoc)
-   * @see com.indexdata.pz2utils4jsf.pazpar2.Pz2Interface#setCurrentStateKey(java.lang.String)
-   */
-  public void setCurrentStateKey(String key) {
-    pz2.setCurrentStateKey(key);    
+  }
+                                
+  public String toggleRecord (String recId) {
+    if (hasRecord(recId)) {
+      req.getRecord().removeParameters();  
+      data.put("record", new RecordResponse());
+      return "";
+    } else {
+      req.getRecord().setRecordId(recId);
+      return doCommand("record");
+    }
   }
   
-  public boolean hasErrors() {
-    return pz2.hasErrors();
-  }
-    
-  public ErrorInterface getCommandError() {
-    return pz2.getCommandError();
-  }
-  
-  public List<ErrorInterface> getConfigurationErrors () {
-    return pz2.getConfigurationErrors();
-  }
-
   @Override
-  public boolean hasCommandErrors() {
-    return pz2.hasCommandErrors();
+  public boolean hasRecord (String recId) {
+    return req.getCommandReadOnly("record").hasParameters() && data.getRecord().getRecId().equals(recId);
   }
-
-  @Override
-  public boolean hasConfigurationErrors() {
-    return pz2.hasConfigurationErrors();
+        
+  public String getCurrentStateKey () {    
+    return stateMgr.getCurrentState().getKey();
+  }
+      
+  public void setCurrentStateKey(String key) {       
+    stateMgr.setCurrentStateKey(key);
   }
   
+  public boolean hasConfigurationErrors () {
+      return (configurationErrors.size()>0);      
+  }
+  
+  public boolean hasCommandErrors () {
+    return data.hasApplicationError();
+  }
+  
+  /**
+   * Returns true if application error found in any response data objects 
+   */
+  public boolean hasErrors () {
+    return hasConfigurationErrors() || hasCommandErrors();
+  }
+
+  public List<ErrorInterface> getConfigurationErrors() {    
+    return configurationErrors;
+  }
+  
+  
+  protected boolean hasQuery() {    
+    return req.getSearch().getParameter("query") != null && req.getSearch().getParameter("query").getValueWithExpressions().length()>0;
+  }
+    
+    
+  public ResultsPager getPager () {
+    if (pager == null) {
+      pager = new ResultsPager(data);      
+    } 
+    return pager;      
+  }
+  
+  public ResultsPager setPager (int pageRange) {
+    pager =  new ResultsPager(data,pageRange,req);
+    return pager;
+  }
+  
+  protected ErrorHelper getTroubleshooter() {
+    return errorHelper;
+  }
+  
+  protected void handleQueryStateChanges (String commands) {
+    if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
+      logger.debug("Found pending search change. Doing search before updating " + commands);      
+      doSearch();
+    } 
+    if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
+      logger.debug("Found pending record ID change. Doing record before updating " + commands);
+      stateMgr.hasPendingStateChange("record",false);
+      if (req.getCommandReadOnly("record").hasParameters()) {
+        update("record");
+      } else {
+        req.getRecord().removeParameters();  
+        data.put("record", new RecordResponse());
+      }
+    }
+  }
+  
+  protected String doCommand(String commandName) {             
+    logger.debug(req.getCommandReadOnly(commandName).getEncodedQueryString() + ": Results for "+ req.getCommandReadOnly("search").getEncodedQueryString());
+    return update(commandName);
+  }
+  
+  @Override
+  public void stateUpdated(String commandName) {
+    logger.debug("State change reported for [" + commandName + "]");
+    if (commandName.equals("show")) {
+      logger.debug("Updating show");
+      update(commandName);
+    } 
+  }
+
+
 }

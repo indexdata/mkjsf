@@ -11,13 +11,9 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.SearchCommand;
-import com.indexdata.pz2utils4jsf.pazpar2.sp.ForServiceProxy;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyInterface;
-import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxySession;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
@@ -26,95 +22,101 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     
   private static final long serialVersionUID = 4221824985678758225L;
   private static Logger logger = Logger.getLogger(Pz2ProxyBean.class);  
+  private String initDocFileName = "";
+  private String initDocResponse = "";
+  private String serviceProxyUrl = "";  
     
   @Inject ConfigurationReader configurator;
-  @Inject ServiceProxyUser user;  
-  @Inject @ForServiceProxy ServiceProxySession pz2;
+  @Inject ServiceProxyUser user;    
   
   public Pz2ProxyBean() {
   }
   
   @PostConstruct
-  public void instantiateServiceProxyClient() {
-    logger.debug(Utils.objectId(this) + " will instantiate a ServiceProxyClient next.");    
-    searchClient = new ServiceProxyClient();
-    logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
-                          + Utils.objectId(configurator) + "] on session [" 
-                          + Utils.objectId(pz2) + "]" );    
-    pz2.configureClient(searchClient,configurator);
+  public void postConstruct() {
+    if (searchClient == null) {
+      logger.debug(Utils.objectId(this) + " will instantiate a ServiceProxyClient next.");    
+      searchClient = new ServiceProxyClient();
+      logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
+                            + Utils.objectId(configurator) + "]" );    
+      configureClient(searchClient,configurator);
+    } else {
+      logger.info("Pz2ProxyBean:postConstruct: searchClient already instantiated " +
+      		        "during construction of parent object Pz2Bean.");
+    }
   }
 
   @Override
   public String login(String navigateTo) {
     logger.info("doing login");
-    session().setUser(user);
-    session().resetDataObjects();
-    session().removeCommand("record");
-    ((SearchCommand)session().getCommand("search")).setQuery(null);
-    return session().login(navigateTo);
-  }
-
-  @Override
-  public void setInitFileName(String fileName) {
-    logger.info("Setting init file name: " + fileName);
-    session().setInitFileName(fileName);      
-  }
-
-  @Override
-  public String getInitFileName() {
-    return session().getInitFileName();
-  }
-  
-  public void setAceFilter (String filterExpression) {
-    session().setAceFilter(filterExpression);
-  }
-  
-  public String getAceFilter () {
-    return session().getAceFilter();
-  }
-
-  @Override
-  public String postInit() throws UnsupportedEncodingException, IOException {
-    logger.info("Posting init: " + System.currentTimeMillis());
-    session().postInit();
-    return "";
-  }
-  
-  public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException {
-    logger.info("Posting init: " + System.currentTimeMillis());
-    session().postInit(initDoc);
-    return "";
+    ((ServiceProxyClient)searchClient).authenticate(user);
+    data.reset();
+    req.getRecord().removeParameters();
+    req.getSearch().setQuery(null);
     
+    return navigateTo;
   }
 
   @Override
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
-    session().setServiceProxyUrl(url); 
-    ((SearchCommand)session().getCommand("search")).setQuery(null);
-    session().resetDataObjects();
+    serviceProxyUrl = url;
+    req.getSearch().setQuery(null);
+    data.reset();
+  }
+  
+  public String getServiceProxyUrl() {
+    return serviceProxyUrl;
+  }
+    
+  public String getInitDocPath () {
+    return searchClient.getConfiguration().get("INIT_DOC_PATH");
+  }
+  
+  @Override
+  public void setInitFileName(String fileName) {
+    this.initDocFileName = fileName;
+    
   }
 
   @Override
-  public String getServiceProxyUrl() {
-    return session().getServiceProxyUrl();    
+  public String getInitFileName() {
+    return initDocFileName;
+  }
+
+  @Override
+  public String postInit() throws UnsupportedEncodingException, IOException {    
+    String initDocPath = ((ServiceProxyClient)searchClient).getInitDocPaths()[0];
+    logger.info("Paths: " + ((ServiceProxyClient)searchClient).getInitDocPaths());
+    logger.info("Path: " + initDocPath);
+    data.reset();
+    byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDocPath + getInitFileName());
+    initDocResponse = new String(response,"UTF-8");
+    return initDocResponse;
   }
   
-  public ServiceProxySession session() {
-    return (ServiceProxySession)pz2;
+  @Override
+  public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException {    
+    data.reset();
+    byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDoc);
+    initDocResponse = new String(response,"UTF-8");
+    return initDocResponse;
   }
+
 
   @Override
   public String getInitResponse() {
-    return session().getInitResponse();
+    return initDocResponse;
   }
   
-  public Configuration getClientConfiguration() {
-    return session().client().getConfiguration();
+  public void setAceFilter(String filterExpression) {
+    //setCommandParameter("record",new CommandParameter("acefilter","=",filterExpression));
   }
   
-  public String getInitDocPath () {
-    return session().client().getConfiguration().get("INIT_DOC_PATH");
+  public String getAceFilter () {
+    return null;
+    // return getCommandParameterValue("record","acefilter","");
   }
+
 
 }

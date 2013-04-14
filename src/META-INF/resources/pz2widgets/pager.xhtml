@@ -24,7 +24,7 @@
   
   <composite:implementation>
 
-    <h:panelGrid columns="1" width="100%" rendered="#{pz2.hasRecords()}"><h:panelGroup>
+    <h:panelGrid columns="1" width="100%" rendered="#{data.hasRecords()}"><h:panelGroup>
       <h:outputText id="instantiatePager" value="#{pz2.setPager(cc.attrs.visiblePageRange)}" style="display: none;" />
                  
       <h:commandLink value="#{cc.attrs.prevLabel}" 

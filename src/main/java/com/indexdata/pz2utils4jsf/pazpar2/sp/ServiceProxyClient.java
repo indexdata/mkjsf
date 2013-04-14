@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -46,10 +43,9 @@ import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.AuthenticationEntity;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
-import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
-@Named @SessionScoped 
+
 public class ServiceProxyClient implements SearchClient {
     
   private static final long serialVersionUID = -4031644009579840277L;
@@ -98,7 +94,7 @@ public class ServiceProxyClient implements SearchClient {
     try {      
       logger.info("Authenticating [" + user.getProperty("name") + "]");
       this.user = (ServiceProxyUser) user;
-      Pazpar2Command auth = new Pazpar2Command("auth",new StateManager());
+      Pazpar2Command auth = new Pazpar2Command("auth",null);
       auth.setParameters(new CommandParameter("action","=","login"), 
                          new CommandParameter("username","=",user.getProperty("name")), 
                          new CommandParameter("password","=",user.getProperty("password")));
@@ -123,7 +119,7 @@ public class ServiceProxyClient implements SearchClient {
   
   public boolean checkAuthentication () {
     try {
-      Pazpar2Command check = new Pazpar2Command("auth",new StateManager());
+      Pazpar2Command check = new Pazpar2Command("auth",null);
       check.setParameter(new CommandParameter("action","=","check"));
       byte[] response = send(check);
       logger.info(new String(response,"UTF-8"));

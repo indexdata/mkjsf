@@ -19,7 +19,12 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
     
   public Pazpar2Command (String name, StateManager stateMgr) {
     this.name = name;
-    this.stateMgr = stateMgr;
+    if (stateMgr == null) {
+      // Set one-off dummy state mgr
+      this.stateMgr = new StateManager();
+    } else {
+      this.stateMgr = stateMgr;
+    }
   }
       
   public Pazpar2Command copy () {

@@ -4,42 +4,40 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.indexdata.pz2utils4jsf.controls.PageLink;
-import com.indexdata.pz2utils4jsf.pazpar2.Pz2Session;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
-import com.indexdata.pz2utils4jsf.pazpar2.data.ShowResponse;
+import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2Responses;
 
 public class ResultsPager implements Serializable {
 
   private static final long serialVersionUID = 8854795222615583071L;
-  private Pz2Session pz2session = null;
+  private Pazpar2Responses data = null;
   private int pageRangeLength = 13;
   private Pazpar2Commands req;
   
-  public ResultsPager(Pz2Session session) {
-    this.pz2session = session;     
+  public ResultsPager(Pazpar2Responses data) {
+    this.data = data;     
   }
   
-  public ResultsPager(Pz2Session session, int pageRange, Pazpar2Commands req) {
-    this.pz2session = session;
+  public ResultsPager(Pazpar2Responses data, int pageRange, Pazpar2Commands req) {
+    this.data = data;
     this.pageRangeLength = pageRange;
     this.req = req;
   }
   
   private boolean hasHits () {
-    return (getShow().getMerged()>0);
+    return (data.getShow().getMerged()>0);
   }
   
   public int getCurrentPageNum () {
-    if (hasHits() && getShow().getNum()>0) {      
-      return (getShow().getStart()/getShow().getNum())+1;
+    if (hasHits() && data.getShow().getNum()>0) {      
+      return (data.getShow().getStart()/data.getShow().getNum())+1;
     } else {
       return 0;
     }
   }
   
   public int getPageSize() {
-    return getShow().getNum();
+    return data.getShow().getNum();
   }
     
   public int getFirstDisplayedPageNum () {
@@ -68,7 +66,7 @@ public class ResultsPager implements Serializable {
   
   public int getLastPageNum () {
     if (hasHits()) {
-      return (int) Math.ceil(new Double(getShow().getMerged())/new Double(getShow().getNum()));
+      return (int) Math.ceil(new Double(data.getShow().getMerged())/new Double(data.getShow().getNum()));
     } else {
       return 0;
     }
@@ -109,7 +107,7 @@ public class ResultsPager implements Serializable {
   }
   
   public int getCurrentPage() {
-    return (getShow().getStart()/getPageSize()+1);
+    return (data.getShow().getStart()/getPageSize()+1);
   }
   
   public void goToPage(int page) {    
@@ -138,11 +136,6 @@ public class ResultsPager implements Serializable {
   
   public boolean hasPageAfterLastDisplayed() {
     return getLastDisplayedPageNum() < getLastPageNum();
-  }
-
-  
-  private ShowResponse getShow() {
-    return pz2session.getShow();
   }
     
 }
