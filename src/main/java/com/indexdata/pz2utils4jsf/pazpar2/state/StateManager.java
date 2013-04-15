@@ -70,7 +70,7 @@ public class StateManager implements Serializable {
       states.put(state.getKey(), state);
       currentKey = state.getKey();
       hasPendingStateChange(command.getName(),new Boolean(true));      
-      logger.debug("Updating listeners with state change from " + command);
+      logger.debug("Updating " + listeners.size() + " listener(s) with state change from " + command);
       updateListeners(command.getName());      
     } else {
       logger.debug("Command " + command.getName() + " not found to change the state [" + command.getEncodedQueryString() + "]");
@@ -109,17 +109,21 @@ public class StateManager implements Serializable {
       logger.debug("setCurrentStateKey: no key change detected");
     } else {
       logger.debug("State key change. Was: [" + currentKey + "]. Will be ["+key+"]");
-      if (states.get(key).getCommand("search").equals(states.get(currentKey).getCommand("search"))) {
-        logger.debug("No search change detected");
+      if (states.get(key)==null) {
+        logger.error("The back-end received an unknow state key.");        
       } else {
-        hasPendingStateChange("search",true);
-      }
-      if (states.get(key).getCommand("record").equals(states.get(currentKey).getCommand("record"))) {
-        logger.debug("No record change detected");
-      } else {
-        hasPendingStateChange("record",true);
-      }
-      currentKey = key;
+        if (states.get(key).getCommand("search").equals(states.get(currentKey).getCommand("search"))) {
+          logger.debug("No search change detected");
+        } else {
+          hasPendingStateChange("search",true);
+        }
+        if (states.get(key).getCommand("record").equals(states.get(currentKey).getCommand("record"))) {
+          logger.debug("No record change detected");
+        } else {
+          hasPendingStateChange("record",true);
+        }
+        currentKey = key;
+      }      
     }
   }
 

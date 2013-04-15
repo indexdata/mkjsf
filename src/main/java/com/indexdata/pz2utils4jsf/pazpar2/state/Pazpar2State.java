@@ -37,7 +37,7 @@ public class Pazpar2State {
     commands.put(Pazpar2Commands.RECORD,   new RecordCommand(mgr));
     commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand(mgr));
     commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand(mgr));    
-    key = "#initial";
+    key = "#1";
   }
     
   /**
@@ -63,14 +63,14 @@ public class Pazpar2State {
    */
   public String getKey() {
     if (key == null) {
-      StringBuilder querystatebuilder = new StringBuilder("#");
+      StringBuilder querystatebuilder = new StringBuilder("");
       for (Pazpar2Command command : commands.values()) {
         if (command.hasParameters()) {
           querystatebuilder.append("||"+command.getName()+"::");
           querystatebuilder.append(command.getValueWithExpressions());
         }      
       }            
-      key = querystatebuilder.toString();
+      key = "#"+querystatebuilder.toString().hashCode();
       return key;
     } else {      
       return key;

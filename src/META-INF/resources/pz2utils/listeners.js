@@ -50,7 +50,7 @@
 	      if (window.location.hash != stateKey.value) {
 	        //console.log("updating stateKey with new browser hash: " + window.location.hash);
 	        stateKey.value = window.location.hash;
-	        if (! stateKey.value) window.location.hash = '#initial';
+	        if (! stateKey.value) window.location.hash = '#1';
 	        stateKey.onchange();
 	      } else {
 	        //console.log("State hash already has the value of the new browser hash - not updating state hash");

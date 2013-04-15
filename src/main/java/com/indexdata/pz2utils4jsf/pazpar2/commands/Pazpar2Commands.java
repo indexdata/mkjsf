@@ -81,6 +81,11 @@ public class Pazpar2Commands implements Serializable {
     return (ShowCommand) (stateMgr.getCurrentState().getCommand(SHOW));
   }
   
+  /**
+   * Gets a detached (copied) record command from the current state
+   * 
+   * @return
+   */
   public RecordCommand getRecord() {
     return (RecordCommand) (stateMgr.checkOut(RECORD));
   }
@@ -94,10 +99,19 @@ public class Pazpar2Commands implements Serializable {
     return (RecordCommand)stateMgr.getCurrentState().getCommand(RECORD);
   }
   
+  /**
+   * Gets a detached (copied) termlist command from the current state
+   * 
+   * @return Mutable termlist command
+   */
   public TermlistCommand getTermlist() {
     return (TermlistCommand) (stateMgr.checkOut(TERMLIST));
   }
   
+  /**
+   * 
+   * @return
+   */
   public BytargetCommand getBytarget() {
     return (BytargetCommand) (stateMgr.checkOut(BYTARGET));
   }

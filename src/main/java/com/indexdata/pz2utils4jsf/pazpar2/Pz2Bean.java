@@ -121,47 +121,62 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
    */
   public String update (String commands) {
     if (! hasConfigurationErrors()) {
-      if (hasQuery()) {
-        handleQueryStateChanges(commands);
-        logger.debug("Processing request for " + commands); 
-        List<CommandThread> threadList = new ArrayList<CommandThread>();
-        StringTokenizer tokens = new StringTokenizer(commands,",");
-        while (tokens.hasMoreElements()) {          
-          threadList.add(new CommandThread(pzreq.getCommandReadOnly(tokens.nextToken()),searchClient));            
-        }
-        for (CommandThread thread : threadList) {
-          thread.start();
-        }
-        for (CommandThread thread : threadList) {
-          try {
-            thread.join();
-          } catch (InterruptedException e) {
-            e.printStackTrace();
+      if (commandsAreValid(commands)) {
+        if (hasQuery()) {
+          handleQueryStateChanges(commands);
+          logger.debug("Processing request for " + commands); 
+          List<CommandThread> threadList = new ArrayList<CommandThread>();
+          StringTokenizer tokens = new StringTokenizer(commands,",");
+          while (tokens.hasMoreElements()) {          
+            threadList.add(new CommandThread(pzreq.getCommandReadOnly(tokens.nextToken()),searchClient));            
           }
-        }
-        for (CommandThread thread : threadList) {
-           String commandName = thread.getCommand().getName();
-           String response = thread.getResponse();
-           responseLogger.debug("Response was: " + response);
-           Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
-           pzresp.put(commandName, responseObject);        
-        }
-        if (commands.equals("record")) {
-          logger.debug("Record: Active clients: "+pzresp.getRecord().getActiveClients());
-          return pzresp.getRecord().getActiveClients();
+          for (CommandThread thread : threadList) {
+            thread.start();
+          }
+          for (CommandThread thread : threadList) {
+            try {
+              thread.join();
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+          }
+          for (CommandThread thread : threadList) {
+             String commandName = thread.getCommand().getName();
+             String response = thread.getResponse();
+             responseLogger.debug("Response was: " + response);
+             Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
+             pzresp.put(commandName, responseObject);        
+          }
+          if (commands.equals("record")) {
+            logger.debug("Record: Active clients: "+pzresp.getRecord().getActiveClients());
+            return pzresp.getRecord().getActiveClients();
+          } else {
+            return pzresp.getActiveClients();
+          }  
         } else {
-          return pzresp.getActiveClients();
-        }  
+          logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
+          pzresp.reset();
+          return "0";
+        }
       } else {
-        logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
-        pzresp.reset();
+        logger.error("Did not attemt to run command(s) due to a validation error.");
         return "0";
       }
-    } else {
+    } else {      
       logger.error("Did not attempt to execute query since there are configuration errors.");
       return "0";
     }
     
+  }
+  
+  public boolean commandsAreValid(String commands) {
+    if (commands.equals("record")) {
+      if (!pzreq.getCommandReadOnly("record").hasParameterSet("id")) {
+        logger.error("Attempt to send record command without the id parameter");
+        return false;
+      }
+    }
+    return true;
   }
                                 
   public String toggleRecord (String recId) {
@@ -237,7 +252,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
-      if (pzreq.getCommandReadOnly("record").hasParameters()) {
+      if (pzreq.getCommandReadOnly("record").hasParameterSet("id")) {
         update("record");
       } else {         
         pzresp.put("record", new RecordResponse());
