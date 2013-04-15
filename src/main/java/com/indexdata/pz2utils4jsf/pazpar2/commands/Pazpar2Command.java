@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.pazpar2.state.StateManager;
 
-public class Pazpar2Command implements CommandReadOnly, Serializable  {
+public class Pazpar2Command implements Serializable  {
   
   private static Logger logger = Logger.getLogger(Pazpar2Command.class);
   private static final long serialVersionUID = -6825491856480675917L;   
@@ -30,7 +30,7 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
   public Pazpar2Command copy () {
     Pazpar2Command newCommand = new Pazpar2Command(name,stateMgr);
     for (String parameterName : parameters.keySet()) {
-      newCommand.setParameterSilently(parameters.get(parameterName).copy());      
+      newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
     return newCommand;
   }
@@ -40,21 +40,29 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
   }
     
   public void setParameter (CommandParameter parameter) {
+    Pazpar2Command thisCommand = this.copy();
     logger.debug(name + " setting parameter " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
-    parameters.put(parameter.getName(),parameter);
-    stateMgr.checkIn(this);
+    thisCommand.parameters.put(parameter.getName(),parameter);
+    stateMgr.checkIn(thisCommand);
   }
   
   public void setParameters (CommandParameter... params) {
+    Pazpar2Command thisCommand = this.copy();
+    for (CommandParameter param : params) {
+      logger.debug(name + " setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
+      thisCommand.parameters.put(param.getName(),param);
+    }
+    stateMgr.checkIn(thisCommand);
+  }
+  
+  public void setParametersInState (CommandParameter... params) {    
     for (CommandParameter param : params) {
       logger.debug(name + " setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
       parameters.put(param.getName(),param);
-    }
-    stateMgr.checkIn(this);
+    }    
   }
-  
-  
-  public void setParameterSilently (CommandParameter parameter) {
+    
+  public void setParameterInState (CommandParameter parameter) {
     logger.debug(name + " setting parameter silently " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
     parameters.put(parameter.getName(),parameter);    
   }
@@ -65,16 +73,18 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
   }
   
   public void removeParameter (String name) {
-    parameters.remove(name);
-    stateMgr.checkIn(this);
+    Pazpar2Command thisCommand = this.copy();
+    thisCommand.parameters.remove(name);
+    stateMgr.checkIn(thisCommand);
   }
   
   public void removeParameters() {
-    parameters = new HashMap<String,CommandParameter>();
-    stateMgr.checkIn(this);
+    Pazpar2Command thisCommand = this.copy();
+    thisCommand.parameters = new HashMap<String,CommandParameter>();
+    stateMgr.checkIn(thisCommand);
   }
   
-  public void removeParametersSilently() {
+  public void removeParametersInState() {
     parameters = new HashMap<String,CommandParameter>();    
   }
 
@@ -119,13 +129,11 @@ public class Pazpar2Command implements CommandReadOnly, Serializable  {
     return parameters.toString();
   }
 
-  @Override
   public String getParameterValue(String parameterName) {
     return getParameter(parameterName).getValueWithExpressions();
     
   }
 
-  @Override
   public String getUrlEncodedParameterValue(String parameterName) {
     return getParameter(parameterName).getEncodedQueryString();
   }

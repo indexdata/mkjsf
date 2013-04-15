@@ -11,7 +11,6 @@ import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
@@ -76,21 +75,8 @@ public class StateManager implements Serializable {
       logger.debug("Command " + command.getName() + " not found to change the state [" + command.getEncodedQueryString() + "]");
     }
   }
-  
-  /**
-   * Gets a detached copy of a command. For the change manager
-   * to become aware of any changes to the copy it must be 
-   * checked back in with 'checkIn(Pazpar2Command)'
-   * 
-   * @param commandName
-   * @return Copy this state's instance of the given command
-   */
-  public Pazpar2Command checkOut (String commandName) {
-    logger.debug("Getting " + commandName + " from state manager.");
-    return getCurrentState().getCommand(commandName).copy();
-  }
-    
-  public CommandReadOnly getCommand (String commandName) {
+      
+  public Pazpar2Command getCommand (String commandName) {
     return getCurrentState().getCommand(commandName);
   }
   

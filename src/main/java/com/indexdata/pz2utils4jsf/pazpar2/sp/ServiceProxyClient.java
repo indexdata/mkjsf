@@ -39,7 +39,6 @@ import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.pazpar2.CommandResponse;
 import com.indexdata.pz2utils4jsf.pazpar2.SearchClient;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.AuthenticationEntity;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
@@ -95,9 +94,9 @@ public class ServiceProxyClient implements SearchClient {
       logger.info("Authenticating [" + user.getProperty("name") + "]");
       this.user = (ServiceProxyUser) user;
       Pazpar2Command auth = new Pazpar2Command("auth",null);
-      auth.setParameters(new CommandParameter("action","=","login"), 
-                         new CommandParameter("username","=",user.getProperty("name")), 
-                         new CommandParameter("password","=",user.getProperty("password")));
+      auth.setParametersInState(new CommandParameter("action","=","login"), 
+                                new CommandParameter("username","=",user.getProperty("name")), 
+                                new CommandParameter("password","=",user.getProperty("password")));
       byte[] response = send(auth);
       String responseStr = new String(response,"UTF-8");
       logger.info(responseStr);      
@@ -155,7 +154,7 @@ public class ServiceProxyClient implements SearchClient {
    * @throws ClientProtocolException
    * @throws IOException
    */
-  private byte[] send(CommandReadOnly command) throws ClientProtocolException, IOException {
+  private byte[] send(Pazpar2Command command) throws ClientProtocolException, IOException {
     String url = serviceUrl + "?" + command.getEncodedQueryString(); 
     logger.info("Sending request "+url);    
     HttpGet httpget = new HttpGet(url);     
@@ -192,12 +191,12 @@ public class ServiceProxyClient implements SearchClient {
   }
 
   @Override
-  public void setSearchCommand(CommandReadOnly command) {
+  public void setSearchCommand(Pazpar2Command command) {
     // Do nothing, Service Proxy is handling this    
   }
 
   @Override
-  public CommandResponse executeCommand(CommandReadOnly command,
+  public CommandResponse executeCommand(Pazpar2Command command,
       ByteArrayOutputStream baos) throws Pazpar2ErrorException, IOException {
     byte[] response = send(command);
     baos.write(response);

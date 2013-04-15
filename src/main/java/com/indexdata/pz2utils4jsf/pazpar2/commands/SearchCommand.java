@@ -193,7 +193,7 @@ public class SearchCommand extends Pazpar2Command {
   public SearchCommand copy () {
     SearchCommand newCommand = new SearchCommand(stateMgr);
     for (String parameterName : parameters.keySet()) {
-      newCommand.setParameterSilently(parameters.get(parameterName).copy());      
+      newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }
     newCommand.singleTargetFilter = this.singleTargetFilter;
     return newCommand;

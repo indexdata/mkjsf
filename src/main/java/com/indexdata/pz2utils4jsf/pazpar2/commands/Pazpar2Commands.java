@@ -40,88 +40,43 @@ public class Pazpar2Commands implements Serializable {
   }
     
   public InitCommand getInit() {
-    return (InitCommand) (stateMgr.checkOut(INIT));
+    return (InitCommand) (stateMgr.getCommand(INIT));
   }
   
   public PingCommand getPing() {
-    return (PingCommand) (stateMgr.checkOut(PING));
+    return (PingCommand) (stateMgr.getCommand(PING));
   }
   
   public SettingsCommand getSettings() {
-    return (SettingsCommand) (stateMgr.checkOut(SETTINGS));
+    return (SettingsCommand) (stateMgr.getCommand(SETTINGS));
   }
 
   public SearchCommand getSearch() {
-    return (SearchCommand) (stateMgr.checkOut(SEARCH));
+    return (SearchCommand) (stateMgr.getCommand(SEARCH));
   }
   
-  /**
-   * Gets a mutable SearchCommand from current state (no checkout)
-   * Can be used for updating Search parameters without spawning new state.
-   * @return
-   */
-  public SearchCommand getSearchInState() {
-    return (SearchCommand) (stateMgr.getCurrentState().getCommand(SEARCH));
-  }
-
   public StatCommand getStat() {
-    return (StatCommand) (stateMgr.checkOut(STAT));
+    return (StatCommand) (stateMgr.getCommand(STAT));
   }
   
   public ShowCommand getShow() {
-    return (ShowCommand) (stateMgr.checkOut(SHOW));
+    return (ShowCommand) (stateMgr.getCommand(SHOW));
   }
-  
-  /**
-   * Gets a mutable ShowCommand from current state (no checkout)
-   * Can be used for updating show parameters without spawning new state.
-   * @return
-   */
-  public ShowCommand getShowInState () {
-    return (ShowCommand) (stateMgr.getCurrentState().getCommand(SHOW));
-  }
-  
-  /**
-   * Gets a detached (copied) record command from the current state
-   * 
-   * @return
-   */
+    
   public RecordCommand getRecord() {
-    return (RecordCommand) (stateMgr.checkOut(RECORD));
+    return (RecordCommand) (stateMgr.getCommand(RECORD));
   }
 
-  /**
-   * Gets a mutable RecordCommand from current state (no checkout)
-   * Can be used for updating record parameters without spawning new state.
-   * @return
-   */  
-  public RecordCommand getRecordInState() {
-    return (RecordCommand)stateMgr.getCurrentState().getCommand(RECORD);
-  }
-  
-  /**
-   * Gets a detached (copied) termlist command from the current state
-   * 
-   * @return Mutable termlist command
-   */
   public TermlistCommand getTermlist() {
-    return (TermlistCommand) (stateMgr.checkOut(TERMLIST));
+    return (TermlistCommand) (stateMgr.getCommand(TERMLIST));
   }
   
-  /**
-   * 
-   * @return
-   */
   public BytargetCommand getBytarget() {
-    return (BytargetCommand) (stateMgr.checkOut(BYTARGET));
+    return (BytargetCommand) (stateMgr.getCommand(BYTARGET));
   }
   
   public Pazpar2Command getCommand(String name) {
-    return stateMgr.checkOut(name);
-  }
-  
-  public CommandReadOnly getCommandReadOnly(String name) {
     return stateMgr.getCommand(name);
   }
-    
+      
 }

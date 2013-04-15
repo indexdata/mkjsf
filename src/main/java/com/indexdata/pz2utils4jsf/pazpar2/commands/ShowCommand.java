@@ -8,7 +8,7 @@ public class ShowCommand extends Pazpar2Command {
 
   public ShowCommand(StateManager stateMgr) {
     super("show",stateMgr);
-    setParameterSilently(new CommandParameter("start","=","0"));
+    setParameterInState(new CommandParameter("start","=","0"));
   }
 
   /**
@@ -86,13 +86,11 @@ public class ShowCommand extends Pazpar2Command {
   public int getNum () {
     return getParameter("num") != null ? Integer.parseInt(getParameter("num").value) : 0;
   }
-
-
   
   public ShowCommand copy () {
     ShowCommand newCommand = new ShowCommand(stateMgr);
     for (String parameterName : parameters.keySet()) {
-      newCommand.setParameterSilently(parameters.get(parameterName).copy());      
+      newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
     return newCommand;
   }

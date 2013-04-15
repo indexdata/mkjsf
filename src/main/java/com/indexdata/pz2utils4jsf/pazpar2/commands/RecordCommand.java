@@ -22,7 +22,7 @@ public class RecordCommand extends Pazpar2Command {
   public RecordCommand copy () {
     RecordCommand newCommand = new RecordCommand(stateMgr);
     for (String parameterName : parameters.keySet()) {
-      newCommand.setParameterSilently(parameters.get(parameterName).copy());      
+      newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
     return newCommand;
   }

@@ -23,7 +23,7 @@ import com.indexdata.masterkey.pazpar2.client.exceptions.ProxyErrorException;
 import com.indexdata.pz2utils4jsf.config.Configuration;
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandReadOnly;
+import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.pz2utils4jsf.utils.Utils;
 
 public class Pz2Client implements SearchClient {
@@ -81,13 +81,13 @@ public class Pz2Client implements SearchClient {
   }
   
   @Override
-  public void setSearchCommand(CommandReadOnly command) {
+  public void setSearchCommand(Pazpar2Command command) {
     ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
     client.setSearchCommand(clientCommand);    
   }
 
   @Override
-  public CommandResponse executeCommand(CommandReadOnly command, ByteArrayOutputStream baos) 
+  public CommandResponse executeCommand(Pazpar2Command command, ByteArrayOutputStream baos) 
        throws Pazpar2ErrorException, IOException {
     ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
     Pazpar2HttpResponse pz2HttpResponse = client.executeCommand(clientCommand, baos);

@@ -97,9 +97,9 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     pzresp.reset();
     // resets some record and show command parameters without 
     // changing state or creating state change feedback
-    pzreq.getRecordInState().removeParametersSilently();        
-    pzreq.getShowInState().setParameterSilently(new CommandParameter("start","=",0));    
-    logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommandReadOnly("search").getUrlEncodedParameterValue("query"));
+    pzreq.getRecord().removeParametersInState();        
+    pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
+    logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
     doCommand("search");    
   }
       
@@ -128,7 +128,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
           List<CommandThread> threadList = new ArrayList<CommandThread>();
           StringTokenizer tokens = new StringTokenizer(commands,",");
           while (tokens.hasMoreElements()) {          
-            threadList.add(new CommandThread(pzreq.getCommandReadOnly(tokens.nextToken()),searchClient));            
+            threadList.add(new CommandThread(pzreq.getCommand(tokens.nextToken()),searchClient));            
           }
           for (CommandThread thread : threadList) {
             thread.start();
@@ -171,7 +171,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   
   public boolean commandsAreValid(String commands) {
     if (commands.equals("record")) {
-      if (!pzreq.getCommandReadOnly("record").hasParameterSet("id")) {
+      if (!pzreq.getCommand("record").hasParameterSet("id")) {
         logger.error("Attempt to send record command without the id parameter");
         return false;
       }
@@ -192,7 +192,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   
   @Override
   public boolean hasRecord (String recId) {
-    return pzreq.getCommandReadOnly("record").hasParameters() && pzresp.getRecord().getRecId().equals(recId);
+    return pzreq.getCommand("record").hasParameters() && pzresp.getRecord().getRecId().equals(recId);
   }
         
   public String getCurrentStateKey () {    
@@ -224,7 +224,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   
   
   protected boolean hasQuery() {        
-    return pzreq.getCommandReadOnly("search").hasParameterSet("query"); 
+    return pzreq.getCommand("search").hasParameterSet("query"); 
   }
     
     
@@ -252,7 +252,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
-      if (pzreq.getCommandReadOnly("record").hasParameterSet("id")) {
+      if (pzreq.getCommand("record").hasParameterSet("id")) {
         update("record");
       } else {         
         pzresp.put("record", new RecordResponse());
@@ -261,7 +261,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   }
   
   protected String doCommand(String commandName) {             
-    logger.debug(pzreq.getCommandReadOnly(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommandReadOnly("search").getEncodedQueryString());
+    logger.debug(pzreq.getCommand(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommand("search").getEncodedQueryString());
     return update(commandName);
   }
   

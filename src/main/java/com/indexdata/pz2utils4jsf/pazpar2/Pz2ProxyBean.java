@@ -51,8 +51,8 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public String login(String navigateTo) {
     logger.info("doing login");
     ((ServiceProxyClient)searchClient).authenticate(user);    
-    pzreq.getRecordInState().removeParametersSilently();
-    pzreq.getSearchInState().removeParametersSilently();
+    pzreq.getRecord().removeParametersInState();
+    pzreq.getSearch().removeParametersInState();
     pzresp.reset();
     return navigateTo;
   }
@@ -61,8 +61,8 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
     serviceProxyUrl = url;
-    pzreq.getRecordInState().removeParametersSilently();
-    pzreq.getSearchInState().removeParametersSilently();
+    pzreq.getRecord().removeParametersInState();
+    pzreq.getSearch().removeParametersInState();
     pzresp.reset();
   }
   
