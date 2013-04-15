@@ -12,7 +12,6 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.config.ConfigurationReader;
-import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyClient;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.ServiceProxyInterface;
 import com.indexdata.pz2utils4jsf.pazpar2.sp.auth.ServiceProxyUser;
@@ -41,6 +40,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
       logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                             + Utils.objectId(configurator) + "]" );    
       configureClient(searchClient,configurator);
+      stateMgr.addStateListener(this);
     } else {
       logger.debug("Pz2ProxyBean:postConstruct: searchClient already instantiated " +
       		        "during construction of parent object Pz2Bean.");
@@ -61,6 +61,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public void setServiceProxyUrl(String url) {
     logger.info("Setting Service Proxy url: " + url);
     serviceProxyUrl = url;
+    pzreq.getRecordInState().removeParametersSilently();
     pzreq.getSearchInState().removeParametersSilently();
     pzresp.reset();
   }
