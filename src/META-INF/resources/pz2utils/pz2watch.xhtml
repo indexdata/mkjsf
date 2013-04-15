@@ -36,7 +36,8 @@
 
     <h:form id="activeclientsForm" prependId="false">
       <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
-      <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>#{' - '}
+      <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
+      <h:outputText id="space" value=" - " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
       <h:outputText id="activeclientsFieldRecord" value="${pz2.update('record')}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
       
       <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
@@ -52,9 +53,9 @@
         </h:dataTable>
         <h:panelGrid  style="${pz2.hasCommandErrors() ? 'display: block;' : 'display: none;'}">
           <h:column>
-            <h:outputText id="messages" value="#{data.commandError.message}" style="color: red;"/>
+            <h:outputText id="messages" value="#{pzresp.commandError.message}" style="color: red;"/>
           </h:column>
-          <h:dataTable value="#{data.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
+          <h:dataTable value="#{pzresp.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
            <h:column>
              #{suggestion}        
            </h:column>      
