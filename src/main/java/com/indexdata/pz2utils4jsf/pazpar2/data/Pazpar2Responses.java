@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
-import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named("pzresp") @SessionScoped
 public class Pazpar2Responses implements Serializable {

@@ -18,7 +18,7 @@ import com.indexdata.pz2utils4jsf.controls.ResultsPager;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationError;
 import com.indexdata.pz2utils4jsf.errors.ConfigurationException;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
-import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
+import com.indexdata.pz2utils4jsf.errors.ErrorCentral;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.CommandParameter;
 import com.indexdata.pz2utils4jsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.pz2utils4jsf.pazpar2.data.Pazpar2ResponseData;
@@ -42,10 +42,11 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   @Inject StateManager stateMgr;
   @Inject Pazpar2Commands pzreq;
   @Inject Pazpar2Responses pzresp;
+  @Inject ErrorCentral errors;
   
   protected ResultsPager pager = null; 
 
-  protected List<ErrorInterface> configurationErrors = null;
+  
   protected ErrorHelper errorHelper = null;
               
   public Pz2Bean () {
@@ -64,15 +65,12 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   }  
   
   public void configureClient(SearchClient searchClient, ConfigurationReader configReader) {
-    errorHelper = new ErrorHelper(configurator);
-    logger.info("pz2 " + Utils.objectId(this) + " sets error helper " + Utils.objectId(errorHelper) + " on pzresp " + Utils.objectId(pzresp));
-    pzresp.setErrorHelper(errorHelper);
-    configurationErrors = new ArrayList<ErrorInterface>();        
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
     try {
       searchClient.configure(configReader);            
     } catch (ConfigurationException e) {
-      configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
+      logger.debug("Pz2Bean adding configuration error");
+      errors.addConfigurationError(new ConfigurationError("Search Client","Configuration",e.getMessage()));                
     } 
     logger.info(configReader.document());
     pzresp.reset();    
@@ -112,7 +110,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
    * @return Number of activeclients at the time of the 'show' command
    */
   public String update (String commands) {
-    if (! hasConfigurationErrors()) {
+    if (! errors.hasConfigurationErrors()) {
       if (commandsAreValid(commands)) {
         if (hasQuery()) {
           handleQueryStateChanges(commands);
@@ -195,25 +193,6 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     stateMgr.setCurrentStateKey(key);
   }
   
-  public boolean hasConfigurationErrors () {
-      return (configurationErrors.size()>0);      
-  }
-  
-  public boolean hasCommandErrors () {
-    return pzresp.hasApplicationError();
-  }
-  
-  /**
-   * Returns true if application error found in any response data objects 
-   */
-  public boolean hasErrors () {
-    logger.debug("Checking for configuration errors or command errors.");
-    return hasConfigurationErrors() || hasCommandErrors();
-  }
-
-  public List<ErrorInterface> getConfigurationErrors() {    
-    return configurationErrors;
-  }
   
   
   protected boolean hasQuery() {        

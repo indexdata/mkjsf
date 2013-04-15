@@ -38,30 +38,7 @@
       <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
       <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
       <h:outputText id="space" value=" - " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
-      <h:outputText id="activeclientsFieldRecord" value="${pz2.update('record')}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
-      
-      <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
-        <h:dataTable value="#{pz2.configurationErrors}" var="error" cellspace="0" cellpadding="0" style="${pz2.hasConfigurationErrors() ? 'display: block; vertical-align: top;' : 'display: none;'}">
-          <h:column valign="top">
-            <h:outputText value="#{error.message}" style="color: red;"/>
-            <h:dataTable value="#{error.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">
-             <h:column>
-               #{suggestion}        
-             </h:column>      
-            </h:dataTable>                                        
-          </h:column>
-        </h:dataTable>
-        <h:panelGrid  style="${pz2.hasCommandErrors() ? 'display: block;' : 'display: none;'}">
-          <h:column>
-            <h:outputText id="messages" value="#{pzresp.commandError.message}" style="color: red;"/>
-          </h:column>
-          <h:dataTable value="#{pzresp.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
-           <h:column>
-             #{suggestion}        
-           </h:column>      
-          </h:dataTable>
-        </h:panelGrid>                
-      </h:panelGrid>                      
+      <h:outputText id="activeclientsFieldRecord" value="${pz2.update('record')}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>      
     </h:form>
 
     <h:form id="stateForm" prependId="false" rendered="${cc.attrs.trackHistory == 'true'}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">

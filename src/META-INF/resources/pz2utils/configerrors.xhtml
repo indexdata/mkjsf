@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<h:html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:cc="http://java.sun.com/jsf/composite">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+  <cc:interface>
+  </cc:interface>
+  
+  <cc:implementation>
+      <h:panelGrid id="configErrorMessagesAndSuggestions" rendered="${errors.hasConfigurationErrors()}">
+        <h:dataTable value="#{errors.configurationErrors}" var="error" cellspace="0" cellpadding="0" style="${errors.hasConfigurationErrors() ? 'display: block; vertical-align: top;' : 'display: none;'}">
+          <h:column valign="top">
+            <h:outputText value="#{error.message}" style="color: red;"/>
+            <h:dataTable value="#{error.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">
+             <h:column>
+               #{suggestion}        
+             </h:column>      
+            </h:dataTable>                                        
+          </h:column>
+        </h:dataTable>
+      </h:panelGrid>                      
+  </cc:implementation>
+    
+</body>
+</h:html>

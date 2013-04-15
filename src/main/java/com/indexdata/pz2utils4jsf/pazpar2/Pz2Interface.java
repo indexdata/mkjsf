@@ -1,10 +1,8 @@
 package com.indexdata.pz2utils4jsf.pazpar2;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.indexdata.pz2utils4jsf.controls.ResultsPager;
-import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 
 public interface Pz2Interface extends Serializable {
 
@@ -98,31 +96,6 @@ public interface Pz2Interface extends Serializable {
    */
   public void setCurrentStateKey(String key);
   
-  /** 
-   * @return true if any errors encountered so far
-   */
-  public boolean hasErrors();
-  
-  /**
-   * 
-   * @return true if errors encountered during execution of commands
-   */
-  public boolean hasCommandErrors();
-  
-  /**
-   * 
-   * @return true if errors encountered when configuring the service
-   */
-  public boolean hasConfigurationErrors();
-  
-  
-  /**
-   * Returns all errors encountered during configuration of the application, in particular
-   * the Pazpar2 client. 
-   * 
-   * @return
-   */
-  public List<ErrorInterface> getConfigurationErrors();
 
      
 }

@@ -15,10 +15,9 @@ public class ConfigurationError implements ErrorInterface {
   private ErrorHelper helper;
   private ErrorCode applicationErrorCode;
   
-  public ConfigurationError(String label, String exception, String message, ErrorHelper helper) {
+  public ConfigurationError(String label, String exception, String message) {
     this.label = label;
-    this.message = message;
-    this.helper = helper;  
+    this.message = message;    
     this.exception = exception;
   }
   

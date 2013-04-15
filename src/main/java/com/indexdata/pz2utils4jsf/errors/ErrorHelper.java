@@ -125,7 +125,7 @@ public class ErrorHelper implements Serializable {
           int pz2code = Integer.parseInt(error.getPazpar2Error().getCode());
           switch (pz2code) {
             case 3:
-              suggestions.add("Query terms not supported.");
+              suggestions.add("The search experienced a problem with the query terms.");
               break;
             case 12:
               suggestions.add("The Pazpar2 server does not have a service defined by the requested ID ");
