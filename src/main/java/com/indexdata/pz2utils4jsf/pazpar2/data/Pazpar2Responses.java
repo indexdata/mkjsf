@@ -10,20 +10,27 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
+import com.indexdata.pz2utils4jsf.utils.Utils;
 
 @Named("pzresp") @SessionScoped
 public class Pazpar2Responses implements Serializable {
-  
+    
   private static final long serialVersionUID = -7543231258346154642L;
   protected Map<String,Pazpar2ResponseData> dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
   private static Logger logger = Logger.getLogger(Pazpar2Responses.class);
+  private ErrorHelper errorHelper = null;
 
   public Pazpar2Responses() {    
   }
   
   public void put(String name, Pazpar2ResponseData responseData) {
     dataObjects.put(name, responseData);
+  }
+  
+  public void setErrorHelper(ErrorHelper helper) {    
+    this.errorHelper = helper;
   }
   
   public boolean hasApplicationError () {
@@ -46,18 +53,19 @@ public class Pazpar2Responses implements Serializable {
    * an empty dummy error. 
    */    
   public ErrorInterface getCommandError() {
-    CommandError error = new CommandError();    
+    CommandError error = new CommandError();
     if (dataObjects.get("search").hasApplicationError()) {
-      error = dataObjects.get("search").getApplicationError();                        
+      error = dataObjects.get("search").getApplicationError();
+      error.setErrorHelper(errorHelper);
     } else {
       for (String name : dataObjects.keySet()) {     
         if (dataObjects.get(name).hasApplicationError()) {     
-          error = dataObjects.get(name).getApplicationError(); 
+          error = dataObjects.get(name).getApplicationError();
+          error.setErrorHelper(errorHelper);
           break;
         } 
       }
     }
-    // TODO error.setErrorHelper(errorHelper);
     return error;         
   }
   

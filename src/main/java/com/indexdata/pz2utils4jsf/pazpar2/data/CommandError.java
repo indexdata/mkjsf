@@ -4,6 +4,7 @@ import static com.indexdata.pz2utils4jsf.utils.Utils.nl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.indexdata.pz2utils4jsf.errors.ErrorInterface;
 import com.indexdata.pz2utils4jsf.errors.ErrorHelper;
@@ -27,6 +28,7 @@ import com.indexdata.utils.XmlUtils;
 public class CommandError extends Pazpar2ResponseData implements ErrorInterface {
 
   private static final long serialVersionUID = 8878776025779714122L;
+  private static Pattern xmlDeclaration = Pattern.compile("<\\?xml.*\\?>");
   private ErrorCode applicationErrorCode;
   private ErrorHelper errorHelper = null;
   
@@ -98,7 +100,7 @@ public class CommandError extends Pazpar2ResponseData implements ErrorInterface 
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
     errorXml.append("  <exception>" + XmlUtils.escape(exceptionName) + "</exception>"+nl);    
-    errorXml.append(pazpar2ErrorXml+nl);    
+    errorXml.append(xmlDeclaration.matcher(pazpar2ErrorXml).replaceAll("")+nl);    
     errorXml.append(" </applicationerror>"+nl);
     errorXml.append("</" + commandName + ">"+nl);
     return errorXml.toString(); 

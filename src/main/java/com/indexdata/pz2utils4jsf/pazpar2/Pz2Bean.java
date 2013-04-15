@@ -59,26 +59,18 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     searchClient = new Pz2Client();
     logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                           + Utils.objectId(configurator) + "]" );    
-    configureClient(searchClient,configurator);
-    stateMgr.addStateListener(this);
+    configureClient(searchClient,configurator);    
+    stateMgr.addStateListener(this);    
   }  
   
   public void configureClient(SearchClient searchClient, ConfigurationReader configReader) {
-    configurationErrors = new ArrayList<ErrorInterface>();
-    errorHelper = new ErrorHelper(configReader);    
+    errorHelper = new ErrorHelper(configurator);
+    logger.info("pz2 " + Utils.objectId(this) + " sets error helper " + Utils.objectId(errorHelper) + " on pzresp " + Utils.objectId(pzresp));
+    pzresp.setErrorHelper(errorHelper);
+    configurationErrors = new ArrayList<ErrorInterface>();        
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
     try {
       searchClient.configure(configReader);            
-      // At the time of writing this search client is injected using Weld. 
-      // However, the client is used for asynchronously sending off requests
-      // to the server AND propagation of context to threads is currently 
-      // not supported. Trying to do so throws a WELD-001303 error. 
-      // To avoid that, a context free client is cloned from the context 
-      // dependent one. 
-      // If propagation to threads gets supported, the cloning can go.
-      //
-      // Commented as I'm trying with regular instantiation instead
-      // this.searchClient = searchClient.cloneMe();         
     } catch (ConfigurationException e) {
       configurationErrors.add(new ConfigurationError("Search Client","Configuration",e.getMessage(),new ErrorHelper(configReader)));          
     } 
@@ -215,6 +207,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
    * Returns true if application error found in any response data objects 
    */
   public boolean hasErrors () {
+    logger.debug("Checking for configuration errors or command errors.");
     return hasConfigurationErrors() || hasCommandErrors();
   }
 
@@ -239,11 +232,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     pager =  new ResultsPager(pzresp,pageRange,pzreq);
     return pager;
   }
-  
-  protected ErrorHelper getTroubleshooter() {
-    return errorHelper;
-  }
-  
+    
   protected void handleQueryStateChanges (String commands) {
     if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
       logger.debug("Found pending search change. Doing search before updating " + commands);      

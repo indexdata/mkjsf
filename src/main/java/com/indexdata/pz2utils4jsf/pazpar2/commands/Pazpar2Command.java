@@ -20,7 +20,7 @@ public class Pazpar2Command implements Serializable  {
   public Pazpar2Command (String name, StateManager stateMgr) {
     this.name = name;
     if (stateMgr == null) {
-      // Set one-off dummy state mgr
+      // Sets throw-away state
       this.stateMgr = new StateManager();
     } else {
       this.stateMgr = stateMgr;
@@ -40,30 +40,30 @@ public class Pazpar2Command implements Serializable  {
   }
     
   public void setParameter (CommandParameter parameter) {
-    Pazpar2Command thisCommand = this.copy();
-    logger.debug(name + " setting parameter " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
-    thisCommand.parameters.put(parameter.getName(),parameter);
-    stateMgr.checkIn(thisCommand);
+    Pazpar2Command copy = this.copy();
+    logger.debug(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "]");
+    copy.parameters.put(parameter.getName(),parameter);
+    stateMgr.checkIn(copy);
   }
   
   public void setParameters (CommandParameter... params) {
-    Pazpar2Command thisCommand = this.copy();
+    Pazpar2Command copy = this.copy();
     for (CommandParameter param : params) {
-      logger.debug(name + " setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
-      thisCommand.parameters.put(param.getName(),param);
+      logger.debug(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "]");
+      copy.parameters.put(param.getName(),param);
     }
-    stateMgr.checkIn(thisCommand);
+    stateMgr.checkIn(copy);
   }
   
   public void setParametersInState (CommandParameter... params) {    
     for (CommandParameter param : params) {
-      logger.debug(name + " setting parameter " + param.getName() + "=" + param.getValueWithExpressions() + " to " + this.getName());
+      logger.debug(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "] silently");
       parameters.put(param.getName(),param);
     }    
   }
     
   public void setParameterInState (CommandParameter parameter) {
-    logger.debug(name + " setting parameter silently " + parameter.getName() + "=" + parameter.getValueWithExpressions() + " to " + this.getName());
+    logger.debug(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "] silently");
     parameters.put(parameter.getName(),parameter);    
   }
   
@@ -73,15 +73,15 @@ public class Pazpar2Command implements Serializable  {
   }
   
   public void removeParameter (String name) {
-    Pazpar2Command thisCommand = this.copy();
-    thisCommand.parameters.remove(name);
-    stateMgr.checkIn(thisCommand);
+    Pazpar2Command copy = this.copy();
+    copy.parameters.remove(name);
+    stateMgr.checkIn(copy);
   }
   
   public void removeParameters() {
-    Pazpar2Command thisCommand = this.copy();
-    thisCommand.parameters = new HashMap<String,CommandParameter>();
-    stateMgr.checkIn(thisCommand);
+    Pazpar2Command copy = this.copy();
+    copy.parameters = new HashMap<String,CommandParameter>();
+    stateMgr.checkIn(copy);
   }
   
   public void removeParametersInState() {

@@ -21,12 +21,12 @@ public class CommandParameter implements Serializable {
   Map<String,Expression> expressions = new HashMap<String,Expression>();
   
   public CommandParameter (String name) {
-    logger.debug("Instantiating command parameter (1) " + name);
+    logger.debug("Instantiating command parameter '" + name + "'");
     this.name = name;
   }
   
   public CommandParameter (String name, String operator, String value, Expression... expressions) {
-    logger.debug("Instantiating command parameter (2) " + name + " with " + expressions);
+    logger.debug("Instantiating command parameter " + name + " with expressions: [" + expressions + "]");
     this.name = name;
     this.operator = operator;
     this.value = value;
@@ -36,14 +36,14 @@ public class CommandParameter implements Serializable {
   }
 
   public CommandParameter (String name, String operator, String value) {
-    logger.debug("Instantiating command parameter (3) " + name + " ("+this+") with " + value);
+    logger.debug("Instantiating command parameter '" + name + "' with String: [" + value + "]");
     this.name = name;
     this.operator = operator;
     this.value = value;    
   }
   
   public CommandParameter (String name, String operator, int value) {
-    logger.debug("Instantiating command parameter (4) " + name + " ("+this+") with " + value);
+    logger.debug("Instantiating command parameter '" + name + "' with int: [" + value + "]");
     this.name = name;
     this.operator = operator;
     this.value = value+"";    
@@ -59,7 +59,7 @@ public class CommandParameter implements Serializable {
   }
   
   public void addExpression(Expression expression) {
-    logger.debug("Adding expression [" + expression + "] to " + this.getName() + " ("+this+")");
+    logger.debug("Adding expression [" + expression + "] to '" + name + "'");
     this.expressions.put(expression.toString(),expression);
   }
   
@@ -111,6 +111,7 @@ public class CommandParameter implements Serializable {
   }
   
   public CommandParameter copy() {
+    logger.debug("Copying parameter '"+ name + "' for modification");
     CommandParameter newParam = new CommandParameter(name);
     newParam.value = this.value;
     newParam.operator = this.operator;
