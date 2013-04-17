@@ -3,9 +3,9 @@
   <groupId>com.indexdata</groupId>
   <artifactId>mkjsf</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>mkjsf</name>
+  <name>MasterKey JSF</name>
   <packaging>jar</packaging>
-  <description>Components for building Pazpar2 application using JSF</description>
+  <description>Components for building Pazpar2 applications in JavaServer Faces</description>
     <dependencies>
     <dependency>
       <groupId>javax</groupId>

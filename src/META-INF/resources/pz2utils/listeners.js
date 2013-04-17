@@ -168,7 +168,7 @@
 
   // Sets up field update listeners
   var setUpListeners = function () {
-    //console.log("Starts tracking activeclientsField");
+    //console.log("Starts tracking activeclientsField, for 'show' and 'record'");
     fieldListeners.addListener("pz2watch:activeclientsField", new ActiveclientsListener());
     fieldListeners.addListener("pz2watch:activeclientsFieldRecord", new ActiveclientsRecordListener());
     if (trackHistory) {
