@@ -44,7 +44,7 @@
     <h:form id="stateForm" prependId="false" rendered="${cc.attrs.trackHistory == 'true'}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">
       State: 
       <h:inputText id="windowlocationhash" value="#{pz2.currentStateKey}" size="100">
-        <f:ajax event="change" render="#{cc.attrs.renderOnHistoryChange} #{pz2watch.activeclients}"/>
+        <f:ajax event="change" render="#{cc.attrs.renderOnHistoryChange} #{pz2.watchActiveclients}"/>
       </h:inputText>
     </h:form>
   </cc:implementation>

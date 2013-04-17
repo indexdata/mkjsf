@@ -59,12 +59,14 @@ public class ServiceProxyClient implements SearchClient {
   ProxyPz2ResponseHandler handler = new ProxyPz2ResponseHandler();
   private HttpClient client;
   private ServiceProxyUser user;
+  private Pazpar2Command checkAuth = null;
+
 
   public ServiceProxyClient () {
     SchemeRegistry schemeRegistry = new SchemeRegistry();
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
     ClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
-    client = new DefaultHttpClient(cm);    
+    client = new DefaultHttpClient(cm);   
   }
     
   @Override
@@ -73,7 +75,9 @@ public class ServiceProxyClient implements SearchClient {
     try {
       config = configReader.getConfiguration(this);      
       serviceUrl = config.getMandatory(SERVICE_PROXY_URL);  
-      this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));            
+      this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));
+      checkAuth = new Pazpar2Command("auth",null);
+      checkAuth.setParameterInState(new CommandParameter("action","=","check"));
     } catch (ConfigurationException c) {
       c.printStackTrace();
     } catch (MissingMandatoryParameterException mmp) {
@@ -92,17 +96,19 @@ public class ServiceProxyClient implements SearchClient {
   public boolean authenticate (AuthenticationEntity user) {
     try {      
       logger.info("Authenticating [" + user.getProperty("name") + "]");
-      this.user = (ServiceProxyUser) user;
+      this.user = (ServiceProxyUser) user;      
       Pazpar2Command auth = new Pazpar2Command("auth",null);
       auth.setParametersInState(new CommandParameter("action","=","login"), 
                                 new CommandParameter("username","=",user.getProperty("name")), 
-                                new CommandParameter("password","=",user.getProperty("password")));
+                                new CommandParameter("password","=",user.getProperty("password")));                                
       byte[] response = send(auth);
       String responseStr = new String(response,"UTF-8");
       logger.info(responseStr);      
       if (responseStr.contains("FAIL")) {
+        this.user.isAuthenticated(false);
         return false;
       } else {
+        this.user.isAuthenticated(true);
         return true;
       }      
     } catch (ClientProtocolException e) {
@@ -116,12 +122,18 @@ public class ServiceProxyClient implements SearchClient {
     }        
   }
   
-  public boolean checkAuthentication () {
+  public boolean checkAuthentication () {    
     try {
-      Pazpar2Command check = new Pazpar2Command("auth",null);
-      check.setParameter(new CommandParameter("action","=","check"));
-      byte[] response = send(check);
+      byte[] response = send(checkAuth);
       logger.info(new String(response,"UTF-8"));
+      String responseStr = new String(response,"UTF-8");    
+      if (responseStr.contains("FAIL")) {
+        this.user.isAuthenticated(false);
+        return false;
+      } else {
+        this.user.isAuthenticated(true);
+        return true;
+      }      
     } catch (ClientProtocolException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -130,9 +142,7 @@ public class ServiceProxyClient implements SearchClient {
       // TODO Auto-generated catch block
       e.printStackTrace();
       return false;
-    }    
-    return true;
-    
+    }        
   }
   
   public boolean isAuthenticatingClient () {
@@ -160,6 +170,15 @@ public class ServiceProxyClient implements SearchClient {
     HttpGet httpget = new HttpGet(url);     
     byte[] response = client.execute(httpget, handler);    
     return response;
+  }
+  
+  private byte[] send (String queryString) throws ClientProtocolException, IOException {
+    String url = serviceUrl + "?" + queryString; 
+    logger.info("Sending request "+url);    
+    HttpGet httpget = new HttpGet(url);     
+    byte[] response = client.execute(httpget, handler);    
+    return response;
+    
   }
   
   public class ProxyPz2ResponseHandler implements ResponseHandler<byte[]> {

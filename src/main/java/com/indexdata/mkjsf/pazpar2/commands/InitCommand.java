@@ -11,11 +11,11 @@ public class InitCommand extends Pazpar2Command {
   }
   
   public void setClear(String clear) { 
-    setParameter(new CommandParameter("clear","=",clear));
+    setParameterInState(new CommandParameter("clear","=",clear));
   }
   
   public void setService(String serviceId) {    
-    setParameter(new CommandParameter("service","=",serviceId));
+    setParameterInState(new CommandParameter("service","=",serviceId));
   }
   
   @Override

@@ -3,7 +3,9 @@ package com.indexdata.mkjsf.pazpar2.commands;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -14,11 +16,12 @@ public class CommandParameter implements Serializable {
 
   private static Logger logger = Logger.getLogger(CommandParameter.class);
   
-  private static final long serialVersionUID = 625502285668766749L;
+  private static final long serialVersionUID = 625502285668766749L;  
   String name = null;
   String operator = null;
   String value = null;
   Map<String,Expression> expressions = new HashMap<String,Expression>();
+  private static List<String> nologparams = Arrays.asList("password");
   
   public CommandParameter (String name) {
     logger.debug("Instantiating command parameter '" + name + "'");
@@ -36,7 +39,7 @@ public class CommandParameter implements Serializable {
   }
 
   public CommandParameter (String name, String operator, String value) {
-    logger.debug("Instantiating command parameter '" + name + "' with String: [" + value + "]");
+    if (!nologparams.contains(name)) logger.debug("Instantiating command parameter '" + name + "' with String: [" + value + "]");    
     this.name = name;
     this.operator = operator;
     this.value = value;    

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.indexdata.mkjsf.controls.ResultsPager;
 
 public interface Pz2Interface extends Serializable {
-
+  
   /**
    * Executes a Pazpar2 search using the given query string
    * 
@@ -96,6 +96,10 @@ public interface Pz2Interface extends Serializable {
    */
   public void setCurrentStateKey(String key);
   
+  public boolean getAuthenticationRequired ();
 
+  public String getCheckHistory ();
+  public String getWatchActiveclients ();
+  public String getWatchActiveclientsRecord ();
      
 }

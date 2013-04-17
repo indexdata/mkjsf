@@ -19,12 +19,7 @@ public class Pazpar2Command implements Serializable  {
     
   public Pazpar2Command (String name, StateManager stateMgr) {
     this.name = name;
-    if (stateMgr == null) {
-      // Sets throw-away state
-      this.stateMgr = new StateManager();
-    } else {
-      this.stateMgr = stateMgr;
-    }
+    this.stateMgr = stateMgr;
   }
       
   public Pazpar2Command copy () {
@@ -43,7 +38,7 @@ public class Pazpar2Command implements Serializable  {
     Pazpar2Command copy = this.copy();
     logger.debug(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "]");
     copy.parameters.put(parameter.getName(),parameter);
-    stateMgr.checkIn(copy);
+    checkInState(copy);
   }
   
   public void setParameters (CommandParameter... params) {
@@ -52,7 +47,7 @@ public class Pazpar2Command implements Serializable  {
       logger.debug(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "]");
       copy.parameters.put(param.getName(),param);
     }
-    stateMgr.checkIn(copy);
+    checkInState(copy);
   }
   
   public void setParametersInState (CommandParameter... params) {    
@@ -75,13 +70,13 @@ public class Pazpar2Command implements Serializable  {
   public void removeParameter (String name) {
     Pazpar2Command copy = this.copy();
     copy.parameters.remove(name);
-    stateMgr.checkIn(copy);
+    checkInState(copy);
   }
   
   public void removeParameters() {
     Pazpar2Command copy = this.copy();
     copy.parameters = new HashMap<String,CommandParameter>();
-    stateMgr.checkIn(copy);
+    checkInState(copy);
   }
   
   public void removeParametersInState() {
@@ -144,5 +139,13 @@ public class Pazpar2Command implements Serializable  {
   
   public String getSession() {
     return getParameterValue("session");
-  }  
+  } 
+  
+  private void checkInState(Pazpar2Command command) {
+    if (stateMgr != null) {
+      stateMgr.checkIn(command);
+    } else {
+      logger.info("Command '" + command.getName() + "' not affecting state (history) as no state manager was defined for this command.");
+    }
+  }
 }

@@ -46,6 +46,17 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
       		        "during construction of parent object Pz2Bean.");
     }
   }
+  
+  public void login(String un, String pw) {
+    if (user.isAuthenticated() && user.getName().equals(un) && ((ServiceProxyClient) searchClient).checkAuthentication()) {
+      logger.info("Repeat request from UI to authenticate user. Auth verified for given user name so skipping log-in.");
+    } else {
+      logger.info("doing un/pw login");
+      user.setName(un);
+      user.setPassword(pw);
+      login("dummy");
+    }
+  }
 
   @Override
   public String login(String navigateTo) {

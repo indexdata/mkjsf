@@ -192,14 +192,13 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   public void setCurrentStateKey(String key) {       
     stateMgr.setCurrentStateKey(key);
   }
-  
-  
-  
+      
   protected boolean hasQuery() {        
     return pzreq.getCommand("search").hasParameterSet("query"); 
   }
     
     
+  @Override
   public ResultsPager getPager () {
     if (pager == null) {
       pager = new ResultsPager(pzresp);      
@@ -207,6 +206,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     return pager;      
   }
   
+  @Override
   public ResultsPager setPager (int pageRange) {
     pager =  new ResultsPager(pzresp,pageRange,pzreq);
     return pager;
@@ -241,6 +241,25 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
       update(commandName);
     } 
   }
+  
+  @Override
+  public boolean getAuthenticationRequired () {
+    return searchClient.isAuthenticatingClient();
+  }
 
-
+  @Override
+  public String getCheckHistory () {
+    return ":pz2watch:stateForm:windowlocationhash";
+  }
+    
+  @Override
+  public String getWatchActiveclients () {
+    return ":pz2watch:activeclientsForm:activeclientsField";
+  }
+  
+  @Override
+  public String getWatchActiveclientsRecord () {
+    return ":pz2watch:activeclientsForm:activeclientsFieldRecord";
+  }
+  
 }
