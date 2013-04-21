@@ -30,7 +30,7 @@ public class Pz2Client implements SearchClient {
 
   private static final long serialVersionUID = 5414266730169982028L;
   private static Logger logger = Logger.getLogger(Pz2Client.class);
-  private Pazpar2Client client = null;
+  private transient Pazpar2Client client = null;
   private Pazpar2ClientConfiguration cfg = null;
   public static final String MODULENAME = "pz2client";
   public static Map<String,String> DEFAULTS = new HashMap<String,String>();
