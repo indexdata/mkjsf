@@ -22,8 +22,12 @@ public class TermListsResponse extends Pazpar2ResponseData {
   public void addTermList(TermListResponse termList) {    
     this.termLists.put(termList.getName(),termList);
   }
-  public TermListResponse getTermList(String name) {    
-    return termLists.get(name);
+  public TermListResponse getTermList(String name) {
+    if (termLists.get(name)==null) {
+      return new TermListResponse();
+    } else {
+      return termLists.get(name);
+    }
   }
   
   
