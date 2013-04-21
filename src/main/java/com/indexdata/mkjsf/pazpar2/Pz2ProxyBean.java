@@ -48,7 +48,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   }
   
   public void login(String un, String pw) {
-    if (user.isAuthenticated() && user.getName().equals(un) && ((ServiceProxyClient) searchClient).checkAuthentication()) {
+    if (user.isAuthenticated() && user.getName().equals(un) && ((ServiceProxyClient) searchClient).checkAuthentication(user)) {
       logger.info("Repeat request from UI to authenticate user. Auth verified for given user name so skipping log-in.");
     } else {
       logger.info("doing un/pw login");
@@ -66,6 +66,12 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     pzreq.getSearch().removeParametersInState();
     pzresp.reset();
     return navigateTo;
+  }
+  
+  public void ipAuthenticate (ServiceProxyUser user) {
+    if (!user.isAuthenticated()) {
+      ((ServiceProxyClient)searchClient).ipAuthenticate(user);
+    }
   }
 
   @Override
@@ -129,6 +135,4 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     return null;
     // return getCommandParameterValue("record","acefilter","");
   }
-
-
 }

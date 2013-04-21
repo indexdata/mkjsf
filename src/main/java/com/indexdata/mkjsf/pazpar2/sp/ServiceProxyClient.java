@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -40,10 +43,8 @@ import com.indexdata.mkjsf.pazpar2.CommandResponse;
 import com.indexdata.mkjsf.pazpar2.SearchClient;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
-import com.indexdata.mkjsf.pazpar2.sp.auth.AuthenticationEntity;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
-
 
 public class ServiceProxyClient implements SearchClient {
     
@@ -57,16 +58,15 @@ public class ServiceProxyClient implements SearchClient {
   private Configuration config = null;
   
   ProxyPz2ResponseHandler handler = new ProxyPz2ResponseHandler();
-  private HttpClient client;
-  private ServiceProxyUser user;
+  private transient HttpClient client;  
   private Pazpar2Command checkAuth = null;
-
+  private Pazpar2Command ipAuth = null;
 
   public ServiceProxyClient () {
     SchemeRegistry schemeRegistry = new SchemeRegistry();
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
     ClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
-    client = new DefaultHttpClient(cm);   
+    client = new DefaultHttpClient(cm);
   }
     
   @Override
@@ -78,6 +78,8 @@ public class ServiceProxyClient implements SearchClient {
       this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));
       checkAuth = new Pazpar2Command("auth",null);
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
+      ipAuth = new Pazpar2Command("auth",null);
+      ipAuth.setParameterInState(new CommandParameter("action","=","ipauth"));
     } catch (ConfigurationException c) {
       c.printStackTrace();
     } catch (MissingMandatoryParameterException mmp) {
@@ -93,10 +95,9 @@ public class ServiceProxyClient implements SearchClient {
     }
   }
   
-  public boolean authenticate (AuthenticationEntity user) {
+  public boolean authenticate (ServiceProxyUser user) {
     try {      
-      logger.info("Authenticating [" + user.getProperty("name") + "]");
-      this.user = (ServiceProxyUser) user;      
+      logger.info("Authenticating [" + user.getProperty("name") + "]");            
       Pazpar2Command auth = new Pazpar2Command("auth",null);
       auth.setParametersInState(new CommandParameter("action","=","login"), 
                                 new CommandParameter("username","=",user.getProperty("name")), 
@@ -105,10 +106,10 @@ public class ServiceProxyClient implements SearchClient {
       String responseStr = new String(response,"UTF-8");
       logger.info(responseStr);      
       if (responseStr.contains("FAIL")) {
-        this.user.isAuthenticated(false);
+        user.isAuthenticated(false);
         return false;
       } else {
-        this.user.isAuthenticated(true);
+        user.isAuthenticated(true);
         return true;
       }      
     } catch (ClientProtocolException e) {
@@ -122,16 +123,16 @@ public class ServiceProxyClient implements SearchClient {
     }        
   }
   
-  public boolean checkAuthentication () {    
+  public boolean checkAuthentication (ServiceProxyUser user) {    
     try {
       byte[] response = send(checkAuth);
       logger.info(new String(response,"UTF-8"));
       String responseStr = new String(response,"UTF-8");    
-      if (responseStr.contains("FAIL")) {
-        this.user.isAuthenticated(false);
+      if (responseStr.contains("FAIL")) {  
+        user.isAuthenticated(false);
         return false;
-      } else {
-        this.user.isAuthenticated(true);
+      } else {        
+        user.isAuthenticated(true);
         return true;
       }      
     } catch (ClientProtocolException e) {
@@ -143,15 +144,39 @@ public class ServiceProxyClient implements SearchClient {
       e.printStackTrace();
       return false;
     }        
+  }
+  
+  public boolean ipAuthenticate (ServiceProxyUser user) {
+    try {
+      byte[] response = send(ipAuth);
+      logger.info(new String(response,"UTF-8"));
+      String responseStr = new String(response,"UTF-8");    
+      if (responseStr.contains("FAIL")) {
+        user.isAuthenticated(false);
+        return false;
+      } else {
+        user.isAuthenticated(true);
+        return true;
+      }      
+    } catch (ClientProtocolException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return false;
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return false;
+    }        
+    
   }
   
   public boolean isAuthenticatingClient () {
     return true;
   }
   
-  public boolean isAuthenticated () {
+  public boolean isAuthenticated (ServiceProxyUser user) {
     if (user.getProperty("name") != null && user.getProperty("password") != null) {
-      return checkAuthentication();
+      return checkAuthentication(user);
     } else {
       return false;
     }
@@ -170,15 +195,6 @@ public class ServiceProxyClient implements SearchClient {
     HttpGet httpget = new HttpGet(url);     
     byte[] response = client.execute(httpget, handler);    
     return response;
-  }
-  
-  private byte[] send (String queryString) throws ClientProtocolException, IOException {
-    String url = serviceUrl + "?" + queryString; 
-    logger.info("Sending request "+url);    
-    HttpGet httpget = new HttpGet(url);     
-    byte[] response = client.execute(httpget, handler);    
-    return response;
-    
   }
   
   public class ProxyPz2ResponseHandler implements ResponseHandler<byte[]> {
