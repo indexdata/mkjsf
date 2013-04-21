@@ -8,8 +8,8 @@ public class SingleTargetFilter implements Serializable {
 
   private static final long serialVersionUID = 2389085467202526537L;
 
-  private String targetName;
-  private String targetId;
+  private String targetName = "";
+  private String targetId = "";
   
   public SingleTargetFilter (String targetId, String targetName) {
     this.targetId = targetId;
@@ -43,5 +43,9 @@ public class SingleTargetFilter implements Serializable {
     return (targetId+targetName).hashCode();
   }
   
+  @Override
+  public String toString () {
+    return targetName + " (" + targetId + ")";
+  }
   
 }

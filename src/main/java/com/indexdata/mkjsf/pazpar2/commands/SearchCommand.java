@@ -150,13 +150,14 @@ public class SearchCommand extends Pazpar2Command {
     if (hasSingleTargetFilter(new SingleTargetFilter(targetId,targetName))) {
       logger.debug("Already using target filter " + this.singleTargetFilter.getFilterExpression());
     } else {      
+      logger.debug("Setting new single target filter for [" + targetName + "]");
       this.singleTargetFilter = new SingleTargetFilter(targetId,targetName);
       setParameter(new CommandParameter("filter","=",this.singleTargetFilter.getFilterExpression()));            
     }    
   }
 
   public SingleTargetFilter getSingleTargetFilter () {
-    logger.debug("request to get the current single target filter");
+    logger.debug("request to get the current single target filter " + singleTargetFilter);
     return singleTargetFilter;
   }
    
@@ -164,10 +165,11 @@ public class SearchCommand extends Pazpar2Command {
    * Removes the current target filter from the search
    * 
    */
-  public void removeSingleTargetFilter () {
+  public String removeSingleTargetFilter () {
     logger.debug("Removing target filter " + singleTargetFilter.getFilterExpression());
     this.singleTargetFilter = null;
-    removeParameter("filter");             
+    removeParameter("filter");
+    return null;
   }
   
   /**
@@ -178,7 +180,7 @@ public class SearchCommand extends Pazpar2Command {
     logger.debug("Checking if a single target filter is set: " + (singleTargetFilter != null));
     return singleTargetFilter != null;    
   }
-
+  
   /**
    * Resolves if the current search command has a target filter - to
    * be used by the UI for conditional rendering of target filter info.
@@ -187,6 +189,7 @@ public class SearchCommand extends Pazpar2Command {
    * filter
    */
   protected boolean hasSingleTargetFilter(SingleTargetFilter targetFilter) {
+    logger.debug("Checking if target filter for [" + targetFilter.getTargetName() + "] is set.");
     return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
   }
     
