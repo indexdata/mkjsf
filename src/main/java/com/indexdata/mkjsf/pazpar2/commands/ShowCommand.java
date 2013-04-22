@@ -87,6 +87,10 @@ public class ShowCommand extends Pazpar2Command {
     return getParameter("num") != null ? Integer.parseInt(getParameter("num").value) : 0;
   }
   
+  public void setBlock(String block) {
+    setParameterInState(new CommandParameter("block","=",block));
+  }
+  
   public ShowCommand copy () {
     ShowCommand newCommand = new ShowCommand(stateMgr);
     for (String parameterName : parameters.keySet()) {

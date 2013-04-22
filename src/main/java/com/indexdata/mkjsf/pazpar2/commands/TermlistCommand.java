@@ -10,4 +10,19 @@ public class TermlistCommand extends Pazpar2Command {
     super("termlist",stateMgr);
   }
 
+  public void setName(String names) {
+    setParameter(new CommandParameter("name","name",names));
+  }
+  
+  public String getName () {
+    return getParameterValue("name");
+  }
+  
+  public void setNum (String num) {
+    setParameter(new CommandParameter("num","=",num));
+  }
+  
+  public String getNum () {
+    return getParameterValue("num");
+  }
 }
