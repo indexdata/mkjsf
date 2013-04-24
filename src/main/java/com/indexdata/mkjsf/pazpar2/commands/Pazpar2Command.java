@@ -6,29 +6,24 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 
-public class Pazpar2Command implements Serializable  {
+public abstract class Pazpar2Command implements Serializable  {
   
   private static Logger logger = Logger.getLogger(Pazpar2Command.class);
   private static final long serialVersionUID = -6825491856480675917L;   
-  private String name = "";
+  protected String name = "";
   protected Map<String,CommandParameter> parameters = new HashMap<String,CommandParameter>();
   
-  StateManager stateMgr;
+  protected StateManager stateMgr;
     
   public Pazpar2Command (String name, StateManager stateMgr) {
     this.name = name;
     this.stateMgr = stateMgr;
   }
       
-  public Pazpar2Command copy () {
-    Pazpar2Command newCommand = new Pazpar2Command(name,stateMgr);
-    for (String parameterName : parameters.keySet()) {
-      newCommand.setParameterInState(parameters.get(parameterName).copy());      
-    }    
-    return newCommand;
-  }
+  public abstract Pazpar2Command copy ();
   
   public String getName() {
     return name;
@@ -125,7 +120,7 @@ public class Pazpar2Command implements Serializable  {
   }
 
   public String getParameterValue(String parameterName) {
-    return getParameter(parameterName).getValueWithExpressions();
+    return getParameter(parameterName)==null ? "" : getParameter(parameterName).getValueWithExpressions();
     
   }
 
@@ -148,4 +143,7 @@ public class Pazpar2Command implements Serializable  {
       logger.info("Command '" + command.getName() + "' not affecting state (history) as no state manager was defined for this command.");
     }
   }
+  
+  public abstract ServiceProxyCommand getSp();
+  
 }

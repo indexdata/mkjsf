@@ -1,8 +1,10 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+import com.indexdata.mkjsf.pazpar2.commands.sp.RecordCommandSp;
+import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 
-public class RecordCommand extends Pazpar2Command {
+public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 2817539422114569506L;
 
@@ -69,5 +71,14 @@ public class RecordCommand extends Pazpar2Command {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
     return newCommand;
+  }
+  
+  
+  /**
+   * Returns a record command object with Service Proxy extension parameters 
+   * 
+   */
+  public RecordCommandSp getSp () {
+    return new RecordCommandSp(this);
   }
 }

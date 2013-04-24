@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -43,6 +40,7 @@ import com.indexdata.mkjsf.pazpar2.CommandResponse;
 import com.indexdata.mkjsf.pazpar2.SearchClient;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -76,9 +74,9 @@ public class ServiceProxyClient implements SearchClient {
       config = configReader.getConfiguration(this);      
       serviceUrl = config.getMandatory(SERVICE_PROXY_URL);  
       this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));
-      checkAuth = new Pazpar2Command("auth",null);
+      checkAuth = new AuthCommand(null);
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
-      ipAuth = new Pazpar2Command("auth",null);
+      ipAuth = new AuthCommand(null);
       ipAuth.setParameterInState(new CommandParameter("action","=","ipauth"));
     } catch (ConfigurationException c) {
       c.printStackTrace();
@@ -98,7 +96,7 @@ public class ServiceProxyClient implements SearchClient {
   public boolean authenticate (ServiceProxyUser user) {
     try {      
       logger.info("Authenticating [" + user.getProperty("name") + "]");            
-      Pazpar2Command auth = new Pazpar2Command("auth",null);
+      Pazpar2Command auth = new AuthCommand(null);
       auth.setParametersInState(new CommandParameter("action","=","login"), 
                                 new CommandParameter("username","=",user.getProperty("name")), 
                                 new CommandParameter("password","=",user.getProperty("password")));                                

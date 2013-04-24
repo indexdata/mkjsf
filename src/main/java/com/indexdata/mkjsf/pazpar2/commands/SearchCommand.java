@@ -4,10 +4,11 @@ import javax.enterprise.context.SessionScoped;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 
 @SessionScoped
-public class SearchCommand extends Pazpar2Command {
+public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand {
   
   private static final long serialVersionUID = -1888520867838597236L;
   private static Logger logger = Logger.getLogger(SearchCommand.class);
@@ -200,6 +201,11 @@ public class SearchCommand extends Pazpar2Command {
     }
     newCommand.singleTargetFilter = this.singleTargetFilter;
     return newCommand;
+  }
+
+  @Override
+  public ServiceProxyCommand getSp() {
+    return this;
   }
 
 }
