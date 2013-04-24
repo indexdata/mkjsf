@@ -112,7 +112,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   public String update (String commands) {
     if (! errors.hasConfigurationErrors()) {
       if (commandsAreValid(commands)) {
-        if (hasQuery()) {
+        if (hasQuery() || (commands.equals("record") && pzreq.getCommand("record").hasParameterSet("recordquery"))) {
           handleQueryStateChanges(commands);
           logger.debug("Processing request for " + commands); 
           List<CommandThread> threadList = new ArrayList<CommandThread>();
@@ -137,7 +137,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
              Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
              pzresp.put(commandName, responseObject);        
           }
-          if (commands.equals("record")) {
+          if (commands.equals("record")) {            
             logger.debug("Record: Active clients: "+pzresp.getRecord().getActiveClients());
             return pzresp.getRecord().getActiveClients();
           } else {

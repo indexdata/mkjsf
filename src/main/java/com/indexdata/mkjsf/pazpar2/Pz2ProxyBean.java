@@ -41,6 +41,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
                             + Utils.objectId(configurator) + "]" );    
       configureClient(searchClient,configurator);
       stateMgr.addStateListener(this);
+      serviceProxyUrl = searchClient.getConfiguration().get(ServiceProxyClient.SERVICE_PROXY_URL);
     } else {
       logger.debug("Pz2ProxyBean:postConstruct: searchClient already instantiated " +
       		        "during construction of parent object Pz2Bean.");
