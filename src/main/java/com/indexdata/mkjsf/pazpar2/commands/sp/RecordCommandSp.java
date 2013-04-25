@@ -21,6 +21,14 @@ public class RecordCommandSp  implements Serializable, ServiceProxyCommand {
   public String getRecordquery() {
     return command.getParameterValue("recordquery");
   }
+  
+  public void setAcefilter (String aceFilter) {
+    command.setParameter(new CommandParameter("acefilter","=",aceFilter));
+  }
+  
+  public String getAcefilter () {
+    return command.getParameterValue("acefilter");
+  }
 
 
 }
