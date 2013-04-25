@@ -76,5 +76,10 @@ public class ServiceProxyUser implements AuthenticationEntity {
     return possibleProperties;
   } 
   
+  public void clear() {
+    actualProperties = new HashMap<String,String>();
+    authenticated = false;
+  }
+  
 
 }

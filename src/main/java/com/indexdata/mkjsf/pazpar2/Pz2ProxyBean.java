@@ -24,7 +24,6 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   private static Logger logger = Logger.getLogger(Pz2ProxyBean.class);  
   private String initDocFileName = "";
   private String initDocResponse = "";
-  private String serviceProxyUrl = "";  
     
   @Inject ConfigurationReader configurator;
   @Inject ServiceProxyUser user;    
@@ -40,8 +39,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
       logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
                             + Utils.objectId(configurator) + "]" );    
       configureClient(searchClient,configurator);
-      stateMgr.addStateListener(this);
-      serviceProxyUrl = searchClient.getConfiguration().get(ServiceProxyClient.SERVICE_PROXY_URL);
+      stateMgr.addStateListener(this);      
     } else {
       logger.debug("Pz2ProxyBean:postConstruct: searchClient already instantiated " +
       		        "during construction of parent object Pz2Bean.");
@@ -77,15 +75,18 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
 
   @Override
   public void setServiceProxyUrl(String url) {
-    logger.info("Setting Service Proxy url: " + url);
-    serviceProxyUrl = url;
-    pzreq.getRecord().removeParametersInState();
-    pzreq.getSearch().removeParametersInState();
-    pzresp.reset();
+    logger.info("Setting Service Proxy url: " + url);    
+    if (url!=null & !url.equals(((ServiceProxyClient)searchClient).getServiceProxyUrl())) {
+      pzreq.getRecord().removeParametersInState();
+      pzreq.getSearch().removeParametersInState();
+      pzresp.reset();
+      user.clear();
+      ((ServiceProxyClient)searchClient).setServiceProxyUrl(url);
+    }    
   }
   
   public String getServiceProxyUrl() {
-    return serviceProxyUrl;
+    return ((ServiceProxyClient)searchClient).getServiceProxyUrl();
   }
     
   public String getInitDocPath () {
@@ -128,12 +129,4 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     return initDocResponse;
   }
   
-  public void setAceFilter(String filterExpression) {
-    //setCommandParameter("record",new CommandParameter("acefilter","=",filterExpression));
-  }
-  
-  public String getAceFilter () {
-    return null;
-    // return getCommandParameterValue("record","acefilter","");
-  }
 }
