@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -37,8 +38,9 @@ public class Pazpar2ResponseParser extends DefaultHandler {
   private Stack<Pazpar2ResponseData> dataElements = new Stack<Pazpar2ResponseData>();
   private Pazpar2ResponseData result = null;
   private String xml = null;
+  private static Logger logger = Logger.getLogger(Pazpar2ResponseParser.class);
 
-  private static final List<String> docTypes = 
+  public static final List<String> docTypes = 
       Arrays.asList("bytarget","termlist","show","stat","record","search");
   
   public Pazpar2ResponseParser() {    
@@ -134,9 +136,14 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     currentElement.setType(localName);
     for (int i=0; i< atts.getLength(); i++) {
        currentElement.setAttribute(atts.getLocalName(i), atts.getValue(i));
-    }
+    }    
     if (!docTypes.contains(localName)) {
-      dataElements.peek().addElement(localName, currentElement);
+      if (dataElements.size() == 0) {
+        logger.info("Encountered unknown top level element [" + localName + "]");
+        currentElement.setType(localName);
+      } else {
+        dataElements.peek().addElement(localName, currentElement);
+      }
     }
     if (this.xml != null) { // Store XML for doc level elements
       currentElement.setXml(xml);

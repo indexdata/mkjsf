@@ -56,8 +56,8 @@ public class RecordResponse extends Pazpar2ResponseData {
   }
   
   public String getActiveClients () {
+    logger.info("Request to get activeclients");
     return getOneElementValue("activeclients");
   }
-
-  
+   
 }

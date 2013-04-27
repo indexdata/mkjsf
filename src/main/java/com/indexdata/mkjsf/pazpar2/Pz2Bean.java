@@ -110,9 +110,10 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
    * @return Number of activeclients at the time of the 'show' command
    */
   public String update (String commands) {
+    try {
     if (! errors.hasConfigurationErrors()) {
       if (commandsAreValid(commands)) {
-        if (hasQuery() || (commands.equals("record") && pzreq.getCommand("record").hasParameterSet("recordquery"))) {
+        if (hasQuery() || (commands.equals("record") && pzreq.getCommand("record").hasParameterValue("recordquery"))) {
           handleQueryStateChanges(commands);
           logger.debug("Processing request for " + commands); 
           List<CommandThread> threadList = new ArrayList<CommandThread>();
@@ -135,10 +136,19 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
              String response = thread.getResponse();
              responseLogger.debug("Response was: " + response);
              Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
-             pzresp.put(commandName, responseObject);        
+             if (Pazpar2ResponseParser.docTypes.contains(responseObject.getType())) {
+               pzresp.put(commandName, responseObject);
+             } else {
+               if (commandName.equals("record") && pzreq.getRecord().hasParameterValue("offset")) {
+                 RecordResponse recordResponse = new RecordResponse();
+                 recordResponse.setType("record");
+                 recordResponse.setXml(responseObject.getXml());
+                 recordResponse.setAttribute("activeclients", "0");
+                 pzresp.put(commandName, recordResponse);
+               }
+             }
           }
-          if (commands.equals("record")) {            
-            logger.debug("Record: Active clients: "+pzresp.getRecord().getActiveClients());
+          if (commands.equals("record")) {
             return pzresp.getRecord().getActiveClients();
           } else {
             return pzresp.getActiveClients();
@@ -156,12 +166,19 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
       logger.error("Did not attempt to execute query since there are configuration errors.");
       return "0";
     }
+    } catch (ClassCastException cce) {
+      cce.printStackTrace();    
+      return "";
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();
+      return "";
+    }
     
   }
   
   public boolean commandsAreValid(String commands) {
     if (commands.equals("record")) {
-      if (!pzreq.getCommand("record").hasParameterSet("id")) {
+      if (!pzreq.getCommand("record").hasParameterValue("id")) {
         logger.error("Attempt to send record command without the id parameter");
         return false;
       }
@@ -194,7 +211,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   }
       
   protected boolean hasQuery() {        
-    return pzreq.getCommand("search").hasParameterSet("query"); 
+    return pzreq.getCommand("search").hasParameterValue("query"); 
   }
     
     
@@ -220,7 +237,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
-      if (pzreq.getCommand("record").hasParameterSet("id")) {
+      if (pzreq.getCommand("record").hasParameterValue("id")) {
         update("record");
       } else {         
         pzresp.put("record", new RecordResponse());

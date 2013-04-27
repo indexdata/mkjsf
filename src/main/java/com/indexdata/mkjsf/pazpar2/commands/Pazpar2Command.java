@@ -83,14 +83,16 @@ public abstract class Pazpar2Command implements Serializable  {
     return (parameters.keySet().size()>0);
   }
   
-  public boolean hasParameterSet(String parameterName) {
-    return (parameters.get(parameterName) != null);
+  public boolean hasParameterValue(String parameterName) {
+    return (parameters.get(parameterName) != null && parameters.get(parameterName).hasValue());
   }
   
   public String getEncodedQueryString () {
     StringBuilder queryString = new StringBuilder("command="+name);
     for (CommandParameter parameter : parameters.values()) {
-       queryString.append("&"+parameter.getEncodedQueryString());       
+      if (parameter.hasValue()) {
+        queryString.append("&"+parameter.getEncodedQueryString());
+      }
     }
     return queryString.toString();
   } 
@@ -98,7 +100,9 @@ public abstract class Pazpar2Command implements Serializable  {
   public String getValueWithExpressions() {    
     StringBuilder value = new StringBuilder("");
     for (CommandParameter parameter : parameters.values()) {
-      value.append("&" + parameter.getName() + parameter.operator + parameter.getValueWithExpressions());       
+      if (parameter.hasValue()) {
+        value.append("&" + parameter.getName() + parameter.operator + parameter.getValueWithExpressions());
+      }
    }
     return value.toString();
   }

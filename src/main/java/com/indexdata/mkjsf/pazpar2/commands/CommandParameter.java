@@ -75,6 +75,10 @@ public class CommandParameter implements Serializable {
     return operator != null;
   }
   
+  public boolean hasValue() {
+    return value != null && value.length()>0;
+  }
+  
   public String getEncodedQueryString () {
     try {
       return name + operator + URLEncoder.encode(getValueWithExpressions(),"UTF-8");

@@ -36,7 +36,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   
   public void addFilter(String filterExpression) {
     // TODO: implement
-    if (hasParameterSet("filter")) {
+    if (hasParameterValue("filter")) {
       setFilter(filterExpression);
     } else {
       getParameter("filter");

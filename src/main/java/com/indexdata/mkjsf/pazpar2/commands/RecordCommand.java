@@ -63,6 +63,10 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
   public void setBinary (String binary) {
     setParameter(new CommandParameter("binary","=",binary));
   }
+  
+  public String getBinary () {
+    return getParameterValue("binary");
+  }
 
   @Override
   public RecordCommand copy () {
