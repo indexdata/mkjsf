@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,7 +32,6 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
-import com.indexdata.masterkey.config.MissingMandatoryParameterException;
 import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.mkjsf.config.Configuration;
 import com.indexdata.mkjsf.config.ConfigurationReader;
@@ -51,8 +51,9 @@ public class ServiceProxyClient implements SearchClient {
   public static final String MODULENAME = "proxyclient";
   public static final String SERVICE_PROXY_URL = "SERVICE_PROXY_URL";
   public static final String SP_INIT_DOC_PATHS = "SP_INIT_DOC_PATHS";
-  private String serviceUrl = "undefined";
-  private String[] initDocPaths = null;
+  private String selectedServiceUrl = "";
+  private List<String> serviceUrls = new ArrayList<String>();
+  private List<String> initDocPaths = null;
   private Configuration config = null;
   
   ProxyPz2ResponseHandler handler = new ProxyPz2ResponseHandler();
@@ -72,7 +73,10 @@ public class ServiceProxyClient implements SearchClient {
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
       config = configReader.getConfiguration(this);      
-      serviceUrl = config.getMandatory(SERVICE_PROXY_URL);  
+      serviceUrls = getMultiProperty(config.get(SERVICE_PROXY_URL));
+      if (serviceUrls.size()==1) {
+        selectedServiceUrl = serviceUrls.get(0);
+      }
       this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));
       checkAuth = new AuthCommand(null);
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
@@ -80,17 +84,18 @@ public class ServiceProxyClient implements SearchClient {
       ipAuth.setParameterInState(new CommandParameter("action","=","ipauth"));
     } catch (ConfigurationException c) {
       c.printStackTrace();
-    } catch (MissingMandatoryParameterException mmp) {
-      mmp.printStackTrace();
     }    
   }
   
-  private String[] getMultiProperty(String prop) {    
-    if (prop != null) {
-      return prop.split(",");
-    } else {
-      return null;
+  private List<String> getMultiProperty(String prop) {
+    List<String> props = new ArrayList<String>();
+    if (prop != null) {      
+      StringTokenizer tokenizer = new StringTokenizer(prop,",");
+      while (tokenizer.hasMoreElements()) {
+        props.add(tokenizer.nextToken());
+      }     
     }
+    return props;
   }
   
   public boolean authenticate (ServiceProxyUser user) {
@@ -188,7 +193,7 @@ public class ServiceProxyClient implements SearchClient {
    * @throws IOException
    */
   private byte[] send(Pazpar2Command command) throws ClientProtocolException, IOException {
-    String url = serviceUrl + "?" + command.getEncodedQueryString(); 
+    String url = selectedServiceUrl + "?" + command.getEncodedQueryString(); 
     logger.info("Sending request "+url);    
     HttpGet httpget = new HttpGet(url);     
     byte[] response = client.execute(httpget, handler);    
@@ -240,7 +245,8 @@ public class ServiceProxyClient implements SearchClient {
     logger.debug("Cloning Pz2Client");
     ServiceProxyClient clone = new ServiceProxyClient();
     clone.client = this.client;
-    clone.serviceUrl = this.serviceUrl;
+    clone.serviceUrls = this.serviceUrls;
+    clone.selectedServiceUrl = this.selectedServiceUrl;
     clone.initDocPaths = this.initDocPaths;
     return clone;
   }
@@ -258,13 +264,13 @@ public class ServiceProxyClient implements SearchClient {
   @Override
   public List<String> documentConfiguration () {
     List<String> doc = new ArrayList<String>();
-    doc.add(nl+ MODULENAME + " was configured to access the Pazpar2 service proxy at: " + serviceUrl);
+    doc.add(nl+ MODULENAME + " was configured to access the Pazpar2 service proxy at: " + (selectedServiceUrl.length()>0 ? selectedServiceUrl : "[not defined yet]"));
     return null;
   }
   
   public byte[] postInitDoc (String filePath) throws IOException {
     logger.info("Looking to post the file in : [" + filePath +"]");
-    HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
+    HttpPost post = new HttpPost(selectedServiceUrl+"?command=init&includeDebug=yes");
     File initDoc = new File(filePath);
     logger.info("Posting to SP: ");
     if (logger.isDebugEnabled()) {
@@ -281,14 +287,14 @@ public class ServiceProxyClient implements SearchClient {
     return response;
   }
   
-  public String[] getInitDocPaths () {
+  public List<String> getInitDocPaths () {
     logger.debug("Get init doc paths ");
-    logger.debug("length: " + initDocPaths.length);
+    logger.debug("length: " + initDocPaths.size());
     return initDocPaths;
   }
   
   public byte[] postInitDoc(byte[] initDoc) throws IOException {
-    HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
+    HttpPost post = new HttpPost(selectedServiceUrl+"?command=init&includeDebug=yes");
     post.setEntity(new ByteArrayEntity(initDoc));
     byte[] response = client.execute(post, handler);
     logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
@@ -296,13 +302,17 @@ public class ServiceProxyClient implements SearchClient {
   }
   
   public void setServiceProxyUrl (String url) {
-    serviceUrl = url;
+    selectedServiceUrl = url;
   }
   
   public String getServiceProxyUrl () {
-    return serviceUrl;
+    return selectedServiceUrl;
   }
   
+  public List<String> getServiceProxyUrls () {
+    return serviceUrls;
+  }
+    
   public Configuration getConfiguration () {
     return config;
   }

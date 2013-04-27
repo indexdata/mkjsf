@@ -2,6 +2,8 @@ package com.indexdata.mkjsf.pazpar2;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
@@ -88,6 +90,13 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   public String getServiceProxyUrl() {
     return ((ServiceProxyClient)searchClient).getServiceProxyUrl();
   }
+  
+  public List<String> getServiceProxyUrls() {
+    List<String> urls = new ArrayList<String>();
+    urls.add("");
+    urls.addAll(((ServiceProxyClient)searchClient).getServiceProxyUrls());
+    return urls;
+  }
     
   public String getInitDocPath () {
     return searchClient.getConfiguration().get("INIT_DOC_PATH");
@@ -106,7 +115,7 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
 
   @Override
   public String postInit() throws UnsupportedEncodingException, IOException {    
-    String initDocPath = ((ServiceProxyClient)searchClient).getInitDocPaths()[0];
+    String initDocPath = ((ServiceProxyClient)searchClient).getInitDocPaths().get(0);
     logger.info("Paths: " + ((ServiceProxyClient)searchClient).getInitDocPaths());
     logger.info("Path: " + initDocPath);
     pzresp.reset();
