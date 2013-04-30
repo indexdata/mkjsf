@@ -139,7 +139,9 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
              if (Pazpar2ResponseParser.docTypes.contains(responseObject.getType())) {
                pzresp.put(commandName, responseObject);
              } else {
-               if (commandName.equals("record") && pzreq.getRecord().hasParameterValue("offset")) {
+               if (commandName.equals("record") && 
+                   (pzreq.getRecord().hasParameterValue("offset") ||
+                    pzreq.getRecord().hasParameterValue("checksum"))) {
                  RecordResponse recordResponse = new RecordResponse();
                  recordResponse.setType("record");
                  recordResponse.setXml(responseObject.getXml());
