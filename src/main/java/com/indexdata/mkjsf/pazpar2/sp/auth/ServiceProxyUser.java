@@ -20,14 +20,12 @@ public class ServiceProxyUser implements AuthenticationEntity {
   private Map<String,String> actualProperties = new HashMap<String,String>();
   private static Logger logger = Logger.getLogger(ServiceProxyUser.class);
   private boolean authenticated = false;
+  private boolean ipAuthenticated = false;
 
   public ServiceProxyUser()  {
     logger.debug("ServiceProxyUser instantiated: " + Utils.objectId(this));
   }
   
-  public void setAuthenticationMethod() {    
-  }
-
   public String getName() { 
     return actualProperties.get("name"); 
   }
@@ -56,8 +54,16 @@ public class ServiceProxyUser implements AuthenticationEntity {
     this.authenticated = authenticated;
   }
   
+  public void isIpAuthenticated (boolean authenticated) {
+    this.ipAuthenticated = authenticated;
+  }
+  
   public boolean isAuthenticated() {
     return authenticated;
+  }
+  
+  public boolean isIpAuthenticated () {
+    return ipAuthenticated;
   }
   
 
@@ -79,6 +85,7 @@ public class ServiceProxyUser implements AuthenticationEntity {
   public void clear() {
     actualProperties = new HashMap<String,String>();
     authenticated = false;
+    ipAuthenticated = false;
   }
   
 
