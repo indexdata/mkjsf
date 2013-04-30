@@ -293,8 +293,8 @@ public class ServiceProxyClient implements SearchClient {
     return initDocPaths;
   }
   
-  public byte[] postInitDoc(byte[] initDoc) throws IOException {
-    HttpPost post = new HttpPost(selectedServiceUrl+"?command=init&includeDebug=yes");
+  public byte[] postInitDoc(byte[] initDoc, boolean includeDebug) throws IOException {
+    HttpPost post = new HttpPost(selectedServiceUrl+"?command=init" + (includeDebug? "&includeDebug=yes" : ""));
     post.setEntity(new ByteArrayEntity(initDoc));
     byte[] response = client.execute(post, handler);
     logger.debug("Response on POST was: " + new String(response,"UTF-8"));    

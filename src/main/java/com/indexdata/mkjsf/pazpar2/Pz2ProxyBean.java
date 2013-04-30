@@ -70,7 +70,10 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   }
   
   public void ipAuthenticate (ServiceProxyUser user) {
-    if (!user.isAuthenticated()) {
+    if (!user.isIpAuthenticated()) {
+      if (user.isAuthenticated()) {
+        user.clear();
+      }
       ((ServiceProxyClient)searchClient).ipAuthenticate(user);
     }
   }
@@ -125,13 +128,12 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   }
   
   @Override
-  public String postInit(byte[] initDoc) throws UnsupportedEncodingException, IOException {    
+  public String postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
     pzresp.reset();
-    byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDoc);
+    byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDoc,includeDebug);
     initDocResponse = new String(response,"UTF-8");
     return initDocResponse;
   }
-
 
   @Override
   public String getInitResponse() {
