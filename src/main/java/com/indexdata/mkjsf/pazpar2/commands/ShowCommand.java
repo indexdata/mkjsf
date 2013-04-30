@@ -92,6 +92,11 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
     setParameterInState(new CommandParameter("block","=",block));
   }
   
+  public String getBlock() {
+    return getParameterValue("block");
+  }
+  
+  
   public ShowCommand copy () {
     ShowCommand newCommand = new ShowCommand(stateMgr);
     for (String parameterName : parameters.keySet()) {
