@@ -22,28 +22,28 @@ public class StatResponse extends Pazpar2ResponseData {
     return getIntValue("records");
   }
   
-  public String getUnconnected() {
-    return getOneElementValue("unconnected");
+  public int getUnconnected() {
+    return getIntValue("unconnected");
   }
   
-  public String getConnecting() {
-    return getOneElementValue("connecting");
+  public int getConnecting() {
+    return getIntValue("connecting");
   }
   
-  public String getWorking() {
-    return getOneElementValue("working");
+  public int getWorking() {
+    return getIntValue("working");
   }
   
-  public String getIdle() {
-    return getOneElementValue("idle");
+  public int getIdle() {
+    return getIntValue("idle");
   }
   
-  public String getFailed() {
-    return getOneElementValue("failed");
+  public int getFailed() {
+    return getIntValue("failed");
   }
   
-  public String getError() {
-    return getOneElementValue("error");
+  public int getError() {
+    return getIntValue("error");
   }
   
   public String getProgress() {
