@@ -94,6 +94,10 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
     return ((ServiceProxyClient)searchClient).getServiceProxyUrl();
   }
   
+  public boolean getServiceProxyUrlIsDefined() {
+    return ((ServiceProxyClient)searchClient).getServiceProxyUrl().length()>0;
+  }
+  
   public List<String> getServiceProxyUrls() {
     List<String> urls = new ArrayList<String>();
     urls.add("");

@@ -1,8 +1,6 @@
 package com.indexdata.mkjsf.pazpar2.sp.auth;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
@@ -16,11 +14,12 @@ import com.indexdata.mkjsf.utils.Utils;
 public class ServiceProxyUser implements AuthenticationEntity {
 
   private static final long serialVersionUID = 2351542518778803071L;
-  private List<String> possibleProperties = Arrays.asList("name","password","realm");
   private Map<String,String> actualProperties = new HashMap<String,String>();
   private static Logger logger = Logger.getLogger(ServiceProxyUser.class);
-  private boolean authenticated = false;
+  private boolean credsAuthenticated = false;
   private boolean ipAuthenticated = false;
+  private boolean ipAuthFailure = false;
+  private boolean credsAuthFailure = false;  
 
   public ServiceProxyUser()  {
     logger.debug("ServiceProxyUser instantiated: " + Utils.objectId(this));
@@ -50,20 +49,57 @@ public class ServiceProxyUser implements AuthenticationEntity {
     return actualProperties.get("realm");
   }
    
-  public void isAuthenticated(boolean authenticated) {
-    this.authenticated = authenticated;
+  public void credentialsAuthenticationSucceeded (boolean success) {
+    this.credsAuthFailure = !success;
+    this.credsAuthenticated = success;
+    this.ipAuthenticated = false;
+    this.ipAuthFailure = false;
   }
   
-  public void isIpAuthenticated (boolean authenticated) {
-    this.ipAuthenticated = authenticated;
+  public void ipAuthenticationSucceeded (boolean success) {
+    this.ipAuthFailure = !success;    
+    this.ipAuthenticated = success;
+    this.credsAuthenticated = false;
+    this.credsAuthFailure = false;
   }
   
   public boolean isAuthenticated() {
-    return authenticated;
+    return (ipAuthenticated || credsAuthenticated);
   }
   
   public boolean isIpAuthenticated () {
     return ipAuthenticated;
+  }
+  
+  public boolean isCredentialsAuthenticated () {
+    return credsAuthenticated;
+  }
+  
+  public boolean hasIpAuthFailure () {
+    return ipAuthFailure;
+  }
+  
+  public boolean hasCredsAuthFailure () {
+    return credsAuthFailure;
+  }
+  
+  public boolean hasAuthenticationFailure () {
+    return credsAuthFailure || ipAuthFailure;
+  }
+  
+  public void authenticationCheckFailed () {
+    ipAuthenticated = false;
+    credsAuthenticated = false;
+  }
+  
+  public String getAuthenticationStatus () {
+    return (isAuthenticated() ? 
+              (isIpAuthenticated()? "IP authenticated" : 
+                 (isCredentialsAuthenticated() ? "Authenticated by credentials" : "Unknown authentication method")) :
+              (hasAuthenticationFailure() ? 
+                  (hasIpAuthFailure() ? "Authentication by IP address failed" :
+                      (hasCredsAuthFailure() ? "Authentication by credentials failed" : "Unknown authentication failure")) :
+                "Not authenticated"));
   }
   
 
@@ -76,16 +112,15 @@ public class ServiceProxyUser implements AuthenticationEntity {
   public Map<String, String> getPropertyMap() {
     return actualProperties;
   }
-
-  @Override
-  public List<String> getPossibleProperties() {
-    return possibleProperties;
-  } 
   
   public void clear() {
     actualProperties = new HashMap<String,String>();
-    authenticated = false;
-    ipAuthenticated = false;
+    credsAuthenticated = false;
+    ipAuthenticated = false;    
+  }
+  
+  public void setSpResponse (String responseXml) {
+    
   }
   
 

@@ -109,10 +109,10 @@ public class ServiceProxyClient implements SearchClient {
       String responseStr = new String(response,"UTF-8");
       logger.info(responseStr);      
       if (responseStr.contains("FAIL")) {
-        user.isAuthenticated(false);
+        user.credentialsAuthenticationSucceeded(false);
         return false;
       } else {
-        user.isAuthenticated(true);
+        user.credentialsAuthenticationSucceeded(true);
         return true;
       }      
     } catch (ClientProtocolException e) {
@@ -132,10 +132,9 @@ public class ServiceProxyClient implements SearchClient {
       logger.info(new String(response,"UTF-8"));
       String responseStr = new String(response,"UTF-8");    
       if (responseStr.contains("FAIL")) {  
-        user.isAuthenticated(false);
+        user.authenticationCheckFailed();
         return false;
-      } else {        
-        user.isAuthenticated(true);
+      } else {                
         return true;
       }      
     } catch (ClientProtocolException e) {
@@ -155,10 +154,10 @@ public class ServiceProxyClient implements SearchClient {
       logger.info(new String(response,"UTF-8"));
       String responseStr = new String(response,"UTF-8");    
       if (responseStr.contains("FAIL")) {
-        user.isAuthenticated(false);
+        user.ipAuthenticationSucceeded(false);        
         return false;
       } else {
-        user.isAuthenticated(true);
+        user.ipAuthenticationSucceeded(true);
         return true;
       }      
     } catch (ClientProtocolException e) {
