@@ -74,6 +74,9 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
       if (user.isAuthenticated()) {
         user.clear();
       }
+      pzreq.getRecord().removeParametersInState();
+      pzreq.getSearch().removeParametersInState();
+      pzresp.reset();
       ((ServiceProxyClient)searchClient).ipAuthenticate(user);
     }
   }
