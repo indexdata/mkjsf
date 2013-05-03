@@ -6,17 +6,31 @@ import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
 public class Location extends Pazpar2ResponseData {
     
   private static final long serialVersionUID = -1386527442857478225L;
-
+  private int seqno = -1;
+  
   public String getId() {
     return getAttribute("id");
   }
   
+  public String getChecksum() {
+    logger.debug("Request to get checksum");
+    return getAttribute("checksum"); 
+  }
+    
   public String getName () {
     return getAttribute("name");
   }
   
   public String getSubject() {
     return getOneElementValue("md-subject");
+  }
+  
+  public void setSequenceNumber(int num) {
+    seqno = num;
+  }
+  
+  public int getSequenceNumber () {
+    return seqno;
   }
   
   public String getSubjects() {

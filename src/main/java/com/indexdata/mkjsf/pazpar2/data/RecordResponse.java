@@ -16,8 +16,14 @@ public class RecordResponse extends Pazpar2ResponseData {
   
   public List<Location> getLocations() {
     List<Location> locations = new ArrayList<Location>();
-    for (Pazpar2ResponseData element : getElements("location")) {
-      locations.add((Location)element);
+    if (getElements("location")!=null) {      
+      int i = 0;
+      for (Pazpar2ResponseData element : getElements("location")) {
+        ((Location)element).setSequenceNumber(i++);
+        locations.add((Location)element);
+      }
+    } else {
+      logger.debug("Found no locations");
     }
     return locations;
   }
