@@ -88,10 +88,6 @@ public class Pazpar2Responses implements Serializable {
   }
   
   public RecordResponse getRecord() {
-    logger.info("Request to get record response.");
-    logger.info("Has record response: [" + ((dataObjects.get("record")!=null) ? "true" : "false") + "]");
-    logger.info("Its of type record: [" + ((dataObjects.get("record") instanceof RecordResponse) ? "true" : "false") +"]");
-    logger.info("It has xml: [" + ((dataObjects.get("record").getXml()!=null) ? "true" : "false") + "]");
     return ((RecordResponse) dataObjects.get("record"));
   }
   

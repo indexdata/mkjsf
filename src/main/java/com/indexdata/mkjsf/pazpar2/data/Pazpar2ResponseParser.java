@@ -139,7 +139,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     }    
     if (!docTypes.contains(localName)) {
       if (dataElements.size() == 0) {
-        logger.info("Encountered unknown top level element [" + localName + "]");
+        logger.info("Encountered unknown top level element [" + localName + "]. Creating generic data object.");
         currentElement.setType(localName);
       } else {
         dataElements.peek().addElement(localName, currentElement);
