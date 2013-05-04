@@ -24,6 +24,7 @@ import com.indexdata.mkjsf.config.Configuration;
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.errors.ConfigurationException;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.mkjsf.pazpar2.data.CommandError;
 import com.indexdata.mkjsf.utils.Utils;
 
 public class Pz2Client implements SearchClient {
@@ -82,16 +83,43 @@ public class Pz2Client implements SearchClient {
   
   @Override
   public void setSearchCommand(Pazpar2Command command) {
-    ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
+    ClientCommand clientCommand = new ClientCommand(command.getCommandName(), command.getEncodedQueryString());
     client.setSearchCommand(clientCommand);    
   }
 
   @Override
-  public CommandResponse executeCommand(Pazpar2Command command, ByteArrayOutputStream baos) 
-       throws Pazpar2ErrorException, IOException {
-    ClientCommand clientCommand = new ClientCommand(command.getName(), command.getEncodedQueryString());
-    Pazpar2HttpResponse pz2HttpResponse = client.executeCommand(clientCommand, baos);
-    return new Pz2CommandResponse(pz2HttpResponse,baos);
+  public CommandResponse executeCommand(Pazpar2Command command) {
+    Pz2CommandResponse commandResponse = null;
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ClientCommand clientCommand = new ClientCommand(command.getCommandName(), command.getEncodedQueryString());
+    Pazpar2HttpResponse pz2HttpResponse = null;
+    long start = System.currentTimeMillis();
+    try {
+      pz2HttpResponse = client.executeCommand(clientCommand, baos);
+      if (pz2HttpResponse.getStatusCode()==200) {
+        commandResponse = new Pz2CommandResponse(pz2HttpResponse,baos);
+      } else if (pz2HttpResponse.getStatusCode()==417) {
+        logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
+        commandResponse = new Pz2CommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       
+      } else {
+        String resp = baos.toString("UTF-8");
+        logger.error("Pazpar2 status code was " + pz2HttpResponse.getStatusCode() + ": " + resp);
+        commandResponse = new Pz2CommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");
+        throw new Pazpar2ErrorException(resp,pz2HttpResponse.getStatusCode(),resp,null);
+      }       
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      e.printStackTrace();
+      commandResponse = new Pz2CommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");      
+    } catch (Pazpar2ErrorException e) {
+      logger.error(e.getMessage());
+      e.printStackTrace();
+      logger.error("Creating error XML");
+      commandResponse = new Pz2CommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");
+    }
+    long end = System.currentTimeMillis();      
+    logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
+    return commandResponse;
   }
 
   public Pz2Client cloneMe() {

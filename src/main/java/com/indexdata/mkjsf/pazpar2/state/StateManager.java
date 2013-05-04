@@ -64,15 +64,15 @@ public class StateManager implements Serializable {
    */
   public void checkIn(Pazpar2Command command) {
     if (getCurrentState().stateMutating(command)) {
-      logger.debug("State changed by: " + command.getName());
+      logger.debug("State changed by: " + command.getCommandName());
       Pazpar2State state = new Pazpar2State(getCurrentState(),command);
       states.put(state.getKey(), state);
       currentKey = state.getKey();
-      hasPendingStateChange(command.getName(),new Boolean(true));      
+      hasPendingStateChange(command.getCommandName(),new Boolean(true));      
       logger.debug("Updating " + listeners.size() + " listener(s) with state change from " + command);
-      updateListeners(command.getName());      
+      updateListeners(command.getCommandName());      
     } else {
-      logger.debug("Command " + command.getName() + " not found to change the state [" + command.getEncodedQueryString() + "]");
+      logger.debug("Command " + command.getCommandName() + " not found to change the state [" + command.getEncodedQueryString() + "]");
     }
   }
       
@@ -96,7 +96,7 @@ public class StateManager implements Serializable {
     } else {
       logger.debug("State key change. Was: [" + currentKey + "]. Will be ["+key+"]");
       if (states.get(key)==null) {
-        logger.error("The back-end received an unknow state key.");        
+        logger.error("The back-end received an unknow state key: ["+ key +"].");        
       } else {
         if (states.get(key).getCommand("search").equals(states.get(currentKey).getCommand("search"))) {
           logger.debug("No search change detected");

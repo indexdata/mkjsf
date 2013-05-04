@@ -3,7 +3,6 @@ package com.indexdata.mkjsf.pazpar2.sp;
 import static com.indexdata.mkjsf.utils.Utils.nl;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -32,7 +32,6 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
-import com.indexdata.masterkey.pazpar2.client.exceptions.Pazpar2ErrorException;
 import com.indexdata.mkjsf.config.Configuration;
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.errors.ConfigurationException;
@@ -41,6 +40,7 @@ import com.indexdata.mkjsf.pazpar2.SearchClient;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
+import com.indexdata.mkjsf.pazpar2.data.CommandError;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -83,6 +83,7 @@ public class ServiceProxyClient implements SearchClient {
       ipAuth = new AuthCommand(null);
       ipAuth.setParameterInState(new CommandParameter("action","=","ipauth"));
     } catch (ConfigurationException c) {
+      // TODO: 
       c.printStackTrace();
     }    
   }
@@ -99,77 +100,46 @@ public class ServiceProxyClient implements SearchClient {
   }
   
   public boolean authenticate (ServiceProxyUser user) {
-    try {      
-      logger.info("Authenticating [" + user.getProperty("name") + "]");            
-      Pazpar2Command auth = new AuthCommand(null);
-      auth.setParametersInState(new CommandParameter("action","=","login"), 
-                                new CommandParameter("username","=",user.getProperty("name")), 
-                                new CommandParameter("password","=",user.getProperty("password")));                                
-      byte[] response = send(auth);
-      String responseStr = new String(response,"UTF-8");
-      logger.info(responseStr);      
-      if (responseStr.contains("FAIL")) {
-        user.credentialsAuthenticationSucceeded(false);
-        return false;
-      } else {
-        user.credentialsAuthenticationSucceeded(true);
-        return true;
-      }      
-    } catch (ClientProtocolException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    logger.info("Authenticating [" + user.getProperty("name") + "]");            
+    Pazpar2Command auth = new AuthCommand(null);
+    auth.setParametersInState(new CommandParameter("action","=","login"), 
+                              new CommandParameter("username","=",user.getProperty("name")), 
+                              new CommandParameter("password","=",user.getProperty("password")));                                
+    ServiceProxyCommandResponse commandResponse = send(auth);
+    String responseStr = commandResponse.getResponseString();
+    logger.info(responseStr);      
+    if (responseStr.contains("FAIL")) {
+      user.credentialsAuthenticationSucceeded(false);
       return false;
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return false;
-    }        
+    } else {
+      user.credentialsAuthenticationSucceeded(true);
+      return true;
+    }      
   }
   
   public boolean checkAuthentication (ServiceProxyUser user) {    
-    try {
-      byte[] response = send(checkAuth);
-      logger.info(new String(response,"UTF-8"));
-      String responseStr = new String(response,"UTF-8");    
-      if (responseStr.contains("FAIL")) {  
-        user.authenticationCheckFailed();
-        return false;
-      } else {                
-        return true;
-      }      
-    } catch (ClientProtocolException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    ServiceProxyCommandResponse commandResponse = send(checkAuth);      
+    String responseStr = commandResponse.getResponseString();    
+    logger.info(responseStr);
+    if (responseStr.contains("FAIL")) {  
+      user.authenticationCheckFailed();
       return false;
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return false;
-    }        
+    } else {                
+      return true;
+    }      
   }
   
   public boolean ipAuthenticate (ServiceProxyUser user) {
-    try {
-      byte[] response = send(ipAuth);
-      logger.info(new String(response,"UTF-8"));
-      String responseStr = new String(response,"UTF-8");    
-      if (responseStr.contains("FAIL")) {
-        user.ipAuthenticationSucceeded(false);        
-        return false;
-      } else {
-        user.ipAuthenticationSucceeded(true);
-        return true;
-      }      
-    } catch (ClientProtocolException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    ServiceProxyCommandResponse commandResponse = send(ipAuth);      
+    String responseStr = commandResponse.getResponseString();
+    logger.info(responseStr);
+    if (responseStr.contains("FAIL")) {
+      user.ipAuthenticationSucceeded(false);        
       return false;
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return false;
-    }        
-    
+    } else {
+      user.ipAuthenticationSucceeded(true);
+      return true;
+    }          
   }
   
   public boolean isAuthenticatingClient () {
@@ -191,24 +161,39 @@ public class ServiceProxyClient implements SearchClient {
    * @throws ClientProtocolException
    * @throws IOException
    */
-  private byte[] send(Pazpar2Command command) throws ClientProtocolException, IOException {
+  private ServiceProxyCommandResponse send(Pazpar2Command command) {
+    ServiceProxyCommandResponse commandResponse = null;
     String url = selectedServiceUrl + "?" + command.getEncodedQueryString(); 
     logger.info("Sending request "+url);    
     HttpGet httpget = new HttpGet(url);     
-    byte[] response = client.execute(httpget, handler);    
-    return response;
+    byte[] response = null;
+    try {
+      response = client.execute(httpget, handler);
+      if (handler.getStatusCode()==200) {
+        commandResponse = new ServiceProxyCommandResponse(handler.getStatusCode(),response,handler.getContentType());
+      } else {
+        logger.error("Service Proxy status code: " + handler.getStatusCode());
+        commandResponse = new ServiceProxyCommandResponse(handler.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Service Proxy error occurred", new String(response,"UTF-8")),"text/xml");                       
+      }       
+    } catch (Exception e) {
+      e.printStackTrace();
+      commandResponse = new ServiceProxyCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), e.getClass().getSimpleName(), (e.getMessage()!= null ? e.getMessage() : "") + (e.getCause()!=null ? e.getCause().getMessage() : "")),"text/xml");
+    }
+    return commandResponse; 
   }
   
   public class ProxyPz2ResponseHandler implements ResponseHandler<byte[]> {
     private StatusLine statusLine = null;
+    private Header contentType = null;
     public byte[] handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
       byte[] resp = null;
       HttpEntity entity = response.getEntity();      
       statusLine = response.getStatusLine();
       if (entity != null) {        
         resp = EntityUtils.toByteArray(entity);        
-      } 
-      EntityUtils.consume(entity);
+        contentType = response.getEntity().getContentType();        
+      }       
+      EntityUtils.consume(entity);      
       return resp;
     }
     public int getStatusCode() {
@@ -216,6 +201,9 @@ public class ServiceProxyClient implements SearchClient {
     }    
     public String getReasonPhrase() {
       return statusLine.getReasonPhrase();
+    }
+    public String getContentType () {
+      return (contentType != null ? contentType.getValue() : "Content-Type not known"); 
     }
   }
 
@@ -233,11 +221,8 @@ public class ServiceProxyClient implements SearchClient {
   }
 
   @Override
-  public CommandResponse executeCommand(Pazpar2Command command,
-      ByteArrayOutputStream baos) throws Pazpar2ErrorException, IOException {
-    byte[] response = send(command);
-    baos.write(response);
-    return new ServiceProxyClientCommandResponse(getStatusCode(), new String(response,"UTF-8"));    
+  public CommandResponse executeCommand(Pazpar2Command command) {
+    return send(command);
   }
 
   public ServiceProxyClient cloneMe() {

@@ -75,8 +75,8 @@ public class CommandError extends Pazpar2ResponseData implements ErrorInterface 
     errorXml.append("<" + commandName + ">"+nl);
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
-    errorXml.append("  <exception>" + XmlUtils.escape(exceptionName) + "</exception>"+nl);    
-    errorXml.append("  <errormessage>" + XmlUtils.escape(errorMessage) + "</errormessage>"+nl);    
+    errorXml.append("  <exception>" + (exceptionName != null ? XmlUtils.escape(exceptionName) : "") + "</exception>"+nl);    
+    errorXml.append("  <errormessage>" + (errorMessage != null  ? XmlUtils.escape(errorMessage) : "") + "</errormessage>"+nl);    
     errorXml.append(" </applicationerror>"+nl);
     errorXml.append("</" + commandName + ">"+nl);
     return errorXml.toString(); 

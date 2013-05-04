@@ -132,10 +132,10 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
             }
           }
           for (CommandThread thread : threadList) {
-             String commandName = thread.getCommand().getName();
-             String response = thread.getResponse();
-             responseLogger.debug("Response was: " + response);
-             Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response);
+             String commandName = thread.getCommand().getCommandName();
+             CommandResponse response = thread.getCommandResponse();
+             responseLogger.debug("Response was: " + response.getResponseString());
+             Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response.getResponseString());
              if (Pazpar2ResponseParser.docTypes.contains(responseObject.getType())) {
                pzresp.put(commandName, responseObject);
              } else {
@@ -173,6 +173,9 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
       return "";
     } catch (NullPointerException npe) {
       npe.printStackTrace();
+      return "";
+    } catch (Exception e) {
+      e.printStackTrace();
       return "";
     }
     

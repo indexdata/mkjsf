@@ -51,7 +51,7 @@ public class Pazpar2State {
     for (String commandName : previousState.commands.keySet()) {
       this.commands.put(commandName, previousState.commands.get(commandName).copy());
     }
-    this.commands.put(newCommand.getName(),newCommand);
+    this.commands.put(newCommand.getCommandName(),newCommand);
     this.key = getKey();           
   }
     
@@ -66,11 +66,11 @@ public class Pazpar2State {
       StringBuilder querystatebuilder = new StringBuilder("");
       for (Pazpar2Command command : commands.values()) {
         if (command.hasParameters()) {
-          querystatebuilder.append("||"+command.getName()+"::");
+          querystatebuilder.append("||"+command.getCommandName()+"::");
           querystatebuilder.append(command.getValueWithExpressions());
         }      
       }            
-      key = "#"+querystatebuilder.toString().hashCode();
+      key = "#"+querystatebuilder.toString();
       return key;
     } else {      
       return key;
@@ -86,9 +86,9 @@ public class Pazpar2State {
   public boolean stateMutating (Pazpar2Command command) {
     if (command == null) {
       return true;
-    } else if (commands.get(command.getName()) == null) {
+    } else if (commands.get(command.getCommandName()) == null) {
       return true;
-    } else if ((command.equals(commands.get(command.getName())))) {
+    } else if ((command.equals(commands.get(command.getCommandName())))) {
       return false;      
     } else {
       return true;

@@ -25,7 +25,7 @@ public abstract class Pazpar2Command implements Serializable  {
       
   public abstract Pazpar2Command copy ();
   
-  public String getName() {
+  public String getCommandName() {
     return name;
   }
     
@@ -144,7 +144,7 @@ public abstract class Pazpar2Command implements Serializable  {
     if (stateMgr != null) {
       stateMgr.checkIn(command);
     } else {
-      logger.info("Command '" + command.getName() + "' not affecting state (history) as no state manager was defined for this command.");
+      logger.info("Command '" + command.getCommandName() + "' not affecting state (history) as no state manager was defined for this command.");
     }
   }
   
