@@ -48,7 +48,7 @@ public class ServiceProxyCommandResponse implements CommandResponse {
   }
 
   @Override
-  public byte[] getBinaryResponse() {    
+  public byte[] getBytes() {    
     return content;
   }
 

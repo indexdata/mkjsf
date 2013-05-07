@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
+import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 
 @Named("pzresp") @SessionScoped
 public class Pazpar2Responses implements Serializable {
@@ -130,5 +131,9 @@ public class Pazpar2Responses implements Serializable {
     }
   }
 
+  public SpResponses getSp() {
+    // TODO:
+    return null;
+  }
 
 }

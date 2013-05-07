@@ -73,11 +73,11 @@ public class ServiceProxyClient implements SearchClient {
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
       config = configReader.getConfiguration(this);      
-      serviceUrls = getMultiProperty(config.get(SERVICE_PROXY_URL));
+      serviceUrls = getMultiProperty(config.get(SERVICE_PROXY_URL),",");
       if (serviceUrls.size()==1) {
         selectedServiceUrl = serviceUrls.get(0);
       }
-      this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS));
+      this.initDocPaths = getMultiProperty(config.get(SP_INIT_DOC_PATHS),",");
       checkAuth = new AuthCommand(null);
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
       ipAuth = new AuthCommand(null);
@@ -88,10 +88,10 @@ public class ServiceProxyClient implements SearchClient {
     }    
   }
   
-  private List<String> getMultiProperty(String prop) {
+  private List<String> getMultiProperty(String prop, String separator) {
     List<String> props = new ArrayList<String>();
     if (prop != null) {      
-      StringTokenizer tokenizer = new StringTokenizer(prop,",");
+      StringTokenizer tokenizer = new StringTokenizer(prop,separator);
       while (tokenizer.hasMoreElements()) {
         props.add(tokenizer.nextToken());
       }     
@@ -252,7 +252,7 @@ public class ServiceProxyClient implements SearchClient {
     return null;
   }
   
-  public byte[] postInitDoc (String filePath) throws IOException {
+  public ServiceProxyCommandResponse postInitDoc (String filePath) throws IOException {
     logger.info("Looking to post the file in : [" + filePath +"]");
     HttpPost post = new HttpPost(selectedServiceUrl+"?command=init&includeDebug=yes");
     File initDoc = new File(filePath);
@@ -268,7 +268,7 @@ public class ServiceProxyClient implements SearchClient {
     post.setEntity(new FileEntity(initDoc));
     byte[] response = client.execute(post, handler);
     logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
-    return response;
+    return new ServiceProxyCommandResponse(handler.getStatusCode(),response,handler.getContentType());    
   }
   
   public List<String> getInitDocPaths () {
@@ -277,12 +277,12 @@ public class ServiceProxyClient implements SearchClient {
     return initDocPaths;
   }
   
-  public byte[] postInitDoc(byte[] initDoc, boolean includeDebug) throws IOException {
+  public ServiceProxyCommandResponse postInitDoc(byte[] initDoc, boolean includeDebug) throws IOException {
     HttpPost post = new HttpPost(selectedServiceUrl+"?command=init" + (includeDebug? "&includeDebug=yes" : ""));
     post.setEntity(new ByteArrayEntity(initDoc));
     byte[] response = client.execute(post, handler);
     logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
-    return response;
+    return new ServiceProxyCommandResponse(handler.getStatusCode(),response,handler.getContentType());    
   }
   
   public void setServiceProxyUrl (String url) {

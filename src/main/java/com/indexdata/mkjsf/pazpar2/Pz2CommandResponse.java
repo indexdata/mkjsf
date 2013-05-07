@@ -56,7 +56,7 @@ public class Pz2CommandResponse implements CommandResponse {
   }
 
   @Override
-  public byte[] getBinaryResponse() {
+  public byte[] getBytes() {
     return content;
   }
 

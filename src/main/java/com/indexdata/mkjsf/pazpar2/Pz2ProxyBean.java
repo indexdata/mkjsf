@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.pazpar2.sp.ServiceProxyClient;
+import com.indexdata.mkjsf.pazpar2.sp.ServiceProxyCommandResponse;
 import com.indexdata.mkjsf.pazpar2.sp.ServiceProxyInterface;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
@@ -124,22 +125,20 @@ public class Pz2ProxyBean extends Pz2Bean implements ServiceProxyInterface {
   }
 
   @Override
-  public String postInit() throws UnsupportedEncodingException, IOException {    
+  public ServiceProxyCommandResponse postInit() throws UnsupportedEncodingException, IOException {    
     String initDocPath = ((ServiceProxyClient)searchClient).getInitDocPaths().get(0);
     logger.info("Paths: " + ((ServiceProxyClient)searchClient).getInitDocPaths());
     logger.info("Path: " + initDocPath);
     pzresp.reset();
-    byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDocPath + getInitFileName());
-    initDocResponse = new String(response,"UTF-8");
-    return initDocResponse;
+    ServiceProxyCommandResponse response = ((ServiceProxyClient)searchClient).postInitDoc(initDocPath + getInitFileName());    
+    return response;
   }
   
   @Override
-  public String postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
+  public ServiceProxyCommandResponse postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
     pzresp.reset();
-    byte[] response = ((ServiceProxyClient)searchClient).postInitDoc(initDoc,includeDebug);
-    initDocResponse = new String(response,"UTF-8");
-    return initDocResponse;
+    ServiceProxyCommandResponse response = ((ServiceProxyClient)searchClient).postInitDoc(initDoc,includeDebug);    
+    return response;
   }
 
   @Override
