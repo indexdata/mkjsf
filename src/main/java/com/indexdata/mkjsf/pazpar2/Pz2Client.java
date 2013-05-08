@@ -35,9 +35,10 @@ public class Pz2Client implements SearchClient {
   private Pazpar2ClientConfiguration cfg = null;
   public static final String MODULENAME = "pz2client";
   public static Map<String,String> DEFAULTS = new HashMap<String,String>();
-  Configuration config = null;
+  Configuration config = null;  
   
   static {    
+    DEFAULTS.put("PAZPAR2_URL", "");
     DEFAULTS.put("PROXY_MODE","1");
     DEFAULTS.put("SERIALIZE_REQUESTS", "false");
     DEFAULTS.put("STREAMBUFF_SIZE", "4096");
@@ -50,7 +51,7 @@ public class Pz2Client implements SearchClient {
   public void configure(ConfigurationReader configReader) throws ConfigurationException {    
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
-      config = configReader.getConfiguration(this);
+      config = configReader.getConfiguration(this);      
       cfg = new Pazpar2ClientConfiguration(new ConfigurationGetter(config));
     } catch (ProxyErrorException pe) {
       logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
@@ -89,7 +90,7 @@ public class Pz2Client implements SearchClient {
 
   @Override
   public CommandResponse executeCommand(Pazpar2Command command) {
-    Pz2CommandResponse commandResponse = null;
+    ClientCommandResponse commandResponse = null;
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ClientCommand clientCommand = new ClientCommand(command.getCommandName(), command.getEncodedQueryString());
     Pazpar2HttpResponse pz2HttpResponse = null;
@@ -97,25 +98,25 @@ public class Pz2Client implements SearchClient {
     try {
       pz2HttpResponse = client.executeCommand(clientCommand, baos);
       if (pz2HttpResponse.getStatusCode()==200) {
-        commandResponse = new Pz2CommandResponse(pz2HttpResponse,baos);
+        commandResponse = new ClientCommandResponse(pz2HttpResponse,baos);
       } else if (pz2HttpResponse.getStatusCode()==417) {
         logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
-        commandResponse = new Pz2CommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       
+        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       
       } else {
         String resp = baos.toString("UTF-8");
         logger.error("Pazpar2 status code was " + pz2HttpResponse.getStatusCode() + ": " + resp);
-        commandResponse = new Pz2CommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");
+        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");
         throw new Pazpar2ErrorException(resp,pz2HttpResponse.getStatusCode(),resp,null);
       }       
     } catch (IOException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new Pz2CommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");      
     } catch (Pazpar2ErrorException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
       logger.error("Creating error XML");
-      commandResponse = new Pz2CommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");
     }
     long end = System.currentTimeMillis();      
     logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
@@ -173,6 +174,22 @@ public class Pz2Client implements SearchClient {
   
   public Configuration getConfiguration () {
     return config;
+  }
+
+  @Override
+  public String getServiceUrl() {
+    return cfg.PAZPAR2_URL;    
+  }
+
+  @Override
+  public boolean hasServiceUrl() {
+    return cfg.PAZPAR2_URL != null && cfg.PAZPAR2_URL.length()>0;
+  }
+  
+  @Override 
+  public void setServiceUrl (String serviceUrl) {    
+    cfg.PAZPAR2_URL = serviceUrl;
+    
   }
 
 }

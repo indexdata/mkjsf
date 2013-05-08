@@ -101,5 +101,14 @@ public interface Pz2Interface extends Serializable {
   public String getCheckHistory ();
   public String getWatchActiveclients ();
   public String getWatchActiveclientsRecord ();
-     
+
+  public void setServiceTypePZ2 ();
+  public void setServiceTypeSP ();
+  public void setServiceTypeTBD ();
+  public void setServiceUrl(String url);
+  public String getServiceUrl();
+  public String getServiceType();
+  public boolean isPazpar2Service ();  
+  public boolean isServiceProxyService();  
+  public boolean serviceIsToBeDecided ();
 }

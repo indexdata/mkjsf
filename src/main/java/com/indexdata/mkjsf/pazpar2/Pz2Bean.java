@@ -2,17 +2,21 @@ package com.indexdata.mkjsf.pazpar2;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.mkjsf.config.Configurable;
+import com.indexdata.mkjsf.config.Configuration;
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.controls.ResultsPager;
 import com.indexdata.mkjsf.errors.ConfigurationError;
@@ -25,27 +29,40 @@ import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
 import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Pazpar2Responses;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
+import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.pazpar2.state.StateListener;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
 
-@Named("pz2") @SessionScoped @Alternative
-public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
+@Named("pz2") @SessionScoped
+public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Serializable {
+
+  private static final String MODULE_NAME = "service";
+  private static String SERVICE_TYPE_TBD = "TBD", SERVICE_TYPE_PZ2 = "PZ2", SERVICE_TYPE_SP = "SP";
+  private static final List<String> serviceTypes = 
+                Arrays.asList(SERVICE_TYPE_PZ2,SERVICE_TYPE_SP,SERVICE_TYPE_TBD);
+  private String serviceType = SERVICE_TYPE_TBD;
+  private List<String> serviceProxyUrls = new ArrayList<String>();
+  public static final String SERVICE_PROXY_URL_LIST = "SERVICE_PROXY_URL_LIST";
+  private List<String> pazpar2Urls = new ArrayList<String>();
+  public static final String PAZPAR2_URL_LIST = "PAZPAR2_URL_LIST";
+
 
   private static final long serialVersionUID = 3440277287081557861L;
   private static Logger logger = Logger.getLogger(Pz2Bean.class);
-  private static Logger responseLogger = Logger.getLogger("com.indexdata.mkjsf.pazpar2.responses");
-  
-  protected SearchClient searchClient = null;
-  
+  private static Logger responseLogger = Logger.getLogger("com.indexdata.mkjsf.pazpar2.responses");   
+  protected Pz2Client pz2Client = null;
+  protected ServiceProxyClient spClient = null;
+  protected SearchClient searchClient = null;  
+    
   @Inject ConfigurationReader configurator;
   @Inject StateManager stateMgr;
   @Inject Pazpar2Commands pzreq;
   @Inject Pazpar2Responses pzresp;
   @Inject ErrorCentral errors;
+  @Inject ServiceProxyUser user;
   
   protected ResultsPager pager = null; 
-
   
   protected ErrorHelper errorHelper = null;
               
@@ -55,24 +72,36 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   
   @PostConstruct
   public void postConstruct() {    
-    logger.debug("in start of Pz2Bean post-construct configurator is " + configurator);
+    logger.debug("Pz2Bean post-construct: Configurator is " + configurator);
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Client next.");
-    searchClient = new Pz2Client();
-    logger.info("Using [" + Utils.objectId(searchClient) + "] configured by [" 
-                          + Utils.objectId(configurator) + "]" );    
-    configureClient(searchClient,configurator);    
+    pz2Client = new Pz2Client();
+    configureClient(pz2Client,configurator);
+    spClient = new ServiceProxyClient();
+    configureClient(spClient,configurator);
+    try {
+      this.configure(configurator);
+    } catch (ConfigurationException e) {
+      logger.error("There was a problem configuring the Pz2Bean (\"pz2\")");
+      e.printStackTrace();
+    }    
     stateMgr.addStateListener(this);    
   }  
   
-  public void configureClient(SearchClient searchClient, ConfigurationReader configReader) {
+  public void configureClient(SearchClient client, ConfigurationReader configReader) {
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
     try {
-      searchClient.configure(configReader);            
+      client.configure(configReader);            
     } catch (ConfigurationException e) {
       logger.debug("Pz2Bean adding configuration error");
       errors.addConfigurationError(new ConfigurationError("Search Client","Configuration",e.getMessage()));                
     } 
     logger.info(configReader.document());
+    pzresp.reset();    
+  }
+  
+  public void resetSearchAndResults () {
+    pzreq.getRecord().removeParametersInState();
+    pzreq.getSearch().removeParametersInState();
     pzresp.reset();    
   }
 
@@ -264,9 +293,81 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
     } 
   }
   
+  public void setServiceProxyUrl(String url) {
+    searchClient = spClient;
+    setServiceUrl(url);
+  }
+  
+  public String getServiceProxyUrl () {
+    return spClient.getServiceUrl();
+  }
+  
+  public void setPazpar2Url(String url) {
+    searchClient = pz2Client;
+    setServiceUrl(url);
+  }
+  
+  public String getPazpar2Url() {
+    return pz2Client.getServiceUrl();
+  }
+
+  
+  @Override
+  public void setServiceUrl(String url) {
+    if (url!=null && searchClient != null && !url.equals(searchClient.getServiceUrl())) {
+      pzreq.getRecord().removeParametersInState();
+      pzreq.getSearch().removeParametersInState();
+      pzresp.reset();
+      user.clear();
+      searchClient.setServiceUrl(url);
+    }    
+  }
+  
+  public String getServiceUrl() {
+    return (searchClient!=null ? searchClient.getServiceUrl() : "");
+  }
+  
+  public boolean getServiceUrlIsDefined() {
+    return (searchClient != null && searchClient.hasServiceUrl());
+  }
+  
+  public List<String> getServiceProxyUrls() {
+    List<String> urls = new ArrayList<String>();
+    urls.add("");
+    urls.addAll(serviceProxyUrls);
+    return urls;
+  }
+  
+  public List<String> getPazpar2Urls () {
+    List<String> urls = new ArrayList<String>();
+    urls.add("");
+    urls.addAll(pazpar2Urls);
+    return urls;
+  }
+  
+  public String getServiceType () {
+    return serviceType;
+  }
+  
+  public boolean isPazpar2Service () {
+    return serviceType.equals(SERVICE_TYPE_PZ2);
+  }
+  
+  public boolean isServiceProxyService() {
+    return serviceType.equals(SERVICE_TYPE_SP);
+  }
+  
+  public boolean serviceIsToBeDecided () {
+    return serviceType.equals(SERVICE_TYPE_TBD);
+  }
+  
+  public ServiceProxyClient getSpClient () {
+    return spClient;
+  }  
+  
   @Override
   public boolean getAuthenticationRequired () {
-    return searchClient.isAuthenticatingClient();
+    return spClient.isAuthenticatingClient();
   }
 
   @Override
@@ -282,6 +383,77 @@ public class Pz2Bean implements Pz2Interface, StateListener, Serializable {
   @Override
   public String getWatchActiveclientsRecord () {
     return ":pz2watch:activeclientsForm:activeclientsFieldRecord";
+  }
+
+  @Override
+  public void configure(ConfigurationReader reader)
+      throws ConfigurationException {
+    Configuration config = reader.getConfiguration(this);
+    if (config == null) {
+      serviceType = SERVICE_TYPE_TBD;
+    } else {
+      String service = config.get("TYPE");
+      if (service == null || service.length()==0) {
+        serviceType = SERVICE_TYPE_TBD;
+      } else if (serviceTypes.contains(service.toUpperCase())) {        
+        setServiceType(service.toUpperCase());
+      } else {
+        logger.error("Unknown serviceType type in configuration [" + service + "], can be one of " + serviceTypes);
+        serviceType = SERVICE_TYPE_TBD;
+      }
+      serviceProxyUrls = config.getMultiProperty(SERVICE_PROXY_URL_LIST,",");
+      pazpar2Urls = config.getMultiProperty(PAZPAR2_URL_LIST, ",");
+    }
+    logger.info("Service Type is configured to " + serviceType);
+    
+  }
+
+  @Override
+  public Map<String, String> getDefaults() {
+    return new HashMap<String,String>();
+  }
+
+  @Override
+  public String getModuleName() {
+    return MODULE_NAME;
+  }
+
+  @Override
+  public List<String> documentConfiguration() {
+    return new ArrayList<String>();
+  }
+
+  @Override
+  public void setServiceTypePZ2() {
+    setServiceType(SERVICE_TYPE_PZ2);    
+  }
+
+  @Override
+  public void setServiceTypeSP() {
+    setServiceType(SERVICE_TYPE_SP);        
+  }
+
+  @Override
+  public void setServiceTypeTBD() {
+    setServiceType(SERVICE_TYPE_TBD);    
+  }
+  
+  private void setServiceType(String type) {
+    if (!serviceType.equals(type)  &&
+        !serviceType.equals(SERVICE_TYPE_TBD)) {
+      resetSearchAndResults();
+    }
+    serviceType = type;
+    if (serviceType.equals(SERVICE_TYPE_PZ2)) {
+      searchClient = pz2Client;
+      logger.info("Setting a Pazpar2 client to serve requests.");
+    } else if (serviceType.equals(SERVICE_TYPE_SP)) {
+      searchClient = spClient;
+      logger.info("Setting a Service Proxy client to serve requests.");
+    } else {
+      logger.info("Clearing search client. No client defined to serve requests at this point.");
+      searchClient = null;
+    }
   }
   
 }

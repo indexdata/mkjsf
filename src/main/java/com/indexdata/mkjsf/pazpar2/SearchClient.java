@@ -20,4 +20,7 @@ public interface SearchClient extends Configurable, Serializable {
   
   public boolean isAuthenticatingClient();  
   public Configuration getConfiguration();
+  public String getServiceUrl();
+  public void setServiceUrl(String url);
+  public boolean hasServiceUrl();  
 }
