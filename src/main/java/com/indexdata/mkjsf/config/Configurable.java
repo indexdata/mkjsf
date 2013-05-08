@@ -33,7 +33,8 @@ public interface Configurable {
   
   /**
    * Returns the name of the module, can be used by a configuration reader that 
-   * has distinguishes between sets of configuration properties by component name
+   * distinguishes between sets of configuration properties by component name, a
+   * name space of sorts.
    * @return name of the part that is to be configured
    */
   public String getModuleName();
