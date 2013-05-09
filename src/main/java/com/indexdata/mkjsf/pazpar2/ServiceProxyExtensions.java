@@ -14,7 +14,6 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.commands.sp.InitDocUpload;
-import com.indexdata.mkjsf.pazpar2.data.InitResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;

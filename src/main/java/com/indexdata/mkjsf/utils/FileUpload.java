@@ -38,18 +38,5 @@ public abstract class FileUpload implements Serializable {
     externalContext.getResponseOutputStream().write(getUploadedFile().getBytes());
     facesContext.responseComplete();
   }
-  
-  public void downloadResponse () throws IOException {
-    logger.info(Utils.objectId(this) + " got a download request");
-    FacesContext facesContext = FacesContext.getCurrentInstance();
-    ExternalContext externalContext = facesContext.getExternalContext();
-    externalContext.setResponseHeader("Content-Type", response.getContentType());
-    externalContext.setResponseHeader("Content-Length", String.valueOf((response.getBytes().length)));
-    externalContext.setResponseHeader("Content-Disposition", "attachment;filename=\"initresponse.xml\"");
-    externalContext.getResponseOutputStream().write(response.getBytes());
-    facesContext.responseComplete();
-  }
-
-
 
 }

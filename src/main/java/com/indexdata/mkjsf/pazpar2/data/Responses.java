@@ -1,13 +1,18 @@
 package com.indexdata.mkjsf.pazpar2.data;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.SessionScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
@@ -148,4 +153,15 @@ public class Responses implements Serializable {
     return null;
   }
 
+  public void download(String commandName) throws UnsupportedEncodingException, IOException {
+    logger.info(Utils.objectId(this) + " got a download request for "
+        + commandName);
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    ExternalContext externalContext = facesContext.getExternalContext();
+    externalContext.setResponseHeader("Content-Type","application/xml; charset=\"utf-8\"");
+    externalContext.setResponseHeader("Content-Length",String.valueOf(dataObjects.get(commandName).getXml().getBytes("UTF-8").length));
+    externalContext.setResponseHeader("Content-Disposition","attachment;filename=\"" + commandName + ".xml\"");
+    externalContext.getResponseOutputStream().write(dataObjects.get(commandName).getXml().getBytes("UTF-8"));
+    facesContext.responseComplete();
+  }
 }

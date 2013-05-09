@@ -120,5 +120,9 @@ public class ResponseDataObject implements Serializable {
     }      
     return xml == null ? "" : xml;
   }
+  
+  public boolean getHasResults () {
+    return (xml != null && xml.length()>0);
+  }
         
 }

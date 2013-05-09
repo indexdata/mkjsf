@@ -8,7 +8,6 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
-import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
 import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
 import com.indexdata.mkjsf.pazpar2.ServiceProxyExtensions;
 import com.indexdata.mkjsf.utils.FileUpload;
