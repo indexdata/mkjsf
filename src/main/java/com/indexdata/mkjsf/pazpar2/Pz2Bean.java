@@ -25,9 +25,9 @@ import com.indexdata.mkjsf.errors.ErrorCentral;
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseParser;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2Responses;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
+import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
+import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.pazpar2.state.StateListener;
@@ -58,7 +58,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   @Inject ConfigurationReader configurator;
   @Inject StateManager stateMgr;
   @Inject Pazpar2Commands pzreq;
-  @Inject Pazpar2Responses pzresp;
+  @Inject Responses pzresp;
   @Inject ErrorCentral errors;
   @Inject ServiceProxyUser user;
   
@@ -164,8 +164,8 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
              String commandName = thread.getCommand().getCommandName();
              HttpResponseWrapper response = thread.getCommandResponse();
              responseLogger.debug("Response was: " + response.getResponseString());
-             Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response.getResponseString());
-             if (Pazpar2ResponseParser.docTypes.contains(responseObject.getType())) {
+             ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(response.getResponseString());
+             if (ResponseParser.docTypes.contains(responseObject.getType())) {
                pzresp.put(commandName, responseObject);
              } else {
                if (commandName.equals("record") && 

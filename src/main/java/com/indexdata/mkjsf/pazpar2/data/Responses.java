@@ -15,17 +15,17 @@ import com.indexdata.mkjsf.errors.ErrorInterface;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 
 @Named("pzresp") @SessionScoped
-public class Pazpar2Responses implements Serializable {
+public class Responses implements Serializable {
     
   private static final long serialVersionUID = -7543231258346154642L;
-  protected Map<String,Pazpar2ResponseData> dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
-  private static Logger logger = Logger.getLogger(Pazpar2Responses.class);
+  protected Map<String,ResponseDataObject> dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();
+  private static Logger logger = Logger.getLogger(Responses.class);
   private ErrorHelper errorHelper = null;
 
-  public Pazpar2Responses() {    
+  public Responses() {    
   }
   
-  public void put(String name, Pazpar2ResponseData responseData) {
+  public void put(String name, ResponseDataObject responseData) {
     dataObjects.put(name, responseData);
   }
   
@@ -71,7 +71,7 @@ public class Pazpar2Responses implements Serializable {
   
   public void reset() {
     logger.debug("Resetting show,stat,termlist,bytarget,search response objects.");
-    dataObjects = new ConcurrentHashMap<String,Pazpar2ResponseData>();
+    dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();
     dataObjects.put("show", new ShowResponse());
     dataObjects.put("stat", new StatResponse());
     dataObjects.put("termlist", new TermListsResponse());
@@ -112,7 +112,7 @@ public class Pazpar2Responses implements Serializable {
     return ((ByTarget) dataObjects.get("bytarget"));
   }
 
-  public Pazpar2ResponseData getResponseObject (String name) {
+  public ResponseDataObject getResponseObject (String name) {
     return dataObjects.get(name);
   }
   

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.indexdata.mkjsf.pazpar2.data.Hit;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
-public class ShowResponse extends Pazpar2ResponseData {
+public class ShowResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = 7103554232106330370L;
   
@@ -38,7 +38,7 @@ public class ShowResponse extends Pazpar2ResponseData {
   public List<Hit> getHits() {
     List<Hit> hits = new ArrayList<Hit>();
     if (getElements("hit") != null) {
-      for (Pazpar2ResponseData element : getElements("hit")) {
+      for (ResponseDataObject element : getElements("hit")) {
         hits.add((Hit)element);
       }
     } 

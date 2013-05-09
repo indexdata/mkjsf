@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.TermListResponse;
 import com.indexdata.mkjsf.pazpar2.data.TermResponse;
 
-public class TermListResponse extends Pazpar2ResponseData {
+public class TermListResponse extends ResponseDataObject {
 
   private static Logger logger = Logger.getLogger(TermListResponse.class);
   private static final long serialVersionUID = 3838585739723097393L;

@@ -21,7 +21,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.indexdata.mkjsf.pazpar2.data.ByTarget;
 import com.indexdata.mkjsf.pazpar2.data.Hit;
 import com.indexdata.mkjsf.pazpar2.data.Location;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ShowResponse;
 import com.indexdata.mkjsf.pazpar2.data.StatResponse;
@@ -31,19 +31,19 @@ import com.indexdata.mkjsf.pazpar2.data.TermListsResponse;
 import com.indexdata.mkjsf.pazpar2.data.TermResponse;
 import com.indexdata.mkjsf.pazpar2.data.TermXTargetResponse;
 
-public class Pazpar2ResponseParser extends DefaultHandler {
+public class ResponseParser extends DefaultHandler {
 
   private XMLReader xmlReader = null;
-  private Pazpar2ResponseData currentElement = null;
-  private Stack<Pazpar2ResponseData> dataElements = new Stack<Pazpar2ResponseData>();
-  private Pazpar2ResponseData result = null;
+  private ResponseDataObject currentElement = null;
+  private Stack<ResponseDataObject> dataElements = new Stack<ResponseDataObject>();
+  private ResponseDataObject result = null;
   private String xml = null;
-  private static Logger logger = Logger.getLogger(Pazpar2ResponseParser.class);
+  private static Logger logger = Logger.getLogger(ResponseParser.class);
 
   public static final List<String> docTypes = 
       Arrays.asList("bytarget","termlist","show","stat","record","search");
   
-  public Pazpar2ResponseParser() {    
+  public ResponseParser() {    
     try {
       initSax();
     } catch (ParserConfigurationException e) {
@@ -55,8 +55,8 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     }
   }
   
-  public static Pazpar2ResponseParser getParser() {
-    return new Pazpar2ResponseParser();
+  public static ResponseParser getParser() {
+    return new ResponseParser();
   }
   
   private void initSax() throws ParserConfigurationException, SAXException {
@@ -69,12 +69,12 @@ public class Pazpar2ResponseParser extends DefaultHandler {
   
   /**
    * Parses a Pazpar2 XML response -- or an error response as XML -- and produces a 
-   * Pazpar2ResponseData object, i.e. a 'show' object
+   * ResponseDataObject object, i.e. a 'show' object
    * 
    * @param response XML response string from Pazpar2
    * @return Response data object
    */
-  public Pazpar2ResponseData getDataObject (String response) {
+  public ResponseDataObject getDataObject (String response) {
     this.xml = response;
     try {      
       xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getBytes("UTF-8"))));
@@ -131,7 +131,7 @@ public class Pazpar2ResponseParser extends DefaultHandler {
     } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
       currentElement = new Pazpar2Error();     
     } else {
-      currentElement = new Pazpar2ResponseData();
+      currentElement = new ResponseDataObject();
     }
     currentElement.setType(localName);
     for (int i=0; i< atts.getLength(); i++) {

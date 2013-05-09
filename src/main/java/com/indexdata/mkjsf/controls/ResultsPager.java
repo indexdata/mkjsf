@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2Responses;
+import com.indexdata.mkjsf.pazpar2.data.Responses;
 
 public class ResultsPager implements Serializable {
 
   private static final long serialVersionUID = 8854795222615583071L;
-  private Pazpar2Responses data = null;
+  private Responses data = null;
   private int pageRangeLength = 13;
   private Pazpar2Commands req;
   
-  public ResultsPager(Pazpar2Responses data) {
+  public ResultsPager(Responses data) {
     this.data = data;     
   }
   
-  public ResultsPager(Pazpar2Responses data, int pageRange, Pazpar2Commands req) {
+  public ResultsPager(Responses data, int pageRange, Pazpar2Commands req) {
     this.data = data;
     this.pageRangeLength = pageRange;
     this.req = req;

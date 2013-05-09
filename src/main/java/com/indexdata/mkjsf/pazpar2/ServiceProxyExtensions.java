@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.commands.sp.InitDocUpload;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2Responses;
+import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 
 @Named("pz2x") @SessionScoped
@@ -29,7 +29,7 @@ public class ServiceProxyExtensions  implements ServiceProxyInterface, Serializa
   @Inject ServiceProxyUser user;    
   @Inject Pz2Bean pz2;
   @Inject Pazpar2Commands pzreq;
-  @Inject Pazpar2Responses pzresp;
+  @Inject Responses pzresp;
 
   
   public ServiceProxyExtensions() {

@@ -1,9 +1,9 @@
 package com.indexdata.mkjsf.pazpar2.data;
 
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
 
-public class Location extends Pazpar2ResponseData {
+public class Location extends ResponseDataObject {
     
   private static final long serialVersionUID = -1386527442857478225L;
   private int seqno = -1;
@@ -35,7 +35,7 @@ public class Location extends Pazpar2ResponseData {
   
   public String getSubjects() {
     StringBuilder builder = new StringBuilder("");
-    for (Pazpar2ResponseData data : getElements("md-subject")) {
+    for (ResponseDataObject data : getElements("md-subject")) {
       if (builder.length()==0) {
         builder.append(data.getValue());
       } else {
@@ -53,7 +53,7 @@ public class Location extends Pazpar2ResponseData {
   public String getAuthors() {
     StringBuilder builder = new StringBuilder("");
     if (getElements("md-author") != null) {
-      for (Pazpar2ResponseData data : getElements("md-author")) {
+      for (ResponseDataObject data : getElements("md-author")) {
         if (builder.length()==0) {
           builder.append(data.getValue());
         } else {

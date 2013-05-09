@@ -7,15 +7,15 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
-public class Pazpar2ResponseData implements Serializable {
+public class ResponseDataObject implements Serializable {
 
-  Logger logger = Logger.getLogger(Pazpar2ResponseData.class);
+  Logger logger = Logger.getLogger(ResponseDataObject.class);
   private static final long serialVersionUID = -3909755656714679959L;
   String type = null;
   HashMap<String,String> attributes = new HashMap<String,String>();
-  HashMap<String,List<Pazpar2ResponseData>> elements = new HashMap<String,List<Pazpar2ResponseData>>();
+  HashMap<String,List<ResponseDataObject>> elements = new HashMap<String,List<ResponseDataObject>>();
   String textContent = "";
   CommandError error = null;
   String xml = null;
@@ -36,21 +36,21 @@ public class Pazpar2ResponseData implements Serializable {
     return attributes.get(name);
   }
     
-  public void addElement (String name, Pazpar2ResponseData value) {    
+  public void addElement (String name, ResponseDataObject value) {    
     if (elements.containsKey(name)) {
       elements.get(name).add(value);
     } else {
-      List<Pazpar2ResponseData> list = new ArrayList<Pazpar2ResponseData>();
+      List<ResponseDataObject> list = new ArrayList<ResponseDataObject>();
       list.add(value);
       elements.put(name,list);
     }
   }
   
-  public List<Pazpar2ResponseData> getElements (String name) {
+  public List<ResponseDataObject> getElements (String name) {
     return elements.get(name);
   }
   
-  public Pazpar2ResponseData getOneElement (String name) {
+  public ResponseDataObject getOneElement (String name) {
     if (elements.get(name) != null) {
       return elements.get(name).get(0);
     } else {
@@ -81,7 +81,7 @@ public class Pazpar2ResponseData implements Serializable {
   }
   
   public String getProperty(String name) {
-    List<Pazpar2ResponseData> els = elements.get(name);
+    List<ResponseDataObject> els = elements.get(name);
     if (els != null) {
       return els.get(0).getValue();
     } else {     

@@ -1,8 +1,8 @@
 package com.indexdata.mkjsf.pazpar2.data;
 
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
-public class TermResponse extends Pazpar2ResponseData {
+public class TermResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = -8323959763575180678L;
   

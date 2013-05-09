@@ -12,7 +12,7 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.config.ConfigurationReader;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2Responses;
+import com.indexdata.mkjsf.pazpar2.data.Responses;
 
 @Named("errors") @SessionScoped
 public class ErrorCentral implements Serializable {
@@ -21,7 +21,7 @@ public class ErrorCentral implements Serializable {
   private static Logger logger = Logger.getLogger(ErrorCentral.class);  
   private ErrorHelper errorHelper = null;
   
-  @Inject Pazpar2Responses pzresp;
+  @Inject Responses pzresp;
   @Inject ConfigurationReader configurator;
   
   private List<ErrorInterface> configurationErrors = new ArrayList<ErrorInterface>();

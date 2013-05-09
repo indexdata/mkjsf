@@ -19,13 +19,13 @@ import com.indexdata.utils.XmlUtils;
  * in a new 'applicationerror' element which in turn will be embedded in a
  * command XML (i.e. a 'search' or a 'show' response XML)  
  * 
- * The command response XML is subsequently parsed by Pazpar2ResponseParser, 
+ * The command response XML is subsequently parsed by ResponseParser, 
  * which will then create the CommandError object.
  * 
  * @author Niels Erik
  *
  */
-public class CommandError extends Pazpar2ResponseData implements ErrorInterface {
+public class CommandError extends ResponseDataObject implements ErrorInterface {
 
   private static final long serialVersionUID = 8878776025779714122L;
   private static Pattern xmlDeclaration = Pattern.compile("<\\?xml.*\\?>");
@@ -64,7 +64,7 @@ public class CommandError extends Pazpar2ResponseData implements ErrorInterface 
   
   /**
    * Creates an XML string error message, embedded in an XML string document named by the command
-   * This is the XML that Pazpar2ResponseParser will turn into a CommandError object. 
+   * This is the XML that ResponseParser will turn into a CommandError object. 
    * @param commandName
    * @param exceptionName
    * @param errorMessage
@@ -85,7 +85,7 @@ public class CommandError extends Pazpar2ResponseData implements ErrorInterface 
   /**
    * Embeds a Pazpar2 (or Pazpar2 client) error response document as a child element of
    * a command response document (like 'search' or 'show').
-   * This is the XML that Pazpar2ResponseParser will turn into a CommandError object.
+   * This is the XML that ResponseParser will turn into a CommandError object.
    * 
    * 
    * @param commandName The name of the command during which's execution the error was encountered

@@ -3,10 +3,10 @@ package com.indexdata.mkjsf.pazpar2.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.TermListResponse;
 
-public class TermListsResponse extends Pazpar2ResponseData {
+public class TermListsResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = -1370643625715834978L;
   private int activeClients = -1;

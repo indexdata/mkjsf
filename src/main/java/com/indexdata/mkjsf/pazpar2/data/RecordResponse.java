@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.indexdata.mkjsf.pazpar2.data.Location;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2ResponseData;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
-public class RecordResponse extends Pazpar2ResponseData {
+public class RecordResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = 6682722004285796002L;
 
@@ -18,7 +18,7 @@ public class RecordResponse extends Pazpar2ResponseData {
     List<Location> locations = new ArrayList<Location>();
     if (getElements("location")!=null) {      
       int i = 0;
-      for (Pazpar2ResponseData element : getElements("location")) {
+      for (ResponseDataObject element : getElements("location")) {
         ((Location)element).setSequenceNumber(i++);
         locations.add((Location)element);
       }
@@ -46,7 +46,7 @@ public class RecordResponse extends Pazpar2ResponseData {
   
   public String getSubjects() {
     StringBuilder builder = new StringBuilder("");
-    for (Pazpar2ResponseData data : getElements("md-subject")) {
+    for (ResponseDataObject data : getElements("md-subject")) {
       if (builder.length()==0) {
         builder.append(data.getValue());
       } else {
