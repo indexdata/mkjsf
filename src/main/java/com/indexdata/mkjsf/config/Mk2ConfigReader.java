@@ -59,7 +59,7 @@ public class Mk2ConfigReader implements ConfigurationReader  {
     MasterkeyConfiguration mkConfigContext;
     try {
       mkConfigContext = MasterkeyConfiguration.getInstance(servletContext,
-      "pazpar-application-jsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());
+      "mkjsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());
     } catch (IOException e) {
       throw new ConfigurationException(Mk2ConfigReader.class + " could not read configuration for '" + configurable.getModuleName() + "' using MasterKey configuration scheme: "+e.getMessage(),e);
     }        

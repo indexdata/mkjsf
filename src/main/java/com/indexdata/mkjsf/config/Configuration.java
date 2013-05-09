@@ -1,8 +1,11 @@
 package com.indexdata.mkjsf.config;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
@@ -66,6 +69,19 @@ public class Configuration implements Serializable {
     } 
     throw new MissingMandatoryParameterException("Missing mandatory parameter: " + key);     
   }
+  
+  public List<String> getMultiProperty(String key, String separator) {    
+    List<String> props = new ArrayList<String>();
+    String prop = get(key);
+    if (prop != null) {      
+      StringTokenizer tokenizer = new StringTokenizer(prop,separator);
+      while (tokenizer.hasMoreElements()) {
+        props.add(tokenizer.nextToken());
+      }     
+    }
+    return props;
+  }
+  
 
   public String getConfigFilePath() {
     return get("configpath","nopathgiven");
@@ -74,6 +90,8 @@ public class Configuration implements Serializable {
   public Map<String,String> getConfigMap() {
     return properties;
   }
+  
+   
   
 
 }

@@ -295,20 +295,30 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   
   public void setServiceProxyUrl(String url) {
     searchClient = spClient;
+    setServiceType(SERVICE_TYPE_SP);
     setServiceUrl(url);
   }
   
   public String getServiceProxyUrl () {
-    return spClient.getServiceUrl();
+    if (isServiceProxyService()) {
+      return spClient.getServiceUrl();
+    } else {
+      return "";
+    }
   }
   
   public void setPazpar2Url(String url) {
     searchClient = pz2Client;
+    setServiceType(SERVICE_TYPE_PZ2);
     setServiceUrl(url);
   }
   
   public String getPazpar2Url() {
-    return pz2Client.getServiceUrl();
+    if (isPazpar2Service()) {
+      return pz2Client.getServiceUrl();
+    } else {
+      return "";
+    }
   }
 
   

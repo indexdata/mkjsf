@@ -5,29 +5,28 @@ import java.io.UnsupportedEncodingException;
 
 import com.indexdata.masterkey.pazpar2.client.Pazpar2HttpResponse;
 
-public class Pz2CommandResponse implements CommandResponse {
-  
-  private Pazpar2HttpResponse pz2httpResponse = null;
+public class ClientCommandResponse implements CommandResponse {
+    
   private int statusCode;
   private String contentType;
   private byte[] content = null;
   private String contentString = null;
   
-  public Pz2CommandResponse(Pazpar2HttpResponse pz2response, ByteArrayOutputStream content) {
-    pz2httpResponse = pz2response;
+  public ClientCommandResponse(Pazpar2HttpResponse pz2response, ByteArrayOutputStream content) {    
     this.content = content.toByteArray();
-    this.statusCode = pz2httpResponse.getStatusCode();
-    this.contentType = pz2httpResponse.getContentType();
+    this.statusCode = pz2response.getStatusCode();
+    this.contentType = pz2response.getContentType();
   }
-  
-  public Pz2CommandResponse(Pazpar2HttpResponse pz2response, String content) {
-    pz2httpResponse = pz2response;
-    this.contentString = content;
-  }
-  
-  public Pz2CommandResponse(int statusCode, String content, String contentType) {
+    
+  public ClientCommandResponse(int statusCode, String content, String contentType) {
     this.statusCode = statusCode;
     this.contentString = content;
+    this.contentType = contentType;
+  }
+  
+  public ClientCommandResponse(int statusCode, byte[] content, String contentType) {
+    this.statusCode = statusCode;
+    this.content = content;
     this.contentType = contentType;
   }
 
