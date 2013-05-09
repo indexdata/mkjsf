@@ -100,7 +100,7 @@ function errorListener(data) {
       // ignore - caught by view expiration listener
     } else {
       alert("An error ["
-          + data.description
+          + data.errorName + ": " +data.description
           + "] was triggered by ["
           + data.source.name
           + "]. The page could be in an inconsistent state after this. We apologize for the inconvenience.");
