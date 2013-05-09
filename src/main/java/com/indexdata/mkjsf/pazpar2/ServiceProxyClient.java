@@ -48,7 +48,7 @@ public class ServiceProxyClient implements SearchClient {
   public static final String MODULENAME = "proxyclient";
   
   public static final String SP_INIT_DOC_PATHS = "SP_INIT_DOC_PATHS";
-  private String selectedServiceUrl = "";
+  private String serviceUrl = "";
   
   private List<String> initDocPaths = null;
   private Configuration config = null;
@@ -70,7 +70,7 @@ public class ServiceProxyClient implements SearchClient {
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
       config = configReader.getConfiguration(this);      
-      selectedServiceUrl = config.get("SERVICE_PROXY_URL");
+      serviceUrl = config.get("SERVICE_PROXY_URL");
       this.initDocPaths = config.getMultiProperty(SP_INIT_DOC_PATHS,",");
       checkAuth = new AuthCommand(null);
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
@@ -147,7 +147,7 @@ public class ServiceProxyClient implements SearchClient {
    */
   private ClientCommandResponse send(Pazpar2Command command) {
     ClientCommandResponse commandResponse = null;
-    String url = selectedServiceUrl + "?" + command.getEncodedQueryString(); 
+    String url = serviceUrl + "?" + command.getEncodedQueryString(); 
     logger.info("Sending request "+url);    
     HttpGet httpget = new HttpGet(url);     
     byte[] response = null;
@@ -213,7 +213,7 @@ public class ServiceProxyClient implements SearchClient {
     logger.debug("Cloning Pz2Client");
     ServiceProxyClient clone = new ServiceProxyClient();
     clone.client = this.client;
-    clone.selectedServiceUrl = this.selectedServiceUrl;
+    clone.serviceUrl = this.serviceUrl;
     clone.initDocPaths = this.initDocPaths;
     return clone;
   }
@@ -231,13 +231,13 @@ public class ServiceProxyClient implements SearchClient {
   @Override
   public List<String> documentConfiguration () {
     List<String> doc = new ArrayList<String>();
-    doc.add(nl+ MODULENAME + " was configured to access the Pazpar2 service proxy at: " + (selectedServiceUrl.length()>0 ? selectedServiceUrl : "[not defined yet]"));
+    doc.add(nl+ MODULENAME + " was configured to access the Pazpar2 service proxy at: " + (serviceUrl.length()>0 ? serviceUrl : "[not defined yet]"));
     return null;
   }
   
   public ClientCommandResponse postInitDoc (String filePath) throws IOException {
     logger.info("Looking to post the file in : [" + filePath +"]");
-    HttpPost post = new HttpPost(selectedServiceUrl+"?command=init&includeDebug=yes");
+    HttpPost post = new HttpPost(serviceUrl+"?command=init&includeDebug=yes");
     File initDoc = new File(filePath);
     logger.info("Posting to SP: ");
     if (logger.isDebugEnabled()) {
@@ -261,7 +261,7 @@ public class ServiceProxyClient implements SearchClient {
   }
   
   public ClientCommandResponse postInitDoc(byte[] initDoc, boolean includeDebug) throws IOException {
-    HttpPost post = new HttpPost(selectedServiceUrl+"?command=init" + (includeDebug? "&includeDebug=yes" : ""));
+    HttpPost post = new HttpPost(serviceUrl+"?command=init" + (includeDebug? "&includeDebug=yes" : ""));
     post.setEntity(new ByteArrayEntity(initDoc));
     byte[] response = client.execute(post, handler);
     logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
@@ -269,7 +269,7 @@ public class ServiceProxyClient implements SearchClient {
   }
   
   public void setServiceUrl (String url) {    
-    selectedServiceUrl = url;
+    serviceUrl = url;
   }
           
   public Configuration getConfiguration () {
@@ -278,12 +278,12 @@ public class ServiceProxyClient implements SearchClient {
 
   @Override
   public String getServiceUrl() {    
-    return selectedServiceUrl;
+    return serviceUrl;
   }
 
   @Override
   public boolean hasServiceUrl() {
-    return selectedServiceUrl != null && selectedServiceUrl.length()>0;
+    return serviceUrl != null && serviceUrl.length()>0;
   }
   
 }
