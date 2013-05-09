@@ -4,8 +4,8 @@ public class InitResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = -1479775157276901600L;
 
-  public InitResponse() {
-    // TODO Auto-generated constructor stub
+  public String getStatus() {
+    return getOneElementValue("status");
   }
 
 }

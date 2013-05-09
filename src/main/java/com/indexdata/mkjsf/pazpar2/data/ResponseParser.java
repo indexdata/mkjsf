@@ -18,19 +18,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.indexdata.mkjsf.pazpar2.data.ByTarget;
-import com.indexdata.mkjsf.pazpar2.data.Hit;
-import com.indexdata.mkjsf.pazpar2.data.Location;
-import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
-import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
-import com.indexdata.mkjsf.pazpar2.data.ShowResponse;
-import com.indexdata.mkjsf.pazpar2.data.StatResponse;
-import com.indexdata.mkjsf.pazpar2.data.Target;
-import com.indexdata.mkjsf.pazpar2.data.TermListResponse;
-import com.indexdata.mkjsf.pazpar2.data.TermListsResponse;
-import com.indexdata.mkjsf.pazpar2.data.TermResponse;
-import com.indexdata.mkjsf.pazpar2.data.TermXTargetResponse;
-
 public class ResponseParser extends DefaultHandler {
 
   private XMLReader xmlReader = null;
@@ -41,7 +28,7 @@ public class ResponseParser extends DefaultHandler {
   private static Logger logger = Logger.getLogger(ResponseParser.class);
 
   public static final List<String> docTypes = 
-      Arrays.asList("bytarget","termlist","show","stat","record","search");
+      Arrays.asList("bytarget","termlist","show","stat","record","search","init");
   
   public ResponseParser() {    
     try {
@@ -97,12 +84,18 @@ public class ResponseParser extends DefaultHandler {
    */
   @Override
   public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
-    if (localName.equals("show")) {
+    if (localName.equals("init")) {
+      currentElement = new InitResponse();
+    } else if (localName.equals("search")) {
+      currentElement = new SearchResponse();
+    } else if (localName.equals("show")) {
       currentElement = new ShowResponse();      
     } else if (localName.equals("hit")) {
       currentElement = new Hit();
     } else if (localName.equals("location")) {
       currentElement = new Location();
+    } else if (localName.equals("record")) {
+      currentElement = new RecordResponse();            
     } else if (localName.equals("bytarget")) {
       currentElement = new ByTarget();      
     } else if (localName.equals("target")) {
@@ -122,10 +115,6 @@ public class ResponseParser extends DefaultHandler {
         currentElement = new TermResponse();
       }
       ((TermListResponse)dataElements.peek()).addTerm((TermResponse)currentElement);
-    } else if (localName.equals("record")) {
-      currentElement = new RecordResponse();      
-    } else if (localName.equals("search")) {
-      currentElement = new SearchResponse();
     } else if (localName.equals("applicationerror")) {
       currentElement = new CommandError();
     } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {

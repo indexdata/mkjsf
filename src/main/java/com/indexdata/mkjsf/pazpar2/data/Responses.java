@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
+import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pzresp") @SessionScoped
 public class Responses implements Serializable {
@@ -69,15 +70,26 @@ public class Responses implements Serializable {
     return error;         
   }
   
-  public void reset() {
-    logger.debug("Resetting show,stat,termlist,bytarget,search response objects.");
-    dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();
+  public void resetSearchResponses() {
+    logger.debug("Resetting show,stat,termlist,bytarget,record,search response objects.");
     dataObjects.put("show", new ShowResponse());
     dataObjects.put("stat", new StatResponse());
     dataObjects.put("termlist", new TermListsResponse());
     dataObjects.put("bytarget", new ByTarget());
     dataObjects.put("record", new RecordResponse());
-    dataObjects.put("search", new SearchResponse());
+    dataObjects.put("search", new SearchResponse());    
+  }
+  
+  public void resetAllSessionData () {
+    logger.debug("Resetting all response objects");
+    dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();    
+    resetSearchResponses();
+    dataObjects.put("init", new InitResponse());
+  }
+  
+  public InitResponse getInit () {
+    logger.info("Request to show init response from " + Utils.objectId(this));
+    return ((InitResponse) dataObjects.get("init"));
   }
 
   public ShowResponse getShow () {

@@ -96,13 +96,12 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       errors.addConfigurationError(new ConfigurationError("Search Client","Configuration",e.getMessage()));                
     } 
     logger.info(configReader.document());
-    pzresp.reset();    
+    pzresp.resetAllSessionData();    
   }
   
-  public void resetSearchAndResults () {
+  public void resetSearchAndRecordCommands () {
     pzreq.getRecord().removeParametersInState();
-    pzreq.getSearch().removeParametersInState();
-    pzresp.reset();    
+    pzreq.getSearch().removeParametersInState();   
   }
 
     
@@ -113,7 +112,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
 
   public void doSearch() { 
     stateMgr.hasPendingStateChange("search",false);
-    pzresp.reset();
+    pzresp.resetSearchResponses();
     // resets some record and show command parameters without 
     // changing state or creating state change feedback
     pzreq.getRecord().removeParametersInState();        
@@ -186,7 +185,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
           }  
         } else {
           logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
-          pzresp.reset();
+          pzresp.resetSearchResponses();
           return "0";
         }
       } else {
@@ -327,7 +326,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     if (url!=null && searchClient != null && !url.equals(searchClient.getServiceUrl())) {
       pzreq.getRecord().removeParametersInState();
       pzreq.getSearch().removeParametersInState();
-      pzresp.reset();
+      pzresp.resetAllSessionData();
       user.clear();
       searchClient.setServiceUrl(url);
     }    
@@ -451,7 +450,8 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   private void setServiceType(String type) {
     if (!serviceType.equals(type)  &&
         !serviceType.equals(SERVICE_TYPE_TBD)) {
-      resetSearchAndResults();
+      resetSearchAndRecordCommands();
+      pzresp.resetAllSessionData();
     }
     serviceType = type;
     if (serviceType.equals(SERVICE_TYPE_PZ2)) {

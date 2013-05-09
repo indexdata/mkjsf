@@ -4,4 +4,8 @@ public class SearchResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = -3320013021497018972L;
   
+  public String getStatus() {
+    return getOneElementValue("status");
+  }
+
 }
