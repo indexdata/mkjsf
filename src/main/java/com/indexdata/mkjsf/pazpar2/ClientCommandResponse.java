@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 
 import com.indexdata.masterkey.pazpar2.client.Pazpar2HttpResponse;
 
-public class ClientCommandResponse implements CommandResponse {
+public class ClientCommandResponse implements HttpResponseWrapper {
     
   private int statusCode;
   private String contentType;

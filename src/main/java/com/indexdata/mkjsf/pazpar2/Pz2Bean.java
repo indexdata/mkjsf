@@ -162,7 +162,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
           }
           for (CommandThread thread : threadList) {
              String commandName = thread.getCommand().getCommandName();
-             CommandResponse response = thread.getCommandResponse();
+             HttpResponseWrapper response = thread.getCommandResponse();
              responseLogger.debug("Response was: " + response.getResponseString());
              Pazpar2ResponseData responseObject = Pazpar2ResponseParser.getParser().getDataObject(response.getResponseString());
              if (Pazpar2ResponseParser.docTypes.contains(responseObject.getType())) {

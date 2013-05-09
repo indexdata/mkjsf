@@ -9,7 +9,7 @@ import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 public interface SearchClient extends Configurable, Serializable {
   
   public void setSearchCommand(Pazpar2Command command);
-  public CommandResponse executeCommand(Pazpar2Command command);
+  public HttpResponseWrapper executeCommand(Pazpar2Command command);
   
   // Use cloneMe() method if injecting the client with CDI.
   // The client is used for asynchronously sending off requests

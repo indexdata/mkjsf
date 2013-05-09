@@ -205,7 +205,7 @@ public class ServiceProxyClient implements SearchClient {
   }
 
   @Override
-  public CommandResponse executeCommand(Pazpar2Command command) {
+  public HttpResponseWrapper executeCommand(Pazpar2Command command) {
     return send(command);
   }
 

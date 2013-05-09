@@ -89,7 +89,7 @@ public class Pz2Client implements SearchClient {
   }
 
   @Override
-  public CommandResponse executeCommand(Pazpar2Command command) {
+  public HttpResponseWrapper executeCommand(Pazpar2Command command) {
     ClientCommandResponse commandResponse = null;
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ClientCommand clientCommand = new ClientCommand(command.getCommandName(), command.getEncodedQueryString());

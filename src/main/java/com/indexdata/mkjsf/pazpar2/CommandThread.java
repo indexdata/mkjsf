@@ -9,7 +9,7 @@ public class CommandThread extends Thread {
   private static Logger logger = Logger.getLogger(CommandThread.class);
   Pazpar2Command command;
   SearchClient client;
-  CommandResponse commandResponse = null;      
+  HttpResponseWrapper commandResponse = null;      
   
   public CommandThread (Pazpar2Command command, SearchClient client) {
     this.command = command;
@@ -41,7 +41,7 @@ public class CommandThread extends Thread {
    * 
    * @return Pazpar2 response as an XML string, possibly a generated error XML
    */
-  public CommandResponse getCommandResponse () {
+  public HttpResponseWrapper getCommandResponse () {
     return commandResponse;
   }
     
