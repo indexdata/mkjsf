@@ -190,7 +190,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
           return "0";
         }
       } else {
-        logger.error("Did not attemt to run command(s) due to a validation error.");
+        logger.debug("Did not attempt to run command(s) that were not ready.");
         return "0";
       }
     } else {      
@@ -213,7 +213,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public boolean commandsAreValid(String commands) {
     if (commands.equals("record")) {
       if (!pzreq.getCommand("record").hasParameterValue("id")) {
-        logger.error("Attempt to send record command without the id parameter");
+        logger.debug("Attempt to send record command without the id parameter");
         return false;
       }
     }
