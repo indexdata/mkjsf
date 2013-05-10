@@ -12,8 +12,11 @@ import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import com.indexdata.mkjsf.config.ConfigurationReader;
+import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
+import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.pazpar2.commands.sp.InitDocUpload;
+import com.indexdata.mkjsf.pazpar2.data.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
@@ -41,7 +44,8 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     // TODO: 
     //stateMgr.addStateListener(this);
   }
-    
+   
+  /*
   public void login(String un, String pw) {
     if (user.isAuthenticated() && user.getName().equals(un) && pz2.spClient.checkAuthentication(user)) {
       logger.info("Repeat request from UI to authenticate user. Auth verified for given user name so skipping log-in.");
@@ -52,15 +56,33 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
       login("dummy");
     }
   }
+  */
 
-  @Override
+  
+  @Override  
   public String login(String navigateTo) {
     logger.info("doing login by " + user + " using " + pz2 + " and client " + pz2.getSpClient());
     pz2.resetSearchAndRecordCommands();
     pzresp.resetAllSessionData();
-    pz2.getSpClient().authenticate(user);    
+    AuthCommand auth = pzreq.getSp().getAuth(); 
+    auth.setParametersInState(new CommandParameter("action","=","login"),
+                              new CommandParameter("username","=",user.getName()),
+                              new CommandParameter("password","=",user.getPassword()));
+    ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);
+    AuthResponse responseObject = (AuthResponse) (ResponseParser.getParser().getDataObject(commandResponse.getResponseString()));
+    if (ResponseParser.docTypes.contains(responseObject.getType())) {
+      pzresp.put(auth.getCommandName(), responseObject);
+    }
+    String responseStr = commandResponse.getResponseString();
+    logger.info(responseStr);      
+    if (responseStr.contains("FAIL")) {
+      user.credentialsAuthenticationSucceeded(false);    
+    } else {
+      user.credentialsAuthenticationSucceeded(true);    
+    }      
     return navigateTo;
   }
+  
   
   public void ipAuthenticate (ServiceProxyUser user) {
     if (!user.isIpAuthenticated()) {
@@ -69,7 +91,20 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
       }
       pz2.resetSearchAndRecordCommands();
       pzresp.resetAllSessionData();
-      pz2.getSpClient().ipAuthenticate(user);
+      AuthCommand auth = pzreq.getSp().getAuth(); 
+      auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
+      ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);
+      AuthResponse responseObject = (AuthResponse) (ResponseParser.getParser().getDataObject(commandResponse.getResponseString()));
+      if (ResponseParser.docTypes.contains(responseObject.getType())) {
+        pzresp.put(auth.getCommandName(), responseObject);
+      }
+      String responseStr = commandResponse.getResponseString();
+      logger.info(responseStr);      
+      if (responseStr.contains("FAIL")) {
+        user.credentialsAuthenticationSucceeded(false);    
+      } else {
+        user.credentialsAuthenticationSucceeded(true);    
+      }      
     }
   }
     

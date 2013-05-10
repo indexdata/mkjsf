@@ -9,6 +9,7 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommands;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -17,7 +18,7 @@ public class Pazpar2Commands implements Serializable {
 
   private static final long serialVersionUID = -5172466320351302413L;
   private static Logger logger = Logger.getLogger(Pazpar2Commands.class);
-
+  
   public static final String INIT =     "init";
   public static final String PING =     "ping";
   public static final String SETTINGS = "settings";
@@ -27,8 +28,11 @@ public class Pazpar2Commands implements Serializable {
   public static final String RECORD =   "record";
   public static final String TERMLIST = "termlist";
   public static final String BYTARGET = "bytarget";
+  
+  private ServiceProxyCommands sp = null;
     
-  @Inject StateManager stateMgr; 
+  @Inject
+  protected StateManager stateMgr; 
   
   public Pazpar2Commands() {
     logger.info("Initializing Pazpar2Commands [" + Utils.objectId(this) + "]");
@@ -77,6 +81,13 @@ public class Pazpar2Commands implements Serializable {
   
   public Pazpar2Command getCommand(String name) {
     return stateMgr.getCommand(name);
+  }
+  
+  public ServiceProxyCommands getSp() {
+    if (sp == null) {
+      sp = new ServiceProxyCommands(stateMgr);
+    }
+    return sp;
   }
       
 }

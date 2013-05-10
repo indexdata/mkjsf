@@ -38,7 +38,6 @@ import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.pazpar2.data.CommandError;
-import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
 
 public class ServiceProxyClient implements SearchClient {
@@ -81,63 +80,11 @@ public class ServiceProxyClient implements SearchClient {
       c.printStackTrace();
     }    
   }
-  
-  
-  public boolean authenticate (ServiceProxyUser user) {
-    logger.info("Authenticating [" + user.getProperty("name") + "]");            
-    Pazpar2Command auth = new AuthCommand(null);
-    auth.setParametersInState(new CommandParameter("action","=","login"), 
-                              new CommandParameter("username","=",user.getProperty("name")), 
-                              new CommandParameter("password","=",user.getProperty("password")));                                
-    ClientCommandResponse commandResponse = send(auth);
-    String responseStr = commandResponse.getResponseString();
-    logger.info(responseStr);      
-    if (responseStr.contains("FAIL")) {
-      user.credentialsAuthenticationSucceeded(false);
-      return false;
-    } else {
-      user.credentialsAuthenticationSucceeded(true);
-      return true;
-    }      
-  }
-  
-  public boolean checkAuthentication (ServiceProxyUser user) {    
-    ClientCommandResponse commandResponse = send(checkAuth);      
-    String responseStr = commandResponse.getResponseString();    
-    logger.info(responseStr);
-    if (responseStr.contains("FAIL")) {  
-      user.authenticationCheckFailed();
-      return false;
-    } else {                
-      return true;
-    }      
-  }
-  
-  public boolean ipAuthenticate (ServiceProxyUser user) {
-    ClientCommandResponse commandResponse = send(ipAuth);      
-    String responseStr = commandResponse.getResponseString();
-    logger.info(responseStr);
-    if (responseStr.contains("FAIL")) {
-      user.ipAuthenticationSucceeded(false);        
-      return false;
-    } else {
-      user.ipAuthenticationSucceeded(true);
-      return true;
-    }          
-  }
-  
+    
   public boolean isAuthenticatingClient () {
     return true;
   }
-  
-  public boolean isAuthenticated (ServiceProxyUser user) {
-    if (user.getProperty("name") != null && user.getProperty("password") != null) {
-      return checkAuthentication(user);
-    } else {
-      return false;
-    }
-  }
-  
+    
   /**
    * Makes the request
    * @param request
@@ -145,7 +92,7 @@ public class ServiceProxyClient implements SearchClient {
    * @throws ClientProtocolException
    * @throws IOException
    */
-  private ClientCommandResponse send(Pazpar2Command command) {
+  public ClientCommandResponse send(Pazpar2Command command) {
     ClientCommandResponse commandResponse = null;
     String url = serviceUrl + "?" + command.getEncodedQueryString(); 
     logger.info("Sending request "+url);    

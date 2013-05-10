@@ -27,10 +27,10 @@ public class ResponseParser extends DefaultHandler {
   private String xml = null;
   private static Logger logger = Logger.getLogger(ResponseParser.class);
 
-  public static final List<String> docTypes = 
-      Arrays.asList("bytarget","termlist","show","stat","record","search","init");
+  public static List<String> docTypes = Arrays.asList(  "bytarget","termlist","show","stat","record","search","init",
+                                        /* SP extras */ "response" );                                        
   
-  public ResponseParser() {    
+  public ResponseParser() {
     try {
       initSax();
     } catch (ParserConfigurationException e) {
@@ -66,13 +66,10 @@ public class ResponseParser extends DefaultHandler {
     try {      
       xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getBytes("UTF-8"))));
     } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();      
+      e.printStackTrace(); 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (SAXException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();      
     }
     return result;
@@ -118,7 +115,9 @@ public class ResponseParser extends DefaultHandler {
     } else if (localName.equals("applicationerror")) {
       currentElement = new CommandError();
     } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
-      currentElement = new Pazpar2Error();     
+      currentElement = new Pazpar2Error(); 
+    } else if (localName.equals("response")) {  // Note, document element not named 'auth'
+      currentElement = new AuthResponse();
     } else {
       currentElement = new ResponseDataObject();
     }

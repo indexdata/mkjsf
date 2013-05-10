@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
-import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pzresp") @SessionScoped
@@ -89,11 +88,15 @@ public class Responses implements Serializable {
     dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();    
     resetSearchResponses();
     dataObjects.put("init", new InitResponse());
+    dataObjects.put("auth", new AuthResponse());
   }
   
-  public InitResponse getInit () {
-    logger.info("Request to show init response from " + Utils.objectId(this));
+  public InitResponse getInit () {    
     return ((InitResponse) dataObjects.get("init"));
+  }
+  
+  public AuthResponse getAuth () {
+    return ((AuthResponse) dataObjects.get("auth"));
   }
 
   public ShowResponse getShow () {
@@ -145,11 +148,6 @@ public class Responses implements Serializable {
     } else {
       return "";
     }
-  }
-
-  public SpResponses getSp() {
-    // TODO:
-    return null;
   }
 
   public void download(String commandName) throws UnsupportedEncodingException, IOException {

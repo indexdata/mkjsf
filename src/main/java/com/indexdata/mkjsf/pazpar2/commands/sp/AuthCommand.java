@@ -9,7 +9,6 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   public AuthCommand(StateManager stateMgr) {
     super("auth", stateMgr);
-    // TODO Auto-generated constructor stub
   }
   
   public AuthCommand copy () {
@@ -24,6 +23,4 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
   public ServiceProxyCommand getSp() {
     return this;
   }
-
-
 }
