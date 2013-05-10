@@ -100,10 +100,10 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   }
   
   @Override
-  public ClientCommandResponse postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
+  public HttpResponseWrapper postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
     pz2.resetSearchAndRecordCommands();
     pzresp.resetAllSessionData();
-    ClientCommandResponse response = pz2.getSpClient().postInitDoc(initDoc,includeDebug);    
+    HttpResponseWrapper response = pz2.getSpClient().postInitDoc(initDoc,includeDebug);    
     return response;
   }
 

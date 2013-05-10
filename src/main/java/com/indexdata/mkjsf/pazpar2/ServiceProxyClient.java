@@ -260,12 +260,29 @@ public class ServiceProxyClient implements SearchClient {
     return initDocPaths;
   }
   
-  public ClientCommandResponse postInitDoc(byte[] initDoc, boolean includeDebug) throws IOException {
+  public HttpResponseWrapper postInitDoc(byte[] initDoc, boolean includeDebug) {
     HttpPost post = new HttpPost(serviceUrl+"?command=init" + (includeDebug? "&includeDebug=yes" : ""));
     post.setEntity(new ByteArrayEntity(initDoc));
-    byte[] response = client.execute(post, handler);
-    logger.debug("Response on POST was: " + new String(response,"UTF-8"));    
-    return new ClientCommandResponse(handler.getStatusCode(),response,handler.getContentType());    
+    ClientCommandResponse commandResponse = null;
+    byte[] response;
+    try {
+      response = client.execute(post, handler);
+      if (handler.getStatusCode()==200) {
+        commandResponse = new ClientCommandResponse(handler.getStatusCode(),response,handler.getContentType());
+      } else {
+        logger.error("Service Proxy status code: " + handler.getStatusCode());
+        commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.insertPazpar2ErrorXml("init", "Service Proxy error occurred", new String(response,"UTF-8")),"text/xml");                               
+      }
+    } catch (ClientProtocolException e) {
+      logger.error(e.getMessage());
+      e.printStackTrace();
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", "client protocol exception", e.getMessage()),"text/xml");      
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      e.printStackTrace();
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", "IO", e.getMessage()),"text/xml");      
+    }
+    return commandResponse;    
   }
   
   public void setServiceUrl (String url) {    
