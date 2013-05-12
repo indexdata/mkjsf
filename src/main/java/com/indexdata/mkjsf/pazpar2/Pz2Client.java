@@ -97,26 +97,36 @@ public class Pz2Client implements SearchClient {
     long start = System.currentTimeMillis();
     try {
       pz2HttpResponse = client.executeCommand(clientCommand, baos);
-      if (pz2HttpResponse.getStatusCode()==200) {
+      if (pz2HttpResponse.getStatusCode()==200 && pz2HttpResponse.getContentType().contains("xml")) {
         commandResponse = new ClientCommandResponse(pz2HttpResponse,baos);
       } else if (pz2HttpResponse.getStatusCode()==417) {
         logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
         commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()) ,"Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       
+      } else if (pz2HttpResponse.getContentType().contains("html")) {
+        String resp = baos.toString("UTF-8");
+        logger.error("HTML response where XML was expected. Status code was " + pz2HttpResponse.getStatusCode() + ": " + resp);
+        String htmlStrippedOfTags = resp.replaceAll("\\<[^>]*>","");
+        String errorXml = "";
+        if (htmlStrippedOfTags.toLowerCase().contains("domain")) {
+          errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "Error: Expected XML response from Pazpar2, got HTML with the word domain. Could be unrecognized address for Pazpar2.", htmlStrippedOfTags);
+        } else {  
+          errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "Error: Expected XML response from Pazpar2, got HTML", htmlStrippedOfTags);
+        } 
+        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),errorXml,"text/xml");        
       } else {
         String resp = baos.toString("UTF-8");
         logger.error("Pazpar2 status code was " + pz2HttpResponse.getStatusCode() + ": " + resp);
-        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");
-        throw new Pazpar2ErrorException(resp,pz2HttpResponse.getStatusCode(),resp,null);
+        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");        
       }       
     } catch (IOException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "io", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "io", e.getMessage()),"text/xml");      
     } catch (Pazpar2ErrorException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
       logger.error("Creating error XML");
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "io", e.getMessage()),"text/xml");
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "-1", "Pazpar2Error", e.getMessage()),"text/xml");
     }
     long end = System.currentTimeMillis();      
     logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
