@@ -101,22 +101,22 @@ public class Pz2Client implements SearchClient {
         commandResponse = new ClientCommandResponse(pz2HttpResponse,baos);
       } else if (pz2HttpResponse.getStatusCode()==417) {
         logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
-        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       
+        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()) ,"Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       
       } else {
         String resp = baos.toString("UTF-8");
         logger.error("Pazpar2 status code was " + pz2HttpResponse.getStatusCode() + ": " + resp);
-        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");
+        commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "Pazpar2 error occurred", baos.toString("UTF-8")),"text/xml");
         throw new Pazpar2ErrorException(resp,pz2HttpResponse.getStatusCode(),resp,null);
       }       
     } catch (IOException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "io", e.getMessage()),"text/xml");      
     } catch (Pazpar2ErrorException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
       logger.error("Creating error XML");
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), "io", e.getMessage()),"text/xml");
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()), "io", e.getMessage()),"text/xml");
     }
     long end = System.currentTimeMillis();      
     logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );

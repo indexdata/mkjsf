@@ -11,6 +11,7 @@ public class ClientCommandResponse implements HttpResponseWrapper {
   private String contentType;
   private byte[] content = null;
   private String contentString = null;
+  private byte[] bytesForParsing = null;
   
   public ClientCommandResponse(Pazpar2HttpResponse pz2response, ByteArrayOutputStream content) {    
     this.content = content.toByteArray();
@@ -58,7 +59,30 @@ public class ClientCommandResponse implements HttpResponseWrapper {
   public byte[] getBytes() {
     return content;
   }
+  
+  public void setResponseToParse(String parseString) {    
+    try {
+      this.bytesForParsing = parseString.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {      
+      e.printStackTrace();
+    }
+  }
 
+  public byte[] getResponseToParse() {
+    if (bytesForParsing != null) {
+      return bytesForParsing;
+    } else if (content != null) {
+      return content;
+    } else {
+      try {
+        return contentString.getBytes("UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+        return null;
+      }
+    }
+  }
+  
   @Override
   public boolean isBinary() {    
     return !contentType.contains("xml");

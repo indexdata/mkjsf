@@ -69,7 +69,9 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
                               new CommandParameter("username","=",user.getName()),
                               new CommandParameter("password","=",user.getPassword()));
     ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);
-    AuthResponse responseObject = (AuthResponse) (ResponseParser.getParser().getDataObject(commandResponse.getResponseString()));
+    String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
+    commandResponse.setResponseToParse(renamedResponse);
+    AuthResponse responseObject = (AuthResponse) ResponseParser.getParser().getDataObject(commandResponse);
     if (ResponseParser.docTypes.contains(responseObject.getType())) {
       pzresp.put(auth.getCommandName(), responseObject);
     }
@@ -93,8 +95,10 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
       pzresp.resetAllSessionData();
       AuthCommand auth = pzreq.getSp().getAuth(); 
       auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
-      ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);
-      AuthResponse responseObject = (AuthResponse) (ResponseParser.getParser().getDataObject(commandResponse.getResponseString()));
+      ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
+      String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
+      commandResponse.setResponseToParse(renamedResponse);
+      ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(commandResponse);
       if (ResponseParser.docTypes.contains(responseObject.getType())) {
         pzresp.put(auth.getCommandName(), responseObject);
       }
@@ -106,6 +110,12 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
         user.credentialsAuthenticationSucceeded(true);    
       }      
     }
+  }
+  
+  private String renameResponseElement(String responseString, String newName) {
+    responseString = responseString.replace("<response>", "<" + newName + ">");
+    responseString = responseString.replace("</response>", "</" + newName + ">");
+    return responseString;
   }
     
   public String getInitDocPath () {
@@ -156,8 +166,8 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   }
   
   public void submitInitDoc () throws IOException {
-    HttpResponseWrapper response =  initDocUpload.submit();
-    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(response.getResponseString());
+    ClientCommandResponse response =  (ClientCommandResponse) initDocUpload.submit();
+    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(response);
     logger.info("Putting init response to : " + Utils.objectId(pzresp));
     pzresp.put("init", responseObject);
   }
@@ -175,8 +185,4 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public InitDocUpload getInitDocUpload () {
     return initDocUpload;
   }
-
-  
-  
-  
 }

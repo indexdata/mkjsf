@@ -70,11 +70,12 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
    * @param errorMessage
    * @return
    */
-  public static String createErrorXml (String commandName, String exceptionName, String errorMessage) {
+  public static String createErrorXml (String commandName, String statusCode, String exceptionName, String errorMessage) {
     StringBuilder errorXml = new StringBuilder("");
     errorXml.append("<" + commandName + ">"+nl);
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
+    errorXml.append("  <statuscode>" + statusCode + "</statuscode>"+nl);
     errorXml.append("  <exception>" + (exceptionName != null ? XmlUtils.escape(exceptionName) : "") + "</exception>"+nl);    
     errorXml.append("  <errormessage>" + (errorMessage != null  ? XmlUtils.escape(errorMessage) : "") + "</errormessage>"+nl);    
     errorXml.append(" </applicationerror>"+nl);
@@ -94,11 +95,12 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
    *                        by the Pazpar2 client itself. 
    * @return
    */
-  public static String insertPazpar2ErrorXml (String commandName, String exceptionName, String pazpar2ErrorXml) {
+  public static String insertErrorXml (String commandName, String statusCode, String exceptionName, String pazpar2ErrorXml) {
     StringBuilder errorXml = new StringBuilder("");
     errorXml.append("<" + commandName + ">"+nl);
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
+    errorXml.append("  <statuscode>" + statusCode + "</statuscode>"+nl);
     errorXml.append("  <exception>" + XmlUtils.escape(exceptionName) + "</exception>"+nl);    
     errorXml.append(xmlDeclaration.matcher(pazpar2ErrorXml).replaceAll("")+nl);    
     errorXml.append(" </applicationerror>"+nl);

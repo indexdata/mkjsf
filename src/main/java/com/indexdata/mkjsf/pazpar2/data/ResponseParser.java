@@ -18,6 +18,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
+
 public class ResponseParser extends DefaultHandler {
 
   private XMLReader xmlReader = null;
@@ -28,7 +30,7 @@ public class ResponseParser extends DefaultHandler {
   private static Logger logger = Logger.getLogger(ResponseParser.class);
 
   public static List<String> docTypes = Arrays.asList(  "bytarget","termlist","show","stat","record","search","init",
-                                        /* SP extras */ "response" );                                        
+                                        /* SP extras */ "auth" );                                        
   
   public ResponseParser() {
     try {
@@ -61,10 +63,10 @@ public class ResponseParser extends DefaultHandler {
    * @param response XML response string from Pazpar2
    * @return Response data object
    */
-  public ResponseDataObject getDataObject (String response) {
-    this.xml = response;
+  public ResponseDataObject getDataObject (ClientCommandResponse response) {
+    this.xml = response.getResponseString();
     try {      
-      xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getBytes("UTF-8"))));
+      xmlReader.parse(new InputSource(new ByteArrayInputStream(response.getResponseToParse())));
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace(); 
     } catch (IOException e) {
@@ -116,7 +118,7 @@ public class ResponseParser extends DefaultHandler {
       currentElement = new CommandError();
     } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
       currentElement = new Pazpar2Error(); 
-    } else if (localName.equals("response")) {  // Note, document element not named 'auth'
+    } else if (localName.equals("auth")) {  
       currentElement = new AuthResponse();
     } else {
       currentElement = new ResponseDataObject();

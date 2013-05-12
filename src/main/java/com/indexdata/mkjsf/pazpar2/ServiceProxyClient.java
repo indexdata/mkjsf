@@ -100,15 +100,30 @@ public class ServiceProxyClient implements SearchClient {
     byte[] response = null;
     try {
       response = client.execute(httpget, handler);
-      if (handler.getStatusCode()==200) {
+      if (handler.getStatusCode()==200 && handler.getContentType().contains("xml")) {
         commandResponse = new ClientCommandResponse(handler.getStatusCode(),response,handler.getContentType());
       } else {
         logger.error("Service Proxy status code: " + handler.getStatusCode());
-        commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.insertPazpar2ErrorXml(command.getCommandName(), "Service Proxy error occurred", new String(response,"UTF-8")),"text/xml");                       
+        String errorXml = "";
+        if (handler.getContentType().contains("xml")) {
+          errorXml = CommandError.insertErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Service Proxy error: "+handler.getStatusCode(), new String(response,"UTF-8"));          
+        } else {
+          if (handler.getContentType().contains("html")) {
+            String htmlStrippedOfTags = (new String(response,"UTF-8")).replaceAll("\\<[^>]*>","");
+            if (htmlStrippedOfTags.toLowerCase().contains("domain")) {
+              errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Error: Expected XML response from Service Proxy, got HTML with word 'domain' in, probably domain not found.", htmlStrippedOfTags);              
+            } else {
+              errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Error: Expected XML response from Service Proxy, got HTML", htmlStrippedOfTags);              
+            }
+          } else {
+            errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Error: Expected XML response from Service Proxy, got: "+handler.getContentType(), new String(response,"UTF-8"));
+          }
+          commandResponse = new ClientCommandResponse(handler.getStatusCode(),errorXml,handler.getContentType());
+        }
       }       
     } catch (Exception e) {
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml(command.getCommandName(), e.getClass().getSimpleName(), (e.getMessage()!= null ? e.getMessage() : "") + (e.getCause()!=null ? e.getCause().getMessage() : "")),"text/xml");
+      commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), e.getClass().getSimpleName(), (e.getMessage()!= null ? e.getMessage() : "") + (e.getCause()!=null ? e.getCause().getMessage() : "")),handler.getContentType());
     }
     return commandResponse; 
   }
@@ -218,16 +233,16 @@ public class ServiceProxyClient implements SearchClient {
         commandResponse = new ClientCommandResponse(handler.getStatusCode(),response,handler.getContentType());
       } else {
         logger.error("Service Proxy status code: " + handler.getStatusCode());
-        commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.insertPazpar2ErrorXml("init", "Service Proxy error occurred", new String(response,"UTF-8")),"text/xml");                               
+        commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.insertErrorXml("init", String.valueOf(handler.getStatusCode()), "Service Proxy error: "+handler.getStatusCode(), new String(response,"UTF-8")),"text/xml");                               
       }
     } catch (ClientProtocolException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", "client protocol exception", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", String.valueOf(handler.getStatusCode()), "client protocol exception", e.getMessage()),"text/xml");      
     } catch (IOException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", "IO", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", String.valueOf(handler.getStatusCode()), "IO", e.getMessage()),"text/xml");      
     }
     return commandResponse;    
   }
