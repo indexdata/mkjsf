@@ -66,18 +66,19 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
    * Creates an XML string error message, embedded in an XML string document named by the command
    * This is the XML that ResponseParser will turn into a CommandError object. 
    * @param commandName
-   * @param exceptionName
+   * @param exception
    * @param errorMessage
    * @return
    */
-  public static String createErrorXml (String commandName, String statusCode, String exceptionName, String errorMessage) {
+  public static String createErrorXml (String commandName, String statusCode, String exception, String errorMessage, String response) {
     StringBuilder errorXml = new StringBuilder("");
     errorXml.append("<" + commandName + ">"+nl);
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
     errorXml.append("  <statuscode>" + statusCode + "</statuscode>"+nl);
-    errorXml.append("  <exception>" + (exceptionName != null ? XmlUtils.escape(exceptionName) : "") + "</exception>"+nl);    
-    errorXml.append("  <errormessage>" + (errorMessage != null  ? XmlUtils.escape(errorMessage) : "") + "</errormessage>"+nl);    
+    errorXml.append("  <exception>" + (exception != null ? XmlUtils.escape(exception) : "") + "</exception>"+nl);    
+    errorXml.append("  <errormessage>" + (errorMessage != null  ? XmlUtils.escape(errorMessage) : "") + "</errormessage>"+nl);
+    errorXml.append("  <response>" + response + "</response>" + nl);
     errorXml.append(" </applicationerror>"+nl);
     errorXml.append("</" + commandName + ">"+nl);
     return errorXml.toString(); 
@@ -90,18 +91,18 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
    * 
    * 
    * @param commandName The name of the command during which's execution the error was encountered
-   * @param exceptionName The (possibly loosely defined) name of the exception that was thrown
+   * @param exception The (possibly loosely defined) name of the exception that was thrown
    * @param pazpar2ErrorXml The error document as created by Pazpar2, or the Service Proxy or 
    *                        by the Pazpar2 client itself. 
    * @return
    */
-  public static String insertErrorXml (String commandName, String statusCode, String exceptionName, String pazpar2ErrorXml) {
+  public static String insertErrorXml (String commandName, String statusCode, String exception, String pazpar2ErrorXml) {
     StringBuilder errorXml = new StringBuilder("");
     errorXml.append("<" + commandName + ">"+nl);
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
     errorXml.append("  <statuscode>" + statusCode + "</statuscode>"+nl);
-    errorXml.append("  <exception>" + XmlUtils.escape(exceptionName) + "</exception>"+nl);    
+    errorXml.append("  <exception>" + XmlUtils.escape(exception) + "</exception>"+nl);    
     errorXml.append(xmlDeclaration.matcher(pazpar2ErrorXml).replaceAll("")+nl);    
     errorXml.append(" </applicationerror>"+nl);
     errorXml.append("</" + commandName + ">"+nl);

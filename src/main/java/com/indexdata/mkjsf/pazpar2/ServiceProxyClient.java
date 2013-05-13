@@ -111,19 +111,19 @@ public class ServiceProxyClient implements SearchClient {
           if (handler.getContentType().contains("html")) {
             String htmlStrippedOfTags = (new String(response,"UTF-8")).replaceAll("\\<[^>]*>","");
             if (htmlStrippedOfTags.toLowerCase().contains("domain")) {
-              errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Error: Expected XML response from Service Proxy, got HTML with word 'domain' in, probably domain not found.", htmlStrippedOfTags);              
+              errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Unexpected response type from Service Proxy", "Expected XML from SP but got HTML. It contains the word domain suggesting that the service address was not found.", htmlStrippedOfTags);              
             } else {
-              errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Error: Expected XML response from Service Proxy, got HTML", htmlStrippedOfTags);              
+              errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Unexpected response type from Service Proxy", "Expected XML from SP but got HTML", htmlStrippedOfTags);              
             }
           } else {
-            errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Error: Expected XML response from Service Proxy, got: "+handler.getContentType(), new String(response,"UTF-8"));
+            errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Unexpected response type from Service Proxy: "+handler.getContentType(), "Could not process non-XML response from Service Proxy", new String(response,"UTF-8"));
           }
           commandResponse = new ClientCommandResponse(handler.getStatusCode(),errorXml,handler.getContentType());
         }
       }       
     } catch (Exception e) {
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), e.getClass().getSimpleName(), (e.getMessage()!= null ? e.getMessage() : "") + (e.getCause()!=null ? e.getCause().getMessage() : "")),handler.getContentType());
+      commandResponse = new ClientCommandResponse(handler.getStatusCode(),CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), e.getClass().getSimpleName(), (e.getMessage()!= null ? e.getMessage() : "") + (e.getCause()!=null ? e.getCause().getMessage() : ""), e.getStackTrace().toString()),handler.getContentType());
     }
     return commandResponse; 
   }
@@ -238,11 +238,11 @@ public class ServiceProxyClient implements SearchClient {
     } catch (ClientProtocolException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", String.valueOf(handler.getStatusCode()), "client protocol exception", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", String.valueOf(handler.getStatusCode()), "Client protocol exception", e.getMessage(), e.getStackTrace().toString()),"text/xml");      
     } catch (IOException e) {
       logger.error(e.getMessage());
       e.printStackTrace();
-      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", String.valueOf(handler.getStatusCode()), "IO", e.getMessage()),"text/xml");      
+      commandResponse = new ClientCommandResponse(-1,CommandError.createErrorXml("init", String.valueOf(handler.getStatusCode()), "IO exception", e.getMessage(),e.getStackTrace().toString()),"text/xml");      
     }
     return commandResponse;    
   }
