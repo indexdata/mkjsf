@@ -19,6 +19,12 @@ public interface Pz2Interface extends Serializable {
   public void doSearch();
   
   /**
+   * Executes a Pazpar2 record requests
+   * @return Active clients for the record request
+   */
+  public String doRecord();
+  
+  /**
    * Updates display data objects by issuing the following pazpar2 commands: 
    * 'show', 'stat', 'termlist' and 'bytarget'.
    *  

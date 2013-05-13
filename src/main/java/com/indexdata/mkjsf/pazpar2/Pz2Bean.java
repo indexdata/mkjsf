@@ -24,6 +24,7 @@ import com.indexdata.mkjsf.errors.ConfigurationException;
 import com.indexdata.mkjsf.errors.ErrorCentral;
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
+import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
@@ -118,7 +119,20 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     pzreq.getRecord().removeParametersInState();        
     pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
     logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
-    doCommand("search");    
+    doCommand("search");      
+  }
+  
+  public String doRecord() {
+    ResponseDataObject responseObject = doCommand("record");
+    if (pzreq.getRecord().hasParameterValue("offset") ||
+          pzreq.getRecord().hasParameterValue("checksum")) {
+        RecordResponse recordResponse = new RecordResponse();
+        recordResponse.setType("record");
+        recordResponse.setXml(responseObject.getXml());
+        recordResponse.setAttribute("activeclients", "0");
+        pzresp.put("record", recordResponse);
+     }
+     return pzresp.getRecord().getActiveClients();    
   }
       
   /**
@@ -160,15 +174,25 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public String update (String commands) {
     logger.info("Request to update: " + commands);
     try {
-      if (! validateUpdateRequest(commands)) {
+      if (!validateUpdateRequest(commands)) {
         return "0";
+      } else if (commands.equals("search")) {
+        doSearch();
+        return "";
+      } else if (commands.equals("record")) {
+        return doRecord();
+      } else if (pzresp.getSearch().isNew()) {
+        logger.info("New search. Marking it old, then returning 'new' to trigger another round-trip.");
+        pzresp.getSearch().setIsNew(false);
+        return "new";
       } else {
         handleQueryStateChanges(commands);
-        if (!commands.equals("search") && pzresp.getSearch().hasApplicationError()) {
+        if (pzresp.getSearch().hasApplicationError()) {
           logger.error("The command(s) " + commands + " are cancelled because the latest search command had an error.");
           return "0";
         } else {
           logger.debug("Processing request for " + commands); 
+          
           List<CommandThread> threadList = new ArrayList<CommandThread>();
           StringTokenizer tokens = new StringTokenizer(commands,",");
           while (tokens.hasMoreElements()) {          
@@ -192,22 +216,10 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
              if (ResponseParser.docTypes.contains(responseObject.getType())) {
                pzresp.put(commandName, responseObject);
              } else {
-               if (commandName.equals("record") && 
-                   (pzreq.getRecord().hasParameterValue("offset") ||
-                    pzreq.getRecord().hasParameterValue("checksum"))) {
-                 RecordResponse recordResponse = new RecordResponse();
-                 recordResponse.setType("record");
-                 recordResponse.setXml(responseObject.getXml());
-                 recordResponse.setAttribute("activeclients", "0");
-                 pzresp.put(commandName, recordResponse);
-               }
+               logger.info("Unknown doc type [" + responseObject.getType() + "]. Was not cached.");
              }
           }
-          if (commands.equals("record")) {
-            return pzresp.getRecord().getActiveClients();
-          } else {
-            return pzresp.getActiveClients();
-          }
+          return pzresp.getActiveClients();
         }
       }  
     } catch (ClassCastException cce) {
@@ -240,7 +252,8 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       return "";
     } else {
       pzreq.getRecord().setId(recId);
-      return doCommand("record");
+      doCommand("record");
+      return pzresp.getRecord().getActiveClients();
     }
   }
   
@@ -285,18 +298,38 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
       if (pzreq.getCommand("record").hasParameterValue("id")) {
-        update("record");
+        doRecord();
       } else {         
         pzresp.put("record", new RecordResponse());
       }
     }
   }
   
-  protected String doCommand(String commandName) {             
-    logger.debug(pzreq.getCommand(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommand("search").getEncodedQueryString());
-    return update(commandName);
+  /**
+   * Validates the request then executes the command and parses the response.
+   * If the parsed response is of a known type it will be cached in 'pzresp'
+   * 
+   * @param commandName The command to be executed
+   * @return An XML response parsed to form a response data object
+   */
+  protected ResponseDataObject doCommand(String commandName) {
+    ResponseDataObject responseObject = null; 
+    if (validateUpdateRequest(commandName)) {
+      logger.debug(pzreq.getCommand(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommand("search").getEncodedQueryString());
+      Pazpar2Command command = pzreq.getCommand(commandName);
+      long start = System.currentTimeMillis();
+      HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
+      long end = System.currentTimeMillis();
+      logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
+      responseLogger.debug("Response was: " + commandResponse.getResponseString());
+      responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
+      if (ResponseParser.docTypes.contains(responseObject.getType())) {
+        pzresp.put(commandName, responseObject);
+      }      
+    }
+    return responseObject;
   }
-  
+    
   @Override
   public void stateUpdated(String commandName) {
     logger.debug("State change reported for [" + commandName + "]");
