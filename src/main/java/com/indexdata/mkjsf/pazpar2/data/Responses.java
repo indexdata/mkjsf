@@ -142,9 +142,11 @@ public class Responses implements Serializable {
   }
   
   public String getActiveClients() {    
-    if (getShow()!=null) {
+    if (getShow()!=null && getShow().getActiveClients().length()>0) {
       logger.debug("Active clients: "+getShow().getActiveClients());
-      return getShow().getActiveClients();
+      return String.valueOf(
+                    Math.max(Integer.parseInt(getShow().getActiveClients()),
+                             getStat().getActiveClients()));
     } else {
       return "";
     }
