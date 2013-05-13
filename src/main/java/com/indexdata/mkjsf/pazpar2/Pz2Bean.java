@@ -25,10 +25,10 @@ import com.indexdata.mkjsf.errors.ErrorCentral;
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
+import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
-import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.pazpar2.state.StateListener;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
@@ -130,6 +130,26 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
     return update("show,stat,termlist,bytarget");
   }
+  
+  public boolean validateUpdateRequest(String commands) {
+    if (errors.hasConfigurationErrors()) {
+      logger.error("The command(s) " + commands + " are cancelled due to configuration errors.");
+      return false;
+    } else if (!commands.equals("search") && pzresp.getSearch().hasApplicationError()) {
+      logger.error("The command(s) " + commands + " are cancelled because the latest search command had an error.");
+      return false;
+    } else if (!commandsAreValid(commands)) {
+      logger.debug("The command(s) " + commands + " are cancelled because the were not found to be ready/valid.");
+      return false;
+    } else if (!hasQuery() &&  !(commands.equals("record") && pzreq.getCommand("record").hasParameterValue("recordquery"))) {
+      logger.debug("The command(s) " + commands + " are held off because there's not yet a query.");
+      return false;
+    } else {
+      return true;
+    }
+    
+    
+  }
    
   /**
    * Refreshes the data objects listed in 'commands' from pazpar2
@@ -138,11 +158,15 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    * @return Number of activeclients at the time of the 'show' command
    */
   public String update (String commands) {
+    logger.info("Request to update: " + commands);
     try {
-    if (! errors.hasConfigurationErrors()) {
-      if (commandsAreValid(commands)) {
-        if (hasQuery() || (commands.equals("record") && pzreq.getCommand("record").hasParameterValue("recordquery"))) {
-          handleQueryStateChanges(commands);
+      if (! validateUpdateRequest(commands)) {
+        return "0";
+      } else {
+        handleQueryStateChanges(commands);
+        if (! validateUpdateRequest(commands)) {          
+          return "0";
+        } else {
           logger.debug("Processing request for " + commands); 
           List<CommandThread> threadList = new ArrayList<CommandThread>();
           StringTokenizer tokens = new StringTokenizer(commands,",");
@@ -182,20 +206,9 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
             return pzresp.getRecord().getActiveClients();
           } else {
             return pzresp.getActiveClients();
-          }  
-        } else {
-          logger.debug("Skipped requests for " + commands + " as there's not yet a query."); 
-          pzresp.resetSearchResponses();
-          return "0";
+          }
         }
-      } else {
-        logger.debug("Did not attempt to run command(s) that were not ready.");
-        return "0";
-      }
-    } else {      
-      logger.error("Did not attempt to execute query since there are configuration errors.");
-      return "0";
-    }
+      }  
     } catch (ClassCastException cce) {
       cce.printStackTrace();    
       return "";
@@ -212,7 +225,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public boolean commandsAreValid(String commands) {
     if (commands.equals("record")) {
       if (!pzreq.getCommand("record").hasParameterValue("id")) {
-        logger.debug("Attempt to send record command without the id parameter");
+        logger.debug("Skips sending record command due to lacking id parameter");
         return false;
       }
     }
@@ -264,7 +277,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     
   protected void handleQueryStateChanges (String commands) {
     if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
-      logger.debug("Found pending search change. Doing search before updating " + commands);      
+      logger.info("Triggered search: Found pending search change, doing search before updating " + commands);      
       doSearch();
     } 
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
