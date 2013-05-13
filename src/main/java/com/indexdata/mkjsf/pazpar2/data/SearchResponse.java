@@ -8,7 +8,7 @@ public class SearchResponse extends ResponseDataObject {
   public String getStatus() {
     return getOneElementValue("status");
   }
-  
+      
   public boolean isNew () {
     return isNew; 
   }

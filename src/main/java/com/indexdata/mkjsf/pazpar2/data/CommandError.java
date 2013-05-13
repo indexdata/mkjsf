@@ -75,6 +75,7 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
     errorXml.append("<" + commandName + ">"+nl);
     errorXml.append(" <applicationerror>"+nl);
     errorXml.append("  <commandname>" + commandName + "</commandname>"+nl);
+    errorXml.append("  <status>FAIL</status>"+nl);
     errorXml.append("  <statuscode>" + statusCode + "</statuscode>"+nl);
     errorXml.append("  <exception>" + (exception != null ? XmlUtils.escape(exception) : "") + "</exception>"+nl);    
     errorXml.append("  <errormessage>" + (errorMessage != null  ? XmlUtils.escape(errorMessage) : "") + "</errormessage>"+nl);

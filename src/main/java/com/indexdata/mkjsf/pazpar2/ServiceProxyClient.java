@@ -117,9 +117,9 @@ public class ServiceProxyClient implements SearchClient {
             }
           } else {
             errorXml = CommandError.createErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Unexpected response type from Service Proxy: "+handler.getContentType(), "Could not process non-XML response from Service Proxy", new String(response,"UTF-8"));
-          }
-          commandResponse = new ClientCommandResponse(handler.getStatusCode(),errorXml,handler.getContentType());
+          }          
         }
+        commandResponse = new ClientCommandResponse(handler.getStatusCode(),errorXml,handler.getContentType());
       }       
     } catch (Exception e) {
       e.printStackTrace();
