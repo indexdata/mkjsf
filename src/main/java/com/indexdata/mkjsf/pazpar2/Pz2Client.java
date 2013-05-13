@@ -126,7 +126,7 @@ public class Pz2Client implements SearchClient {
       logger.error(e.getMessage());
       e.printStackTrace();
       logger.error("Creating error XML");
-      commandResponse = new ClientCommandResponse(500,CommandError.createErrorXml(command.getCommandName(), "", "Pazpar2Error", e.getMessage(),""),"text/xml");
+      commandResponse = new ClientCommandResponse(0,CommandError.createErrorXml(command.getCommandName(), "", "Pazpar2Error", e.getMessage(),""),"text/xml");
     }
     long end = System.currentTimeMillis();      
     logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
