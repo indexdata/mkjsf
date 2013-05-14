@@ -121,6 +121,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       pzreq.getRecord().removeParametersInState();        
       pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
       logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
+      searchClient.setSearchCommand(pzreq.getCommand("search"));
       doCommand("search");
     }
   }
@@ -284,7 +285,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     
   protected void handleQueryStateChanges (String commands) {
     if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
-      logger.info("Triggered search: Found pending search change, doing search before updating " + commands);      
+      logger.info("Triggered search: Found pending search change [" + pzreq.getCommand("search").toString() + "], doing search before updating " + commands);      
       doSearch();
     } 
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
@@ -307,7 +308,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    */
   protected ResponseDataObject doCommand(String commandName) {
     ResponseDataObject responseObject = null;     
-    // logger.debug(pzreq.getCommand(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommand("search").getEncodedQueryString());
+    logger.info("Request "+commandName + ": "+ pzreq.getCommand("search").toString());
     Pazpar2Command command = pzreq.getCommand(commandName);
     long start = System.currentTimeMillis();
     HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
