@@ -17,20 +17,9 @@ public class CommandThread extends Thread {
   }
   
   /**
-   * Runs the specified command using the specified Pazpar2 client
-   * Sets the Pazpar2 response as an XML response string to be retrieved by
-   * getResponse().
-   * 
-   * In case of an exception, an error response is generated, the document
-   * element being the same as it would have been if successful (named after
-   * the command, that is).  
-   *  
+   * Executes the specified command using the specified Pazpar2 client
    */
-  public void run() {
-    
-    if (command.getCommandName().equals("search")) {
-      client.setSearchCommand(command);
-    }
+  public void run() {    
     long start = System.currentTimeMillis();
     commandResponse = client.executeCommand(command);
     long end = System.currentTimeMillis();
