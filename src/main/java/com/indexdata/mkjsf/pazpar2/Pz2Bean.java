@@ -113,6 +113,9 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public void doSearch() {
     if (errors.hasConfigurationErrors()) {
       logger.error("Ignoring search request due to configuration errors.");
+    } else if (searchClient == null){
+      logger.error("No search client defined. A client must either be pre-configured or selected before searching.");
+      errors.addConfigurationError(new ConfigurationError("No client defined","Client is null","No search client defined. A client must be pre-configured or selected runtime, prior to searching."));
     } else {
       stateMgr.hasPendingStateChange("search",false);
       pzresp.resetSearchResponses();
@@ -192,7 +195,10 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       } else {
         handleQueryStateChanges(commands);
         if (pzresp.getSearch().hasApplicationError()) {
-          logger.error("The command(s) " + commands + " are cancelled because the latest search command had an error.");
+          logger.error("The command(s) " + commands + " cancelled because the latest search command had an error.");
+          return "0";
+        } else if (errors.hasConfigurationErrors()) {
+          logger.error("The command(s) " + commands + " cancelled due to configuration errors.");
           return "0";
         } else {
           logger.debug("Processing request for " + commands); 
@@ -452,6 +458,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       serviceProxyUrls = config.getMultiProperty(SERVICE_PROXY_URL_LIST,",");
       pazpar2Urls = config.getMultiProperty(PAZPAR2_URL_LIST, ",");
     }
+    logger.info(reader.document());
     logger.info("Service Type is configured to " + serviceType);
     
   }
