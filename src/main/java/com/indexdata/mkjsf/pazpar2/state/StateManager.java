@@ -97,20 +97,29 @@ public class StateManager implements Serializable {
     } else {
       logger.debug("State key change. Was: [" + currentKey + "]. Will be ["+key+"]");
       if (states.get(key)==null) {
-        logger.error("The back-end received an unknow state key: ["+ key +"].");        
+        logger.error("The back-end received an unknow state key, probably UI generated: ["+ key +"].");
+        if (key == null || key.length()==0) {
+          logger.info("Empty key received, treating it as identical to current key going forward.");
+          key = currentKey;
+        } else {
+          if (states.get(currentKey) != null) {
+            logger.info("Current search state cached under both of [" + key + "] and [" + currentKey + "]");
+            states.put(key,states.get(currentKey));
+          }
+        }
+      }
+      
+      if (states.get(key).getCommand("search").equals(states.get(currentKey).getCommand("search"))) {
+        logger.debug("No search change detected");
       } else {
-        if (states.get(key).getCommand("search").equals(states.get(currentKey).getCommand("search"))) {
-          logger.debug("No search change detected");
-        } else {
-          hasPendingStateChange("search",true);
-        }
-        if (states.get(key).getCommand("record").equals(states.get(currentKey).getCommand("record"))) {
-          logger.debug("No record change detected");
-        } else {
-          hasPendingStateChange("record",true);
-        }
-        currentKey = key;
-      }      
+        hasPendingStateChange("search",true);
+      }
+      if (states.get(key).getCommand("record").equals(states.get(currentKey).getCommand("record"))) {
+        logger.debug("No record change detected");
+      } else {
+        hasPendingStateChange("record",true);
+      }
+      currentKey = key;            
     }
   }
 
