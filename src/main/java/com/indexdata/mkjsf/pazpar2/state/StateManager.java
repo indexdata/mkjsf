@@ -12,6 +12,7 @@ import javax.enterprise.context.SessionScoped;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.utils.Utils;
 
 @SessionScoped

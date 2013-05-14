@@ -71,10 +71,12 @@ public class Pazpar2State {
     if (key == null) {
       StringBuilder querystatebuilder = new StringBuilder("");
       for (Pazpar2Command command : commands.values()) {
-        if (command.hasParameters()) {
-          querystatebuilder.append("||"+command.getCommandName()+"::");
-          querystatebuilder.append(command.getValueWithExpressions());
-        }      
+        if (! (command instanceof AuthCommand )) {
+          if (command.hasParameters()) {
+            querystatebuilder.append("||"+command.getCommandName()+"::");
+            querystatebuilder.append(command.getValueWithExpressions());
+          }
+        }
       }            
       key = "#"+querystatebuilder.toString();
       return key;
