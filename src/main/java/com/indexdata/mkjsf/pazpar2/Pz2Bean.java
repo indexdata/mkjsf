@@ -104,35 +104,49 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     pzreq.getRecord().removeParametersInState();
     pzreq.getSearch().removeParametersInState();   
   }
-
     
   public void doSearch(String query) {
     pzreq.getSearch().setParameter(new CommandParameter("query","=",query));     
     doSearch();
   }
 
-  public void doSearch() { 
-    stateMgr.hasPendingStateChange("search",false);
-    pzresp.resetSearchResponses();
-    // resets some record and show command parameters without 
-    // changing state or creating state change feedback
-    pzreq.getRecord().removeParametersInState();        
-    pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
-    logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
-    doCommand("search");      
+  public void doSearch() {
+    if (errors.hasConfigurationErrors()) {
+      logger.error("Ignoring search request due to configuration errors.");
+    } else {
+      stateMgr.hasPendingStateChange("search",false);
+      pzresp.resetSearchResponses();
+      // resets some record and show command parameters without 
+      // changing state or creating state change feedback
+      pzreq.getRecord().removeParametersInState();        
+      pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
+      logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
+      doCommand("search");
+    }
   }
   
   public String doRecord() {
-    ResponseDataObject responseObject = doCommand("record");
-    if (pzreq.getRecord().hasParameterValue("offset") ||
-          pzreq.getRecord().hasParameterValue("checksum")) {
+    if (errors.hasConfigurationErrors()) {
+      logger.error("Ignoring record request due to configuration errors.");
+      return "";
+    } else if (!pzreq.getCommand("record").hasParameterValue("id")) {
+      logger.debug("Ignoring record request due to no id parameter.");
+      return "";
+    } else if (pzresp.getSearch().hasApplicationError()) {
+      logger.debug("Ignoring record request due search error.");
+      return "";
+    } else {
+      ResponseDataObject responseObject = doCommand("record");
+      if (pzreq.getRecord().hasParameterValue("offset") ||
+            pzreq.getRecord().hasParameterValue("checksum")) {
         RecordResponse recordResponse = new RecordResponse();
         recordResponse.setType("record");
         recordResponse.setXml(responseObject.getXml());
         recordResponse.setAttribute("activeclients", "0");
         pzresp.put("record", recordResponse);
-     }
-     return pzresp.getRecord().getActiveClients();    
+      }
+      return pzresp.getRecord().getActiveClients();
+    }
   }
       
   /**
@@ -142,29 +156,20 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    */
   public String update () {
     logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
-    return update("show,stat,termlist,bytarget");
-  }
-  
-  public boolean validateUpdateRequest(String commands) {
     if (errors.hasConfigurationErrors()) {
-      logger.error("The command(s) " + commands + " are cancelled due to configuration errors.");
-      return false;
-    } else if (!commands.equals("search") && pzresp.getSearch().hasApplicationError()) {
-      logger.error("The command(s) " + commands + " are cancelled because the latest search command had an error.");
-      return false;
-    } else if (!commandsAreValid(commands)) {
-      logger.debug("The command(s) " + commands + " are cancelled because the were not found to be ready/valid.");
-      return false;
-    } else if (!hasQuery() &&  !(commands.equals("record") && pzreq.getCommand("record").hasParameterValue("recordquery"))) {
-      logger.debug("The command(s) " + commands + " are held off because there's not yet a query.");
-      return false;
+      logger.error("Ignoring show,stat,termlist,bytarget commands due to configuration errors.");
+      return "";
+    } else if (pzresp.getSearch().hasApplicationError()) {
+      logger.error("Ignoring show,stat,termlist,bytarget commands due to problem with most recent search.");
+      return "";
+    } else if (!hasQuery()) {
+      logger.error("Ignoring show,stat,termlist,bytarget commands because there is not yet a query.");
+      return "";
     } else {
-      return true;
+      return update("show,stat,termlist,bytarget");
     }
-    
-    
   }
-   
+     
   /**
    * Refreshes the data objects listed in 'commands' from pazpar2
    * 
@@ -174,9 +179,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public String update (String commands) {
     logger.info("Request to update: " + commands);
     try {
-      if (!validateUpdateRequest(commands)) {
-        return "0";
-      } else if (commands.equals("search")) {
+      if (commands.equals("search")) {
         doSearch();
         return "";
       } else if (commands.equals("record")) {
@@ -234,17 +237,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     }
     
   }
-  
-  public boolean commandsAreValid(String commands) {
-    if (commands.equals("record")) {
-      if (!pzreq.getCommand("record").hasParameterValue("id")) {
-        logger.debug("Skips sending record command due to lacking id parameter");
-        return false;
-      }
-    }
-    return true;
-  }
-                                
+                                  
   public String toggleRecord (String recId) {
     if (hasRecord(recId)) {
       pzreq.getRecord().removeParameters();  
@@ -313,20 +306,18 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    * @return An XML response parsed to form a response data object
    */
   protected ResponseDataObject doCommand(String commandName) {
-    ResponseDataObject responseObject = null; 
-    if (validateUpdateRequest(commandName)) {
-      logger.debug(pzreq.getCommand(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommand("search").getEncodedQueryString());
-      Pazpar2Command command = pzreq.getCommand(commandName);
-      long start = System.currentTimeMillis();
-      HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
-      long end = System.currentTimeMillis();
-      logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
-      responseLogger.debug("Response was: " + commandResponse.getResponseString());
-      responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
-      if (ResponseParser.docTypes.contains(responseObject.getType())) {
-        pzresp.put(commandName, responseObject);
-      }      
-    }
+    ResponseDataObject responseObject = null;     
+    // logger.debug(pzreq.getCommand(commandName).getEncodedQueryString() + ": Results for "+ pzreq.getCommand("search").getEncodedQueryString());
+    Pazpar2Command command = pzreq.getCommand(commandName);
+    long start = System.currentTimeMillis();
+    HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
+    long end = System.currentTimeMillis();
+    logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
+    responseLogger.debug("Response was: " + commandResponse.getResponseString());
+    responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
+    if (ResponseParser.docTypes.contains(responseObject.getType())) {
+      pzresp.put(commandName, responseObject);
+    }          
     return responseObject;
   }
     

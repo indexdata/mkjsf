@@ -15,6 +15,7 @@ import com.indexdata.mkjsf.pazpar2.commands.ShowCommand;
 import com.indexdata.mkjsf.pazpar2.commands.StatCommand;
 import com.indexdata.mkjsf.pazpar2.commands.TermlistCommand;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
+import com.indexdata.mkjsf.pazpar2.commands.sp.CategoriesCommand;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommands;
 
 /**
@@ -41,6 +42,7 @@ public class Pazpar2State {
     commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand(mgr));  
 
     commands.put(ServiceProxyCommands.AUTH, new AuthCommand(mgr));
+    commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand(mgr));
     key = "#1";
   }
     

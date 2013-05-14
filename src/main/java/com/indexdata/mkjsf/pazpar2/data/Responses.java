@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
+import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pzresp") @SessionScoped
@@ -89,16 +90,13 @@ public class Responses implements Serializable {
     resetSearchResponses();
     dataObjects.put("init", new InitResponse());
     dataObjects.put("auth", new AuthResponse());
+    dataObjects.put("categories", new CategoriesResponse());
   }
   
   public InitResponse getInit () {    
     return ((InitResponse) dataObjects.get("init"));
   }
   
-  public AuthResponse getAuth () {
-    return ((AuthResponse) dataObjects.get("auth"));
-  }
-
   public ShowResponse getShow () {
     return ((ShowResponse) dataObjects.get("show"));
   }
@@ -118,7 +116,7 @@ public class Responses implements Serializable {
   public TermListsResponse getTermLists () {
     return ((TermListsResponse) dataObjects.get("termlist"));
   }
-  
+    
   public List<TermResponse> getFacetTerms (String facet, int count) {
     return (getTermLists().getTermList(facet).getTerms(count));
   }
@@ -130,6 +128,17 @@ public class Responses implements Serializable {
   public ByTarget getByTarget() {
     return ((ByTarget) dataObjects.get("bytarget"));
   }
+
+  // Service Proxy extras   
+  public AuthResponse getAuth () {
+    return ((AuthResponse) dataObjects.get("auth"));
+  }
+
+  public CategoriesResponse getCategories() {
+    return ((CategoriesResponse) dataObjects.get("categories"));
+  }
+  // Service Proxy extras
+  
 
   public ResponseDataObject getResponseObject (String name) {
     return dataObjects.get(name);

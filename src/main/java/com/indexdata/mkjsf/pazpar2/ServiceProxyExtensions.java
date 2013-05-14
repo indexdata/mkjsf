@@ -20,6 +20,7 @@ import com.indexdata.mkjsf.pazpar2.data.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
+import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -185,4 +186,22 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public InitDocUpload getInitDocUpload () {
     return initDocUpload;
   }
+  
+  public CategoriesResponse getCategories () {
+    ResponseDataObject response = pz2.doCommand("categories");
+    if (response.hasApplicationError()) {
+      logger.debug(response.getXml());
+      return new CategoriesResponse();
+    } else {
+      try {
+        return (CategoriesResponse) response;
+      } catch (Exception e) {
+        e.printStackTrace();
+        logger.debug(response.getXml());
+        return new CategoriesResponse();
+      }
+    }
+  }
+  
+  
 }

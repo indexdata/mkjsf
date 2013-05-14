@@ -10,6 +10,7 @@ import com.indexdata.mkjsf.utils.Utils;
 public class ServiceProxyCommands implements Serializable {
 
   public static final String AUTH = "auth";
+  public static final String CATEGORIES = "categories";
   private static final long serialVersionUID = 6223527018096841188L;
   private static Logger logger = Logger.getLogger(ServiceProxyCommands.class);
   private StateManager stateMgr = null; 
@@ -18,10 +19,13 @@ public class ServiceProxyCommands implements Serializable {
     logger.info("Initializing ServiceProxyCommands [" + Utils.objectId(this) + "]");
     this.stateMgr = stateMgr;
   }
-
   
   public AuthCommand getAuth() {
     return (AuthCommand) (stateMgr.getCommand(AUTH));
+  }
+  
+  public CategoriesCommand getCategories() {
+    return (CategoriesCommand) (stateMgr.getCommand(CATEGORIES));
   }
 
 

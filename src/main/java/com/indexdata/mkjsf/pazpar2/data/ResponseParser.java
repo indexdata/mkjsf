@@ -19,6 +19,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
+import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
+import com.indexdata.mkjsf.pazpar2.data.sp.TargetCategory;
 
 public class ResponseParser extends DefaultHandler {
 
@@ -30,7 +32,7 @@ public class ResponseParser extends DefaultHandler {
   private static Logger logger = Logger.getLogger(ResponseParser.class);
 
   public static List<String> docTypes = Arrays.asList(  "bytarget","termlist","show","stat","record","search","init",
-                                        /* SP extras */ "auth" );                                        
+                                        /* SP extras */ "auth", "categories" );                                        
   
   public ResponseParser() {
     try {
@@ -118,8 +120,14 @@ public class ResponseParser extends DefaultHandler {
       currentElement = new CommandError();
     } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
       currentElement = new Pazpar2Error(); 
+    // Service Proxy extras  
     } else if (localName.equals("auth")) {  
       currentElement = new AuthResponse();
+    } else if (localName.equals("categories")) {
+      currentElement = new CategoriesResponse();
+    } else if (localName.equals("category") && dataElements.peek().getType().equals("categories")) {
+      currentElement = new TargetCategory();
+    // Catch all
     } else {
       currentElement = new ResponseDataObject();
     }

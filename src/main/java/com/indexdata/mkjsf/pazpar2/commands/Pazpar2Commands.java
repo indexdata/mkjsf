@@ -79,7 +79,7 @@ public class Pazpar2Commands implements Serializable {
     return (BytargetCommand) (stateMgr.getCommand(BYTARGET));
   }
   
-  public Pazpar2Command getCommand(String name) {
+  public Pazpar2Command getCommand(String name) {    
     return stateMgr.getCommand(name);
   }
   
