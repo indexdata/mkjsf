@@ -46,18 +46,18 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     //stateMgr.addStateListener(this);
   }
    
-  /*
+
   public void login(String un, String pw) {
-    if (user.isAuthenticated() && user.getName().equals(un) && pz2.spClient.checkAuthentication(user)) {
+    if (user.isAuthenticated() && user.getName().equals(un) /* && pz2.spClient.checkAuthentication(user) */) {
       logger.info("Repeat request from UI to authenticate user. Auth verified for given user name so skipping log-in.");
     } else {
       logger.info("doing un/pw login");
       user.setName(un);
       user.setPassword(pw);
-      login("dummy");
+      login("");
     }
   }
-  */
+
 
   
   @Override  
