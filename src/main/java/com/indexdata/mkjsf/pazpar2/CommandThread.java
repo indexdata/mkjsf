@@ -20,10 +20,8 @@ public class CommandThread extends Thread {
    * Executes the specified command using the specified Pazpar2 client
    */
   public void run() {    
-    long start = System.currentTimeMillis();
+    logger.debug(command.getCommandName() + " executing asynchronously");
     commandResponse = client.executeCommand(command);
-    long end = System.currentTimeMillis();
-    logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
   }
   
   /**
