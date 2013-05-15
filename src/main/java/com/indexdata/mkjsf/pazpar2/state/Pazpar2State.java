@@ -43,7 +43,7 @@ public class Pazpar2State {
 
     commands.put(ServiceProxyCommands.AUTH, new AuthCommand(mgr));
     commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand(mgr));
-    key = "#1";
+    // key = "#1";
   }
     
   /**
