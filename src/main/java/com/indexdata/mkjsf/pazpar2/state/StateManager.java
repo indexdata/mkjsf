@@ -12,7 +12,6 @@ import javax.enterprise.context.SessionScoped;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
-import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.utils.Utils;
 
 @SessionScoped
@@ -90,33 +89,45 @@ public class StateManager implements Serializable {
    * Changes the current state key. Invoked from the UI to have the state 
    * manager switch to another state than the current one. 
    * 
+   * @See  The state field in pz2watch.xhtml<br/> 
+   *       The state listeners windowlocationhashListener() and StateListener()
+   *       in listeners.js<br/>
+   *       The method {@link com.indexdata.mkjsf.pazpar2.Pz2Bean#handleQueryStateChanges}<br/>
+   *       The class {@link com.indexdata.mkjsf.pazpar2.state.Pazpar2State}<br/> 
+   * ... for a complete picture of browser history handling.
+   * 
    * @param key
    */
   public void setCurrentStateKey(String key) {    
     if (currentKey.equals(key)) {
-      logger.debug("setCurrentStateKey: no key change detected");
+      logger.debug("Ignoring request from UI to set state key, already has that key [" + key + "]");
     } else {
-      logger.debug("State key change. Was: [" + currentKey + "]. Will be ["+key+"]");
+      logger.debug("Request from UI to change state key from: [" + currentKey + "] to ["+key+"]");
       if (states.get(key)==null) {
-        logger.error("The back-end received an unknow state key, probably UI generated: ["+ key +"].");
+        logger.error("Have no state registered for the key ["+ key +"].");
         if (key == null || key.length()==0) {
-          logger.info("Empty key received, treating it as identical to current key going forward.");
+          logger.info("Recived an empty key, retaining currentKey [" + currentKey + "]");
           key = currentKey;
         } else {
           if (states.get(currentKey) != null) {
-            logger.info("Current search state cached under both of [" + key + "] and [" + currentKey + "]");
-            states.put(key,states.get(currentKey));
+            if (key.equals("#1")) {
+              logger.info("Initial key created [" + key + "], but already got a state registered for the current key [" + currentKey + "]. Retaining current key.");
+              key = currentKey;
+            } else {
+              logger.info("Current search state cached under both new key [" + key + "] and current key [" + currentKey + "]");
+              states.put(key,states.get(currentKey));
+            }
           }
         }
       }
       
       if (states.get(key).getCommand("search").equals(states.get(currentKey).getCommand("search"))) {
-        logger.debug("No search change detected");
+        logger.debug("No search change detected as a consequence of processing the key ["+key+"]");
       } else {
         hasPendingStateChange("search",true);
       }
       if (states.get(key).getCommand("record").equals(states.get(currentKey).getCommand("record"))) {
-        logger.debug("No record change detected");
+        logger.debug("No record change detected as a consequence of processing the key ["+key+"]");
       } else {
         hasPendingStateChange("record",true);
       }

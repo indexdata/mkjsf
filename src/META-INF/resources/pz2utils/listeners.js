@@ -46,24 +46,35 @@ function renderOnRecordTargets(doRefresh) {
   }
 }
 
-// Listens for browser initiated changes to 'window.location.hash' and sends the
-// hash
-// changes to the back-end (to have the back-end pull up a previous Pazpar2
-// state)
+// Listens for browser initiated changes to 'window.location.hash' and sends 
+// the hash key changes to the back-end, to have the back-end pull up a previous 
+// Pazpar2 state.
+// 
+// See also: The field in pz2watch.xhtml, the StateListener function below,
+// the method Pz2Bean.handleQueryStateChanges(), and the classes 
+// Pazpar2State and StateManager for a complete picture of browser history 
+// handling.
 function windowlocationhashListener() {
   if (trackHistory) {
-    // console.log("browser hash update detected");
+    
     var stateKey = document.getElementById("pz2watch:windowlocationhash");
-    if (window.location.hash != stateKey.value) {
-      // console.log("updating stateKey with new browser hash: " +
-      // window.location.hash);
-      stateKey.value = window.location.hash;
-      if (!stateKey.value)
-        window.location.hash = '#1';
-      stateKey.onchange();
+    // console.log("browser hash update response detected.");
+    // console.log("pz2watch:windowlocationhash: [" + stateKey.value + "]");
+    // console.log("window.location.hash: [" + window.location.hash + "]");
+    if (window.location.hash != stateKey.value) {  
+      if (window.location.hash) {
+        //console.log("updating pz2watch:windowlocationhash with new window.location.hash [" + window.location.hash + "]");
+        stateKey.value = window.location.hash;
+        //console.log("firing pz2watch:windowlocationhash onChange");
+        stateKey.onchange();
+      } else if (stateKey.value) {
+        //console.log("updating window.location.hash with pz2watch:windowlocationhash  [" + stateKey.value + "]");
+        window.location.hash = stateKey.value;
+        //console.log("firing pz2watch:windowlocationhash onChange");
+        stateKey.onchange();
+      } 
     } else {
-      // console.log("State hash already has the value of the new browser hash -
-      // not updating state hash");
+      //console.log("State hash already has the value of the new browser hash - not updating state hash");
     }
   }
 }
@@ -139,14 +150,12 @@ var StateListener = function() {
   this.invoke = function(field) {
     var stateKeyDoc = StringtoXML(field.textContent || field.text);
     var stateKeyValue = stateKeyDoc.childNodes[0].getAttribute("value");
-    // console.log('Application hash update detected. New value: ' +
-    // stateKeyValue);
+    // console.log('Received state key update from the back-end: ' + stateKeyValue);
     if (stateKeyValue !== window.location.hash) {
       window.location.hash = stateKeyValue;
-      // console.log("Browsers hash updated accordingly.");
+      // console.log("Browsers hash (window.location.hash) updated with [" + stateKeyValue + "]");
     } else {
-      // console.log("Browsers hash already has the value of the state hash. Not
-      // updating browser hash.");
+      // console.log("Browsers hash (window.location.hash) already has the value [" + stateKeyValue + "]");
     }
   };
 };
@@ -173,13 +182,12 @@ var ActiveclientsRecordListener = function() {
   this.invoke = function(field) {
     var updateDoc = StringtoXML(field.textContent || field.text);
     var activeClientsRecordValue = (updateDoc.childNodes[0].textContent || updateDoc.childNodes[0].text);
-    console.log('Activeclients response for record detected: '
-        + activeClientsRecordValue);
+    // console.log('Activeclients response for record detected: ' + activeClientsRecordValue);
     clearTimeout(renderOnRecordTargetsReqVar);
     if (activeClientsRecordValue > '0') {
       renderOnRecordTargets(true);
     } else {
-      console.log('Active clients is 0, final rendering');
+      // console.log('Active clients is 0, final rendering');
       renderOnRecordTargets(false);
     }
   };

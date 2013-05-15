@@ -62,8 +62,9 @@ public class RecordResponse extends ResponseDataObject {
   }
   
   public String getActiveClients () {
-    logger.info("Request to get activeclients");
-    return getOneElementValue("activeclients");
+    String activeclients = getOneElementValue("activeclients");
+    logger.info("Request to get activeclients on record [" + getRecId() + "]. Is [" + activeclients + "]");    
+    return activeclients;
   }
    
 }

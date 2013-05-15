@@ -140,9 +140,12 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       logger.debug("Ignoring record request due search error.");
       return "";
     } else {
+      logger.debug("Executing record command");
       ResponseDataObject responseObject = doCommand("record");
-      if (pzreq.getRecord().hasParameterValue("offset") ||
-            pzreq.getRecord().hasParameterValue("checksum")) {
+      if ((pzreq.getRecord().hasParameterValue("offset") ||
+            pzreq.getRecord().hasParameterValue("checksum")) &&
+            !responseObject.getType().equals("record")) {
+        logger.debug("Storing record offset response as 'record'");
         RecordResponse recordResponse = new RecordResponse();
         recordResponse.setType("record");
         recordResponse.setXml(responseObject.getXml());
@@ -288,7 +291,19 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     pager =  new ResultsPager(pzresp,pageRange,pzreq);
     return pager;
   }
-    
+   
+  /**
+   * This methods main purpose is to support browser history.
+   *  
+   * When the browsers back or forward buttons are pressed, a  
+   * re-search /might/ be required - namely if the query changes.
+   * So, as the UI requests updates of the page (show,facets,
+   * etc) this method checks if a search must be executed
+   * before those updates are performed.
+   *  
+   * @see {@link com.indexdata.mkjsf.pazpar2.state.StateManager#setCurrentStateKey} 
+   * @param commands
+   */
   protected void handleQueryStateChanges (String commands) {
     if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
       logger.info("Triggered search: Found pending search change [" + pzreq.getCommand("search").toString() + "], doing search before updating " + commands);      
@@ -323,8 +338,11 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     responseLogger.debug("Response was: " + commandResponse.getResponseString());
     responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
     if (ResponseParser.docTypes.contains(responseObject.getType())) {
+      logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
       pzresp.put(commandName, responseObject);
-    }          
+    } else {
+      logger.info("Unrecognized response object type not cached in pzresp: " + responseObject.getType());
+    }
     return responseObject;
   }
     
