@@ -65,6 +65,7 @@ public class Pazpar2State {
    * Generates a state key that can be used by the browser to pick
    * up this state again at a later point in time.
    * 
+   * @see  {@link com.indexdata.mkjsf.pazpar2.state.StateManager#setCurrentStateKey}
    * @return
    */
   public String getKey() {
