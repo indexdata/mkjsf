@@ -19,6 +19,8 @@ public class ResponseDataObject implements Serializable {
   String textContent = "";
   CommandError error = null;
   String xml = null;
+  boolean isBinary = false;
+  byte[] binary = null;
         
   public void setType (String type) {
     this.type = type;
@@ -110,6 +112,8 @@ public class ResponseDataObject implements Serializable {
     return hasApplicationError() && getApplicationError().hasPazpar2Error();
   }
   
+  
+  
   public void setXml(String xml) {
     this.xml = xml; 
   }
@@ -122,7 +126,22 @@ public class ResponseDataObject implements Serializable {
   }
   
   public boolean getHasResults () {
-    return (xml != null && xml.length()>0);
+    return (xml != null && xml.length()>0) || (getIsBinary() && binary.length>0);
   }
+  
+  public boolean getIsBinary () {
+    return isBinary;
+  }
+    
+  public void setBinary(byte[] bytes) {
+    isBinary = true;
+    binary = bytes;
+  }
+  
+  public byte[] getBinary () {
+    return binary;
+  }
+  
+  
         
 }

@@ -62,9 +62,17 @@ public class RecordResponse extends ResponseDataObject {
   }
   
   public String getActiveClients () {
-    String activeclients = getOneElementValue("activeclients");
-    logger.info("Request to get activeclients on record [" + getRecId() + "]. Is [" + activeclients + "]");    
-    return activeclients;
+    if (getIsBinary()) {
+      return "0";
+    } else {
+      String activeclients = getOneElementValue("activeclients");
+      if (activeclients == null || activeclients.length()==0) {
+        // Look for override
+        activeclients = getAttribute("activeclients");
+      }
+      logger.info("Request to get activeclients on record [" + getRecId() + "]. Is [" + activeclients + "]");    
+      return activeclients;
+    }
   }
    
 }

@@ -141,17 +141,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       return "";
     } else {
       logger.debug("Executing record command");
-      ResponseDataObject responseObject = doCommand("record");
-      if ((pzreq.getRecord().hasParameterValue("offset") ||
-            pzreq.getRecord().hasParameterValue("checksum")) &&
-            !responseObject.getType().equals("record")) {
-        logger.debug("Storing record offset response as 'record'");
-        RecordResponse recordResponse = new RecordResponse();
-        recordResponse.setType("record");
-        recordResponse.setXml(responseObject.getXml());
-        recordResponse.setAttribute("activeclients", "0");
-        pzresp.put("record", recordResponse);
-      }
+      doCommand("record");
       return pzresp.getRecord().getActiveClients();
     }
   }
@@ -336,12 +326,31 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     long end = System.currentTimeMillis();
     logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
     responseLogger.debug("Response was: " + commandResponse.getResponseString());
-    responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
-    if (ResponseParser.docTypes.contains(responseObject.getType())) {
-      logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
-      pzresp.put(commandName, responseObject);
+    if (commandResponse.getContentType().contains("xml")) {
+      responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
+      if (ResponseParser.docTypes.contains(responseObject.getType())) {
+        logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
+        pzresp.put(commandName, responseObject);
+      } else {
+        if (commandName.equals("record")) {
+          logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
+          ResponseDataObject recordResponse = new RecordResponse(); 
+          recordResponse.setType("record");
+          recordResponse.setXml(responseObject.getXml());          
+          recordResponse.setAttribute("activeclients", "0");
+          pzresp.put("record", recordResponse); 
+        }        
+      }
+    } else if (commandResponse.isBinary()) {
+      responseObject = new RecordResponse(); 
+      responseObject.setType(commandName);
+      logger.info("Binary response");
+      responseObject.setAttribute("activeclients", "0");
+      responseObject.setXml("<record>binary response</record>");
+      responseObject.setBinary(commandResponse.getBytes());
+      pzresp.put("record", responseObject);
     } else {
-      logger.info("Unrecognized response object type not cached in pzresp: " + responseObject.getType());
+      logger.error("Response was not found to be XML or binary. The response was not handled.");
     }
     return responseObject;
   }

@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
@@ -99,6 +102,9 @@ public class Pz2Client implements SearchClient {
       pz2HttpResponse = client.executeCommand(clientCommand, baos);
       if (pz2HttpResponse.getStatusCode()==200 && pz2HttpResponse.getContentType().contains("xml")) {
         commandResponse = new ClientCommandResponse(pz2HttpResponse,baos);
+      } else if (pz2HttpResponse.getStatusCode()==200 && pz2HttpResponse.getContentType().contains("octet-stream")) {
+        commandResponse = new ClientCommandResponse(pz2HttpResponse,baos);
+        logger.info("Content type: " + commandResponse.getContentType() + ". isBinary?: " + commandResponse.isBinary());
       } else if (pz2HttpResponse.getStatusCode()==417) {
         logger.error("Pazpar2 status code 417: " + baos.toString("UTF-8"));
         commandResponse = new ClientCommandResponse(pz2HttpResponse.getStatusCode(),CommandError.insertErrorXml(command.getCommandName(), String.valueOf(pz2HttpResponse.getStatusCode()) ,"Pazpar2: Expectation failed (417)", baos.toString("UTF-8")),"text/xml");                       

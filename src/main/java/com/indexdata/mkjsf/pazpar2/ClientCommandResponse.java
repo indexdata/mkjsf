@@ -45,6 +45,8 @@ public class ClientCommandResponse implements HttpResponseWrapper {
   public String getResponseString() {
     if (content == null) {
       return contentString;
+    } else if (isBinary()) {
+      return "[binary response]";
     } else {
       try {
         return new String(content,"UTF-8");

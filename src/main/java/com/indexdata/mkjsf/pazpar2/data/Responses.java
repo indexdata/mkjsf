@@ -164,12 +164,21 @@ public class Responses implements Serializable {
   public void download(String commandName) throws UnsupportedEncodingException, IOException {
     logger.info(Utils.objectId(this) + " got a download request for "
         + commandName);
+    ResponseDataObject object = dataObjects.get(commandName);    
     FacesContext facesContext = FacesContext.getCurrentInstance();
     ExternalContext externalContext = facesContext.getExternalContext();
-    externalContext.setResponseHeader("Content-Type","application/xml; charset=\"utf-8\"");
-    externalContext.setResponseHeader("Content-Length",String.valueOf(dataObjects.get(commandName).getXml().getBytes("UTF-8").length));
-    externalContext.setResponseHeader("Content-Disposition","attachment;filename=\"" + commandName + ".xml\"");
-    externalContext.getResponseOutputStream().write(dataObjects.get(commandName).getXml().getBytes("UTF-8"));
+    if (object.getIsBinary()) {
+      externalContext.setResponseHeader("Content-Type","application/octet-stream");
+      externalContext.setResponseHeader("Content-Length",String.valueOf(object.getBinary().length));
+      externalContext.setResponseHeader("Content-Disposition","attachment;filename=\"" + commandName + ".data\"");
+      externalContext.getResponseOutputStream().write(object.getBinary());      
+    } else {
+      externalContext.setResponseHeader("Content-Type","application/xml; charset=\"utf-8\"");
+      externalContext.setResponseHeader("Content-Length",String.valueOf(dataObjects.get(commandName).getXml().getBytes("UTF-8").length));
+      externalContext.setResponseHeader("Content-Disposition","attachment;filename=\"" + commandName + ".xml\"");
+      externalContext.getResponseOutputStream().write(dataObjects.get(commandName).getXml().getBytes("UTF-8"));
+    }
     facesContext.responseComplete();
   }
+  
 }

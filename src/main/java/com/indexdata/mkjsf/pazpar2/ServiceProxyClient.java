@@ -100,13 +100,14 @@ public class ServiceProxyClient implements SearchClient {
     byte[] response = null;
     try {
       response = client.execute(httpget, handler);
-      if (handler.getStatusCode()==200 && handler.getContentType().contains("xml")) {
+      if (handler.getStatusCode()==200 && (handler.getContentType().contains("xml") || handler.getContentType().contains("octet-stream"))) {
+        logger.debug("Creating command response holding content of type " + handler.getContentType());
         commandResponse = new ClientCommandResponse(handler.getStatusCode(),response,handler.getContentType());
       } else {
         logger.error("Service Proxy status code: " + handler.getStatusCode());
         String errorXml = "";
         if (handler.getContentType().contains("xml")) {
-          errorXml = CommandError.insertErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Service Proxy error: "+handler.getStatusCode(), new String(response,"UTF-8"));          
+          errorXml = CommandError.insertErrorXml(command.getCommandName(), String.valueOf(handler.getStatusCode()), "Service Proxy error: "+handler.getStatusCode(), new String(response,"UTF-8"));        
         } else {
           if (handler.getContentType().contains("html")) {
             String htmlStrippedOfTags = (new String(response,"UTF-8")).replaceAll("\\<[^>]*>","");
