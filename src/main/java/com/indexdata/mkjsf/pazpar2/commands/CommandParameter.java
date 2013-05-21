@@ -24,12 +24,12 @@ public class CommandParameter implements Serializable {
   private static List<String> nologparams = Arrays.asList("password");
   
   public CommandParameter (String name) {
-    logger.debug("Instantiating command parameter '" + name + "'");
+    logger.trace("Instantiating command parameter '" + name + "'");
     this.name = name;
   }
   
   public CommandParameter (String name, String operator, String value, Expression... expressions) {
-    logger.debug("Instantiating command parameter " + name + " with expressions: [" + expressions + "]");
+    logger.trace("Instantiating command parameter " + name + " with expressions: [" + expressions + "]");
     this.name = name;
     this.operator = operator;
     this.value = value;
@@ -39,14 +39,14 @@ public class CommandParameter implements Serializable {
   }
 
   public CommandParameter (String name, String operator, String value) {
-    if (!nologparams.contains(name)) logger.debug("Instantiating command parameter '" + name + "' with String: [" + value + "]");    
+    if (!nologparams.contains(name)) logger.trace("Instantiating command parameter '" + name + "' with String: [" + value + "]");    
     this.name = name;
     this.operator = operator;
     this.value = value;    
   }
   
   public CommandParameter (String name, String operator, int value) {
-    logger.debug("Instantiating command parameter '" + name + "' with int: [" + value + "]");
+    logger.trace("Instantiating command parameter '" + name + "' with int: [" + value + "]");
     this.name = name;
     this.operator = operator;
     this.value = value+"";    
@@ -118,7 +118,7 @@ public class CommandParameter implements Serializable {
   }
   
   public CommandParameter copy() {
-    logger.debug("Copying parameter '"+ name + "' for modification");
+    logger.trace("Copying parameter '"+ name + "' for modification");
     CommandParameter newParam = new CommandParameter(name);
     newParam.value = this.value;
     newParam.operator = this.operator;

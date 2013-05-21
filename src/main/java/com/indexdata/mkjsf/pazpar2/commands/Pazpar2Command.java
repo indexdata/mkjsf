@@ -31,7 +31,7 @@ public abstract class Pazpar2Command implements Serializable  {
     
   public void setParameter (CommandParameter parameter) {
     Pazpar2Command copy = this.copy();
-    logger.debug(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "]");
+    logger.trace(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "]");
     copy.parameters.put(parameter.getName(),parameter);
     checkInState(copy);
   }
@@ -39,7 +39,7 @@ public abstract class Pazpar2Command implements Serializable  {
   public void setParameters (CommandParameter... params) {
     Pazpar2Command copy = this.copy();
     for (CommandParameter param : params) {
-      logger.debug(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "]");
+      logger.trace(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "]");
       copy.parameters.put(param.getName(),param);
     }
     checkInState(copy);
@@ -47,13 +47,13 @@ public abstract class Pazpar2Command implements Serializable  {
   
   public void setParametersInState (CommandParameter... params) {    
     for (CommandParameter param : params) {
-      logger.debug(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "] silently");
+      logger.trace(name + " command: setting parameter [" + param.getName() + "=" + param.getValueWithExpressions() + "] silently");
       parameters.put(param.getName(),param);
     }    
   }
     
   public void setParameterInState (CommandParameter parameter) {
-    logger.debug(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "] silently");
+    logger.trace(name + " command: setting parameter [" + parameter.getName() + "=" + parameter.getValueWithExpressions() + "] silently");
     parameters.put(parameter.getName(),parameter);    
   }
   
@@ -149,5 +149,6 @@ public abstract class Pazpar2Command implements Serializable  {
   }
   
   public abstract ServiceProxyCommand getSp();
-  
+   
+  public abstract boolean spOnly();  
 }

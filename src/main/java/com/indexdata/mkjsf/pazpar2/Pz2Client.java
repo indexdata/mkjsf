@@ -62,7 +62,7 @@ public class Pz2Client implements SearchClient {
     } 
     if (cfg != null) {
       try {
-        client = new Pazpar2ClientGeneric(cfg);  
+        client = new Pazpar2ClientGeneric(cfg);        
       } catch (ProxyErrorException pe) {
         logger.error("Could not configure Pazpar2 client: " + pe.getMessage());
         throw new ConfigurationException("Could not configure Pz2Client:  "+ pe.getMessage(),pe);
@@ -204,8 +204,20 @@ public class Pz2Client implements SearchClient {
   
   @Override 
   public void setServiceUrl (String serviceUrl) {    
-    cfg.PAZPAR2_URL = serviceUrl;
-    
+    cfg.PAZPAR2_URL = serviceUrl;    
+  }
+  
+  public String getServiceId () {
+    return cfg.PAZPAR2_SERVICE_ID;
+  }
+  
+  public void setServiceId(String serviceId) {
+    cfg.PAZPAR2_SERVICE_ID = serviceId;
+    try {
+      client = new Pazpar2ClientGeneric(cfg);  
+    } catch (ProxyErrorException pe) {
+      logger.error("Could not configure Pazpar2 client: " + pe.getMessage());      
+    }
   }
 
 }

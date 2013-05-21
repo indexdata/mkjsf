@@ -22,4 +22,9 @@ public class CategoriesCommand extends Pazpar2Command implements ServiceProxyCom
     return this;
   }
 
+  @Override
+  public boolean spOnly() {
+    return true;
+  }
+
 }

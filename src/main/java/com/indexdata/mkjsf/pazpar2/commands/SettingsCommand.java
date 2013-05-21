@@ -25,4 +25,9 @@ public class SettingsCommand extends Pazpar2Command implements ServiceProxyComma
     return this;
   }
 
+  @Override
+  public boolean spOnly() {
+    return false;
+  }
+
 }

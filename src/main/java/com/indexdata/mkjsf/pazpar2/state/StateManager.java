@@ -65,12 +65,12 @@ public class StateManager implements Serializable {
    */
   public void checkIn(Pazpar2Command command) {
     if (getCurrentState().stateMutating(command)) {
-      logger.debug("State changed by: " + command.getCommandName());
+      logger.info("State changed by: " + command.getCommandName());
       Pazpar2State state = new Pazpar2State(getCurrentState(),command);
       states.put(state.getKey(), state);
       currentKey = state.getKey();
       hasPendingStateChange(command.getCommandName(),new Boolean(true));      
-      logger.debug("Updating " + listeners.size() + " listener(s) with state change from " + command);
+      logger.info("Updating " + listeners.size() + " listener(s) with state change from " + command);
       updateListeners(command.getCommandName());      
     } else {
       logger.debug("Command " + command.getCommandName() + " not found to change the state [" + command.getEncodedQueryString() + "]");
@@ -100,18 +100,18 @@ public class StateManager implements Serializable {
    */
   public void setCurrentStateKey(String key) {    
     if (currentKey.equals(key)) {
-      logger.debug("Ignoring request from UI to set state key, already has that key [" + key + "]");
+      logger.info("Ignoring request from UI to set state key, already has that key [" + key + "]");
     } else {
-      logger.debug("Request from UI to change state key from: [" + currentKey + "] to ["+key+"]");
+      logger.info("Request from UI to change state key from: [" + currentKey + "] to ["+key+"]");
       if (states.get(key)==null) {
         logger.error("Have no state registered for the key ["+ key +"].");
         if (key == null || key.length()==0) {
-          logger.info("Recived an empty key, retaining currentKey [" + currentKey + "]");
+          logger.debug("Recived an empty key, retaining currentKey [" + currentKey + "]");
           key = currentKey;
         } else {
           if (states.get(currentKey) != null) {
             if (key.equals("#1")) {
-              logger.info("Initial key created [" + key + "], but already got a state registered for the current key [" + currentKey + "]. Retaining current key.");
+              logger.debug("Initial key created [" + key + "], but already got a state registered for the current key [" + currentKey + "]. Retaining current key.");
               key = currentKey;
             } else {
               logger.info("Current search state cached under both new key [" + key + "] and current key [" + currentKey + "]");

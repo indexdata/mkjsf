@@ -30,5 +30,11 @@ public class RecordCommandSp  implements Serializable, ServiceProxyCommand {
     return command.getParameterValue("acefilter");
   }
 
+  @Override
+  public boolean spOnly() {
+    return true;
+  }
+
+  
 
 }

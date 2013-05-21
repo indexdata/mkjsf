@@ -39,6 +39,11 @@ public class TermlistCommand extends Pazpar2Command implements ServiceProxyComma
   public ServiceProxyCommand getSp() {
     return this;
   }
+
+  @Override
+  public boolean spOnly() {    
+    return false;
+  }
   
   
 

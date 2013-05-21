@@ -15,8 +15,16 @@ public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
     setParameterInState(new CommandParameter("clear","=",clear));
   }
   
+  public String getClear() {
+    return getParameterValue("clear");
+  }
+  
   public void setService(String serviceId) {    
     setParameterInState(new CommandParameter("service","=",serviceId));
+  }
+  
+  public String getService() {
+    return getParameterValue("service");
   }
   
   @Override
@@ -39,6 +47,11 @@ public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
   
   public ServiceProxyCommand getSp() {
     return this;
+  }
+
+  @Override
+  public boolean spOnly() {
+    return false;
   }
 
 

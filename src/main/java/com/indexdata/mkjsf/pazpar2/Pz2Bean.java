@@ -26,6 +26,7 @@ import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
+import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
@@ -160,7 +161,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       logger.error("Ignoring show,stat,termlist,bytarget commands due to problem with most recent search.");
       return "";
     } else if (!hasQuery()) {
-      logger.error("Ignoring show,stat,termlist,bytarget commands because there is not yet a query.");
+      logger.debug("Ignoring show,stat,termlist,bytarget commands because there is not yet a query.");
       return "";
     } else {
       return update("show,stat,termlist,bytarget");
@@ -174,7 +175,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    * @return Number of activeclients at the time of the 'show' command
    */
   public String update (String commands) {
-    logger.info("Request to update: " + commands);
+    logger.debug("Request to update: " + commands);
     try {
       if (commands.equals("search")) {
         doSearch();
@@ -195,7 +196,6 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
           return "0";
         } else {
           logger.debug("Processing request for " + commands); 
-          
           List<CommandThread> threadList = new ArrayList<CommandThread>();
           StringTokenizer tokens = new StringTokenizer(commands,",");
           while (tokens.hasMoreElements()) {          
@@ -311,48 +311,53 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   }
   
   /**
-   * Validates the request then executes the command and parses the response.
+   * Executes the command and parses the response to create data objects.
    * If the parsed response is of a known type it will be cached in 'pzresp'
    * 
    * @param commandName The command to be executed
    * @return An XML response parsed to form a response data object
    */
   protected ResponseDataObject doCommand(String commandName) {
-    ResponseDataObject responseObject = null;     
-    logger.info("Request "+commandName + ": "+ pzreq.getCommand("search").toString());
-    Pazpar2Command command = pzreq.getCommand(commandName);
-    long start = System.currentTimeMillis();
-    HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
-    long end = System.currentTimeMillis();
-    logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
-    responseLogger.debug("Response was: " + commandResponse.getResponseString());
-    if (commandResponse.getContentType().contains("xml")) {
-      responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
-      if (ResponseParser.docTypes.contains(responseObject.getType())) {
-        logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
-        pzresp.put(commandName, responseObject);
-      } else {
-        if (commandName.equals("record")) {
-          logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
-          ResponseDataObject recordResponse = new RecordResponse(); 
-          recordResponse.setType("record");
-          recordResponse.setXml(responseObject.getXml());          
-          recordResponse.setAttribute("activeclients", "0");
-          pzresp.put("record", recordResponse); 
-        }        
-      }
-    } else if (commandResponse.isBinary()) {
-      responseObject = new RecordResponse(); 
-      responseObject.setType(commandName);
-      logger.info("Binary response");
-      responseObject.setAttribute("activeclients", "0");
-      responseObject.setXml("<record>binary response</record>");
-      responseObject.setBinary(commandResponse.getBytes());
-      pzresp.put("record", responseObject);
+    if (pzreq.getCommand(commandName).spOnly() && isPazpar2Service()) {
+      logger.warn("Skipping " + commandName + " - SP-only command, un-supported by Pazpar2");
+      return new ResponseDataObject();
     } else {
-      logger.error("Response was not found to be XML or binary. The response was not handled.");
+      ResponseDataObject responseObject = null;     
+      logger.info("Request "+commandName + ": "+ pzreq.getCommand("search").toString());
+      Pazpar2Command command = pzreq.getCommand(commandName);
+      long start = System.currentTimeMillis();
+      HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
+      long end = System.currentTimeMillis();
+      logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
+      responseLogger.debug("Response was: " + commandResponse.getResponseString());
+      if (commandResponse.getContentType().contains("xml")) {
+        responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
+        if (ResponseParser.docTypes.contains(responseObject.getType())) {
+          logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
+          pzresp.put(commandName, responseObject);
+        } else {
+          if (commandName.equals("record")) {
+            logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
+            ResponseDataObject recordResponse = new RecordResponse(); 
+            recordResponse.setType("record");
+            recordResponse.setXml(responseObject.getXml());          
+            recordResponse.setAttribute("activeclients", "0");
+            pzresp.put("record", recordResponse); 
+          }        
+        }
+      } else if (commandResponse.isBinary()) {
+        responseObject = new RecordResponse(); 
+        responseObject.setType(commandName);
+        logger.info("Binary response");
+        responseObject.setAttribute("activeclients", "0");
+        responseObject.setXml("<record>binary response</record>");
+        responseObject.setBinary(commandResponse.getBytes());
+        pzresp.put("record", responseObject);
+      } else {
+        logger.error("Response was not found to be XML or binary. The response was not handled.");
+      }
+      return responseObject;
     }
-    return responseObject;
   }
     
   @Override
@@ -406,6 +411,17 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   
   public String getServiceUrl() {
     return (searchClient!=null ? searchClient.getServiceUrl() : "");
+  }
+  
+  public void setServiceId () {
+    pzreq.getRecord().removeParametersInState();
+    pzreq.getSearch().removeParametersInState();
+    pzresp.resetSearchResponses();
+    pz2Client.setServiceId(pzreq.getInit().getService());
+  }
+  
+  public String getServiceId () {
+    return pzreq.getInit().getService();
   }
   
   public boolean getServiceUrlIsDefined() {

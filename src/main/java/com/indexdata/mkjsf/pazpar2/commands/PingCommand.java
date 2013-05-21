@@ -22,4 +22,9 @@ public class PingCommand extends Pazpar2Command implements ServiceProxyCommand {
   public ServiceProxyCommand getSp() {
     return this;
   }
+
+  @Override
+  public boolean spOnly() {
+    return false;
+  }
 }

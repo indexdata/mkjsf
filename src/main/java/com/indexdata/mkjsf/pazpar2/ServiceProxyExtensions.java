@@ -182,24 +182,28 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     return initDocUpload.getIncludeDebug();
   }
   
-  // TODO: Remove when possible
+  // TODO: Remove when obsolete
   public InitDocUpload getInitDocUpload () {
     return initDocUpload;
   }
   
   public CategoriesResponse getCategories () {
-    ResponseDataObject response = pz2.doCommand("categories");
-    if (response.hasApplicationError()) {
-      logger.debug(response.getXml());
-      return new CategoriesResponse();
-    } else {
-      try {
-        return (CategoriesResponse) response;
-      } catch (Exception e) {
-        e.printStackTrace();
+    if (pz2.isServiceProxyService()) {
+      ResponseDataObject response = pz2.doCommand("categories");
+      if (response.hasApplicationError()) {
         logger.debug(response.getXml());
         return new CategoriesResponse();
+      } else {
+        try {
+          return (CategoriesResponse) response;
+        } catch (Exception e) {
+          e.printStackTrace();
+          logger.debug(response.getXml());
+          return new CategoriesResponse();
+        }
       }
+    } else {
+      return new CategoriesResponse();
     }
   }
   

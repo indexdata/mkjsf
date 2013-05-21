@@ -110,4 +110,9 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
     return this;
   }
 
+  @Override
+  public boolean spOnly() {
+    return false;
+  }
+
 }

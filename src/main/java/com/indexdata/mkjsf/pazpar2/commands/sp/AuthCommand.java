@@ -23,4 +23,9 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
   public ServiceProxyCommand getSp() {
     return this;
   }
+
+  @Override
+  public boolean spOnly() {
+    return true;
+  }
 }

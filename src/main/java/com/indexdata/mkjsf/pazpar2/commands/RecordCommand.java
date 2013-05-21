@@ -85,4 +85,9 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
   public RecordCommandSp getSp () {
     return new RecordCommandSp(this);
   }
+
+  @Override
+  public boolean spOnly() {    
+    return false;
+  }
 }
