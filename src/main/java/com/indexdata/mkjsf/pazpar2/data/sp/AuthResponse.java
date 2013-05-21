@@ -1,4 +1,6 @@
-package com.indexdata.mkjsf.pazpar2.data;
+package com.indexdata.mkjsf.pazpar2.data.sp;
+
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
 public class AuthResponse extends ResponseDataObject {
 

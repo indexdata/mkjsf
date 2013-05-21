@@ -172,17 +172,19 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    * Refreshes the data objects listed in 'commands' from pazpar2
    * 
    * @param commands
-   * @return Number of activeclients at the time of the 'show' command
+   * @return Number of activeclients at the time of the 'show' command,
+   *         or 'new' if search was just initiated.
    */
   public String update (String commands) {
     logger.debug("Request to update: " + commands);
     try {
       if (commands.equals("search")) {
         doSearch();
-        return "";
+        return "new";
       } else if (commands.equals("record")) {
         return doRecord();
       } else if (pzresp.getSearch().isNew()) {
+        // For returning notification of 'search started' quickly to UI
         logger.info("New search. Marking it old, then returning 'new' to trigger another round-trip.");
         pzresp.getSearch().setIsNew(false);
         return "new";

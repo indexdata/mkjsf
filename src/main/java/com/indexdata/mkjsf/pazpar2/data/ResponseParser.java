@@ -19,6 +19,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
+import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.TargetCategory;
 

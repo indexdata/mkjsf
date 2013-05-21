@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
+import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.utils.Utils;
 
