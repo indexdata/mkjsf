@@ -19,7 +19,6 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.InitDocUpload;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
-import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -44,42 +43,10 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     //stateMgr.addStateListener(this);
   }
    
-
-  
-  public void login(String un, String pw) {
-      logger.info("doing un/pw login");
-      pzreq.getSp().getAuth().setUsername(un);
-      pzreq.getSp().getAuth().setPassword(pw);
-      login("");
-  }
-
-
-  
-  @Override  
-  public String login(String navigateTo) {
-    logger.info("doing login using " + pz2 + " and client " + pz2.getSpClient());
+  public void authenticate() {
     pz2.resetSearchAndRecordCommands();
     pzresp.getSp().resetAuthAndBeyond(true);
-    AuthCommand auth = pzreq.getSp().getAuth(); 
-    auth.setParameterInState(new CommandParameter("action","=","login"));
-    ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);
-    String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
-    commandResponse.setResponseToParse(renamedResponse);
-    AuthResponse responseObject = (AuthResponse) ResponseParser.getParser().getDataObject(commandResponse);
-    if (ResponseParser.docTypes.contains(responseObject.getType())) {
-      pzresp.put(auth.getCommandName(), responseObject);
-    }
-    String responseStr = commandResponse.getResponseString();
-    logger.info(responseStr);      
-    return navigateTo;
-  }
-  
-  
-  public void ipAuthenticate () {  
-    pz2.resetSearchAndRecordCommands();
-    pzresp.getSp().resetAuthAndBeyond(true);
-    AuthCommand auth = pzreq.getSp().getAuth(); 
-    auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
+    AuthCommand auth = pzreq.getSp().getAuth();     
     ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
     String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
     commandResponse.setResponseToParse(renamedResponse);
@@ -88,7 +55,31 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
       pzresp.put(auth.getCommandName(), responseObject);
     }
     String responseStr = commandResponse.getResponseString();
-    logger.info(responseStr);      
+    logger.info(responseStr);          
+  }
+  
+  public void login(String un, String pw) {      
+      login(un,pw,"");
+  }
+  
+  public void login(String un, String pw, String navigateTo) {      
+    pzreq.getSp().getAuth().setUsername(un);
+    pzreq.getSp().getAuth().setPassword(pw);
+    login("");
+  }  
+    
+  @Override  
+  public String login(String navigateTo) {
+    AuthCommand auth = pzreq.getSp().getAuth(); 
+    auth.setParameterInState(new CommandParameter("action","=","login"));
+    authenticate();
+    return navigateTo;
+  }
+    
+  public void ipAuthenticate () {  
+    AuthCommand auth = pzreq.getSp().getAuth(); 
+    auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
+    authenticate();
   }
   
   private String renameResponseElement(String responseString, String newName) {
