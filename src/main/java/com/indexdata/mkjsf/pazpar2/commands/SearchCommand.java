@@ -81,12 +81,20 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     return getParameterValue("maxrecs");
   }
   
-  public void setSort () {
-    setParameter(new CommandParameter("sort","=","sort"));
+  public void setSort (String sort) {
+    setParameter(new CommandParameter("sort","=",sort));
   }
   
   public String getSort () {
     return getParameterValue("sort");
+  }
+  
+  public void setRank (String rank) {
+    setParameter(new CommandParameter("rank","=",rank));
+  }
+  
+  public String getRank () {
+    return getParameterValue("rank");
   }
   
   /**
