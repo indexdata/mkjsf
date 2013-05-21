@@ -21,7 +21,6 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
-import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pz2x") @SessionScoped
@@ -34,7 +33,6 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   private InitDocUpload initDocUpload; 
     
   @Inject ConfigurationReader configurator;  
-  @Inject ServiceProxyUser user;    
   @Inject Pz2Bean pz2;
   @Inject Pazpar2Commands pzreq;
   @Inject Responses pzresp;
@@ -47,28 +45,23 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   }
    
 
+  
   public void login(String un, String pw) {
-    if (user.isAuthenticated() && user.getName().equals(un) /* && pz2.spClient.checkAuthentication(user) */) {
-      logger.info("Repeat request from UI to authenticate user. Auth verified for given user name so skipping log-in.");
-    } else {
       logger.info("doing un/pw login");
-      user.setName(un);
-      user.setPassword(pw);
+      pzreq.getSp().getAuth().setUsername(un);
+      pzreq.getSp().getAuth().setPassword(pw);
       login("");
-    }
   }
 
 
   
   @Override  
   public String login(String navigateTo) {
-    logger.info("doing login by " + user + " using " + pz2 + " and client " + pz2.getSpClient());
+    logger.info("doing login using " + pz2 + " and client " + pz2.getSpClient());
     pz2.resetSearchAndRecordCommands();
     pzresp.getSp().resetAuthAndBeyond(true);
     AuthCommand auth = pzreq.getSp().getAuth(); 
-    auth.setParametersInState(new CommandParameter("action","=","login"),
-                              new CommandParameter("username","=",user.getName()),
-                              new CommandParameter("password","=",user.getPassword()));
+    auth.setParameterInState(new CommandParameter("action","=","login"));
     ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);
     String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
     commandResponse.setResponseToParse(renamedResponse);
@@ -78,39 +71,24 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     }
     String responseStr = commandResponse.getResponseString();
     logger.info(responseStr);      
-    if (responseStr.contains("FAIL")) {
-      user.credentialsAuthenticationSucceeded(false);    
-    } else {
-      user.credentialsAuthenticationSucceeded(true);    
-    }      
     return navigateTo;
   }
   
   
-  public void ipAuthenticate (ServiceProxyUser user) {
-    if (!user.isIpAuthenticated()) {
-      if (user.isAuthenticated()) {
-        user.clear();
-      }
-      pz2.resetSearchAndRecordCommands();
-      pzresp.getSp().resetAuthAndBeyond(true);
-      AuthCommand auth = pzreq.getSp().getAuth(); 
-      auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
-      ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
-      String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
-      commandResponse.setResponseToParse(renamedResponse);
-      ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(commandResponse);
-      if (ResponseParser.docTypes.contains(responseObject.getType())) {
-        pzresp.put(auth.getCommandName(), responseObject);
-      }
-      String responseStr = commandResponse.getResponseString();
-      logger.info(responseStr);      
-      if (responseStr.contains("FAIL")) {
-        user.credentialsAuthenticationSucceeded(false);    
-      } else {
-        user.credentialsAuthenticationSucceeded(true);    
-      }      
+  public void ipAuthenticate () {  
+    pz2.resetSearchAndRecordCommands();
+    pzresp.getSp().resetAuthAndBeyond(true);
+    AuthCommand auth = pzreq.getSp().getAuth(); 
+    auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
+    ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
+    String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
+    commandResponse.setResponseToParse(renamedResponse);
+    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(commandResponse);
+    if (ResponseParser.docTypes.contains(responseObject.getType())) {
+      pzresp.put(auth.getCommandName(), responseObject);
     }
+    String responseStr = commandResponse.getResponseString();
+    logger.info(responseStr);      
   }
   
   private String renameResponseElement(String responseString, String newName) {

@@ -30,7 +30,6 @@ import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
-import com.indexdata.mkjsf.pazpar2.sp.auth.ServiceProxyUser;
 import com.indexdata.mkjsf.pazpar2.state.StateListener;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
@@ -60,8 +59,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   @Inject StateManager stateMgr;
   @Inject Pazpar2Commands pzreq;
   @Inject Responses pzresp;
-  @Inject ErrorCentral errors;
-  @Inject ServiceProxyUser user;
+  @Inject ErrorCentral errors;  
   
   protected ResultsPager pager = null; 
   
@@ -402,8 +400,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     if (url!=null && searchClient != null && !url.equals(searchClient.getServiceUrl())) {
       pzreq.getRecord().removeParametersInState();
       pzreq.getSearch().removeParametersInState();
-      pzresp.getSp().resetAuthAndBeyond(true);
-      user.clear();
+      pzresp.getSp().resetAuthAndBeyond(true);      
       searchClient.setServiceUrl(url);
     }    
   }
