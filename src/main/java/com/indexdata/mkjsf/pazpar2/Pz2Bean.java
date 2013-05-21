@@ -26,7 +26,6 @@ import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
-import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
@@ -98,7 +97,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       errors.addConfigurationError(new ConfigurationError("Search Client","Configuration",e.getMessage()));                
     } 
     logger.info(configReader.document());
-    pzresp.resetAllSessionData();    
+    pzresp.getSp().resetAuthAndBeyond(true);    
   }
   
   public void resetSearchAndRecordCommands () {
@@ -119,9 +118,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       errors.addConfigurationError(new ConfigurationError("No client defined","Client is null","No search client defined. A client must be pre-configured or selected runtime, prior to searching."));
     } else {
       stateMgr.hasPendingStateChange("search",false);
-      pzresp.resetSearchResponses();
-      // resets some record and show command parameters without 
-      // changing state or creating state change feedback
+      pzresp.resetSearchAndBeyond();
       pzreq.getRecord().removeParametersInState();        
       pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
       logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
@@ -405,7 +402,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     if (url!=null && searchClient != null && !url.equals(searchClient.getServiceUrl())) {
       pzreq.getRecord().removeParametersInState();
       pzreq.getSearch().removeParametersInState();
-      pzresp.resetAllSessionData();
+      pzresp.getSp().resetAuthAndBeyond(true);
       user.clear();
       searchClient.setServiceUrl(url);
     }    
@@ -418,7 +415,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public void setServiceId () {
     pzreq.getRecord().removeParametersInState();
     pzreq.getSearch().removeParametersInState();
-    pzresp.resetSearchResponses();
+    pzresp.resetSearchAndBeyond();
     pz2Client.setServiceId(pzreq.getInit().getService());
   }
   
@@ -542,7 +539,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     if (!serviceType.equals(type)  &&
         !serviceType.equals(SERVICE_TYPE_TBD)) {
       resetSearchAndRecordCommands();
-      pzresp.resetAllSessionData();
+      pzresp.getSp().resetAuthAndBeyond(true);
     }
     serviceType = type;
     if (serviceType.equals(SERVICE_TYPE_PZ2)) {

@@ -16,8 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
-import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
-import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
+import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pzresp") @SessionScoped
@@ -27,6 +26,7 @@ public class Responses implements Serializable {
   protected Map<String,ResponseDataObject> dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();
   private static Logger logger = Logger.getLogger(Responses.class);
   private ErrorHelper errorHelper = null;
+  private SpResponses sp = null;
 
   public Responses() {    
   }
@@ -75,25 +75,23 @@ public class Responses implements Serializable {
     return error;         
   }
   
-  public void resetSearchResponses() {
+  public void resetSearchAndBeyond() {
     logger.debug("Resetting show,stat,termlist,bytarget,record,search response objects.");
     dataObjects.put("show", new ShowResponse());
     dataObjects.put("stat", new StatResponse());
     dataObjects.put("termlist", new TermListsResponse());
     dataObjects.put("bytarget", new ByTarget());
     dataObjects.put("record", new RecordResponse());
-    dataObjects.put("search", new SearchResponse());    
+    dataObjects.put("search", new SearchResponse());
+    getSp().resetSearchAndBeyond(false);
   }
   
-  public void resetAllSessionData () {
-    logger.debug("Resetting all response objects");
-    dataObjects = new ConcurrentHashMap<String,ResponseDataObject>();    
-    resetSearchResponses();
-    dataObjects.put("init", new InitResponse());
-    dataObjects.put("auth", new AuthResponse());
-    dataObjects.put("categories", new CategoriesResponse());
+  public void resetInitAndBeyond () {
+    dataObjects.put("init", new InitResponse());        
+    resetSearchAndBeyond();
+    getSp().resetInitAndBeyond(false);
   }
-  
+    
   public InitResponse getInit () {    
     return ((InitResponse) dataObjects.get("init"));
   }
@@ -129,17 +127,6 @@ public class Responses implements Serializable {
   public ByTarget getByTarget() {
     return ((ByTarget) dataObjects.get("bytarget"));
   }
-
-  // Service Proxy extras   
-  public AuthResponse getAuth () {
-    return ((AuthResponse) dataObjects.get("auth"));
-  }
-
-  public CategoriesResponse getCategories() {
-    return ((CategoriesResponse) dataObjects.get("categories"));
-  }
-  // Service Proxy extras
-  
 
   public ResponseDataObject getResponseObject (String name) {
     return dataObjects.get(name);
@@ -180,6 +167,10 @@ public class Responses implements Serializable {
       externalContext.getResponseOutputStream().write(dataObjects.get(commandName).getXml().getBytes("UTF-8"));
     }
     facesContext.responseComplete();
+  }
+  
+  public SpResponses getSp() {
+    return (sp == null ? new SpResponses(this) : sp);
   }
   
 }

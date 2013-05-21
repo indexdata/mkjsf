@@ -64,7 +64,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public String login(String navigateTo) {
     logger.info("doing login by " + user + " using " + pz2 + " and client " + pz2.getSpClient());
     pz2.resetSearchAndRecordCommands();
-    pzresp.resetAllSessionData();
+    pzresp.getSp().resetAuthAndBeyond(true);
     AuthCommand auth = pzreq.getSp().getAuth(); 
     auth.setParametersInState(new CommandParameter("action","=","login"),
                               new CommandParameter("username","=",user.getName()),
@@ -93,7 +93,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
         user.clear();
       }
       pz2.resetSearchAndRecordCommands();
-      pzresp.resetAllSessionData();
+      pzresp.getSp().resetAuthAndBeyond(true);
       AuthCommand auth = pzreq.getSp().getAuth(); 
       auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
       ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
@@ -138,9 +138,9 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public ClientCommandResponse postInit() throws UnsupportedEncodingException, IOException {    
     String initDocPath = pz2.getSpClient().getInitDocPaths().get(0);
     logger.info("Paths: " + pz2.getSpClient().getInitDocPaths());
-    logger.info("Path: " + initDocPath);
+    logger.info("Path: " + initDocPath);   
     pz2.resetSearchAndRecordCommands();
-    pzresp.resetAllSessionData();
+    pzresp.getSp().resetAuthAndBeyond(true);
     ClientCommandResponse response = pz2.getSpClient().postInitDoc(initDocPath + getInitFileName());    
     return response;
   }
@@ -148,7 +148,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   @Override
   public HttpResponseWrapper postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
     pz2.resetSearchAndRecordCommands();
-    pzresp.resetAllSessionData();
+    pzresp.getSp().resetAuthAndBeyond(true);
     HttpResponseWrapper response = pz2.getSpClient().postInitDoc(initDoc,includeDebug);    
     return response;
   }

@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-
 import org.apache.log4j.Logger;
 
 import com.indexdata.masterkey.config.MissingMandatoryParameterException;
