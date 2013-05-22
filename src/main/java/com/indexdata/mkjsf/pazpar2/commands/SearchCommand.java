@@ -97,6 +97,15 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     return getParameterValue("rank");
   }
   
+  public void setMergekey (String mergekey) {
+    setParameter(new CommandParameter("mergekey","=",mergekey));
+  }
+  
+  public String getMergekey () {
+    return getParameterValue("mergekey");
+  }
+  
+  
   /**
    * Sets a facet, in CQL, to restrict the current results,
    * then executes the search 

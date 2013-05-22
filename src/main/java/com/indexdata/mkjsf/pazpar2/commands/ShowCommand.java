@@ -96,6 +96,13 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
     return getParameterValue("block");
   }
   
+  public void setMergekey (String mergekey) {
+    setParameter(new CommandParameter("mergekey","=",mergekey));
+  }
+  
+  public String getMergekey () {
+    return getParameterValue("mergekey");
+  }
   
   public ShowCommand copy () {
     ShowCommand newCommand = new ShowCommand(stateMgr);
