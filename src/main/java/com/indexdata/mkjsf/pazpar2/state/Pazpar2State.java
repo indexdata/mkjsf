@@ -30,19 +30,19 @@ public class Pazpar2State {
   String key = null;
   Map<String,Pazpar2Command> commands = new HashMap<String,Pazpar2Command>();;
 
-  public Pazpar2State (StateManager mgr) {
-    commands.put(Pazpar2Commands.INIT,     new InitCommand(mgr));
-    commands.put(Pazpar2Commands.PING,     new PingCommand(mgr));
-    commands.put(Pazpar2Commands.SETTINGS, new SettingsCommand(mgr));
-    commands.put(Pazpar2Commands.SEARCH,   new SearchCommand(mgr));
-    commands.put(Pazpar2Commands.STAT,     new StatCommand(mgr));
-    commands.put(Pazpar2Commands.SHOW,     new ShowCommand(mgr));
-    commands.put(Pazpar2Commands.RECORD,   new RecordCommand(mgr));
-    commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand(mgr));
-    commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand(mgr));  
+  public Pazpar2State (StateManager stateManager) {
+    commands.put(Pazpar2Commands.INIT,     new InitCommand(stateManager));
+    commands.put(Pazpar2Commands.PING,     new PingCommand(stateManager));
+    commands.put(Pazpar2Commands.SETTINGS, new SettingsCommand(stateManager));
+    commands.put(Pazpar2Commands.SEARCH,   new SearchCommand(stateManager));
+    commands.put(Pazpar2Commands.STAT,     new StatCommand(stateManager));
+    commands.put(Pazpar2Commands.SHOW,     new ShowCommand(stateManager));
+    commands.put(Pazpar2Commands.RECORD,   new RecordCommand(stateManager));
+    commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand(stateManager));
+    commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand(stateManager));  
 
-    commands.put(ServiceProxyCommands.AUTH, new AuthCommand(mgr));
-    commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand(mgr));
+    commands.put(ServiceProxyCommands.AUTH, new AuthCommand(stateManager));
+    commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand(stateManager));
     // key = "#1";
   }
     
