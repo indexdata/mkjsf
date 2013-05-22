@@ -40,8 +40,8 @@ public class ErrorHelper implements Serializable {
   
   public ErrorHelper.ErrorCode getErrorCode(ErrorInterface appError) {
     String errmsg = appError.getMessage();
-    if (appError.hasPazpar2Error()) {
-      if (appError.getPazpar2Error().getMsg().contains("target settings from file")) {
+    if (appError.isServiceError()) {
+      if (appError.getServiceError().getMsg().contains("target settings from file")) {
         return ErrorCode.LOCAL_SETTINGS_FILE_NOT_FOUND;
       } else {
         return ErrorCode.PAZPAR2_ERRORS;
@@ -121,8 +121,8 @@ public class ErrorHelper implements Serializable {
             + "that a pazpar2 service is running at the given address." + nl);
         break;           
       case PAZPAR2_ERRORS:
-        if (error.hasPazpar2Error()) {          
-          int pz2code = Integer.parseInt(error.getPazpar2Error().getCode());
+        if (error.isServiceError()) {          
+          int pz2code = Integer.parseInt(error.getServiceError().getCode());
           switch (pz2code) {
             case 3:
               suggestions.add("The search experienced a problem with the query terms.");
@@ -140,7 +140,7 @@ public class ErrorHelper implements Serializable {
               suggestions.add(" that the Service Proxy session timed out.");
               break;
             default:
-              suggestions.add("Pazpar2 error: " + error.getPazpar2Error().getMsg() + " (Pazpar2 # "+error.getPazpar2Error().getCode()+")");
+              suggestions.add("Pazpar2 error: " + error.getServiceError().getMsg() + " (Pazpar2 # "+error.getServiceError().getCode()+")");
           }
           break;
         } else {

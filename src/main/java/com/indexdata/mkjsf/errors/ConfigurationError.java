@@ -3,7 +3,7 @@ package com.indexdata.mkjsf.errors;
 import java.util.List;
 
 import com.indexdata.mkjsf.errors.ErrorHelper.ErrorCode;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2Error;
+import com.indexdata.mkjsf.pazpar2.data.ServiceError;
 
 
 public class ConfigurationError implements ErrorInterface {
@@ -55,11 +55,11 @@ public class ConfigurationError implements ErrorInterface {
     return applicationErrorCode;
   }
   
-  public boolean hasPazpar2Error () {
+  public boolean isServiceError () {
     return false;
   }
   
-  public Pazpar2Error getPazpar2Error() {
+  public ServiceError getServiceError() {
     return null;
   }
  

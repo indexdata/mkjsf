@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.indexdata.mkjsf.errors.ErrorHelper.ErrorCode;
-import com.indexdata.mkjsf.pazpar2.data.Pazpar2Error;
+import com.indexdata.mkjsf.pazpar2.data.ServiceError;
 
 
 public interface ErrorInterface extends Serializable {
@@ -16,7 +16,7 @@ public interface ErrorInterface extends Serializable {
   public ErrorCode getApplicationErrorCode();
   public List<String> getSuggestions();
   public void setErrorHelper(ErrorHelper helper);
-  public boolean hasPazpar2Error();
-  public Pazpar2Error getPazpar2Error();
+  public boolean isServiceError();
+  public ServiceError getServiceError();
     
 }

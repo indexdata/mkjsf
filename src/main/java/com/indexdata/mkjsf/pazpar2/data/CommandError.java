@@ -41,8 +41,8 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
   }
       
   public String getMessage() {
-    if (hasPazpar2Error()) {      
-      return getPazpar2Error().getMsg();
+    if (isServiceError()) {      
+      return getServiceError().getMsg();
     } else {      
       return getOneElementValue("errormessage");
     }
@@ -129,13 +129,21 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
     return applicationErrorCode;    
   }
   
-  public boolean hasPazpar2Error () {
-    return ( getOneElement("error") != null);            
+  public boolean isServiceError () {
+    ServiceError pz2err = (ServiceError) getOneElement("error");
+    return (pz2err != null);
   }
   
-  public Pazpar2Error getPazpar2Error() {
-    return (Pazpar2Error) getOneElement("error");
+  public ServiceError getServiceError() {
+    return (ServiceError) getOneElement("error");
+  }
+  
+  public boolean isServiceProxyError () {
+    return (isServiceError() && getServiceError().isServiceProxyError());
   }
 
+  public boolean isPazpar2Error () {
+    return (isServiceError() && getServiceError().isPazpar2Error());
+  }
 
 }

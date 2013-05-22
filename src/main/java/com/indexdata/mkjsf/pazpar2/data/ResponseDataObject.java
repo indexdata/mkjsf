@@ -108,12 +108,15 @@ public class ResponseDataObject implements Serializable {
     return (CommandError) getOneElement("applicationerror");
   }
   
-  public boolean hasPazpar2Error() {
-    return hasApplicationError() && getApplicationError().hasPazpar2Error();
+  public boolean hasServiceError() {
+    return hasApplicationError() 
+        && getApplicationError().isServiceError();        
   }
   
-  
-  
+  public ServiceError getServiceError() {
+    return (hasServiceError()? getApplicationError().getServiceError() : null);
+  }
+      
   public void setXml(String xml) {
     this.xml = xml; 
   }
