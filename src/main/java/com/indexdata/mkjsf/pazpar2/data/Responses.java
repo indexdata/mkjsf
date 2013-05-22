@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
 import com.indexdata.mkjsf.errors.ErrorInterface;
+import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -44,10 +45,15 @@ public class Responses implements Serializable {
       logger.info("Error detected in search");
       return true;
     }
-    for (String name : dataObjects.keySet()) {
+    for (String name : dataObjects.keySet()) {      
       if (dataObjects.get(name).hasApplicationError()) {
-        logger.info("Error detected in " + name);
-        return true;
+        if (dataObjects.get(name) instanceof SpResponseDataObject &&
+           ((SpResponseDataObject)dataObjects.get(name)).unsupportedCommand()) {
+            logger.info("Command  [" + name + "] not supported by this service");                    
+        } else {
+          logger.info("Error detected in " + name);
+          return true;
+        }
       }
     }    
     return false;

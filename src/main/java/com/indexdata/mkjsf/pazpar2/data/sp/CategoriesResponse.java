@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
+
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
 @SessionScoped
-public class CategoriesResponse extends ResponseDataObject {
+public class CategoriesResponse extends SpResponseDataObject  {
 
   private static final long serialVersionUID = 5502182636437956412L;
     
@@ -20,6 +21,5 @@ public class CategoriesResponse extends ResponseDataObject {
     }
     return targetCategories;
   }
-
   
 }

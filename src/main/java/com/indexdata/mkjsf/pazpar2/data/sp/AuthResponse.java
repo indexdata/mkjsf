@@ -1,8 +1,6 @@
 package com.indexdata.mkjsf.pazpar2.data.sp;
 
-import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
-
-public class AuthResponse extends ResponseDataObject {
+public class AuthResponse extends SpResponseDataObject  {
 
   private static final long serialVersionUID = 8006774126022849936L;
 
@@ -22,6 +20,5 @@ public class AuthResponse extends ResponseDataObject {
     return getOneElementValue("type");
   }
   
-
   
 }

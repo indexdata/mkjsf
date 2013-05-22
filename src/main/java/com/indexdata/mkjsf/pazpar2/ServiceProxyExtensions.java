@@ -20,6 +20,7 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
+import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pz2x") @SessionScoped
@@ -158,17 +159,22 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   
   public CategoriesResponse getCategories () {
     if (pz2.isServiceProxyService()) {
-      ResponseDataObject response = pz2.doCommand("categories");
-      if (response.hasApplicationError()) {
-        logger.debug(response.getXml());
+      SpResponseDataObject response = (SpResponseDataObject) pz2.doCommand("categories");
+      if (response.unsupportedCommand()) {
+        logger.warn("Command 'categories' not supported by this Service Proxy");        
         return new CategoriesResponse();
       } else {
-        try {
-          return (CategoriesResponse) response;
-        } catch (Exception e) {
-          e.printStackTrace();
+        if (response.hasApplicationError()) {
           logger.debug(response.getXml());
           return new CategoriesResponse();
+        } else {
+          try {
+            return (CategoriesResponse) response;
+          } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug(response.getXml());
+            return new CategoriesResponse();
+          }
         }
       }
     } else {
