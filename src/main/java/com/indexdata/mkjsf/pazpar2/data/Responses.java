@@ -49,7 +49,7 @@ public class Responses implements Serializable {
       if (dataObjects.get(name).hasApplicationError()) {
         if (dataObjects.get(name) instanceof SpResponseDataObject &&
            ((SpResponseDataObject)dataObjects.get(name)).unsupportedCommand()) {
-            logger.info("Command  [" + name + "] not supported by this service");                    
+            logger.debug("Command  [" + name + "] not supported by this service");                    
         } else {
           logger.info("Error detected in " + name);
           return true;

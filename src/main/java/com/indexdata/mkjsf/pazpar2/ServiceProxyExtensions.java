@@ -3,6 +3,8 @@ package com.indexdata.mkjsf.pazpar2;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
@@ -36,24 +38,30 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   @Inject Pz2Bean pz2;
   @Inject Pazpar2Commands pzreq;
   @Inject Responses pzresp;
-
-  
+    
   public ServiceProxyExtensions() {
     this.initDocUpload = new InitDocUpload(this);
     // TODO: 
     //stateMgr.addStateListener(this);
   }
-   
+     
   public void authenticate() {
+    String command = "auth";
+    if (pzresp.getSp().getAuth().unsupportedCommand()) {
+      logger.warn("Running seemingly unsupported command [auth] against SP.");
+    }
     pz2.resetSearchAndRecordCommands();
     pzresp.getSp().resetAuthAndBeyond(true);
     AuthCommand auth = pzreq.getSp().getAuth();     
     ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
-    String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");
+    String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");    
     commandResponse.setResponseToParse(renamedResponse);
-    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(commandResponse);
+    SpResponseDataObject responseObject = (SpResponseDataObject) ResponseParser.getParser().getDataObject(commandResponse);    
     if (ResponseParser.docTypes.contains(responseObject.getType())) {
       pzresp.put(auth.getCommandName(), responseObject);
+    }
+    if (responseObject.unsupportedCommand()) {
+      logger.error("auth command does not seem to be supported by this Service Proxy");
     }
     String responseStr = commandResponse.getResponseString();
     logger.info(responseStr);          
@@ -157,24 +165,25 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     return initDocUpload;
   }
   
-  public CategoriesResponse getCategories () {
+  public CategoriesResponse getCategories () {       
+    String command="categories";
     if (pz2.isServiceProxyService()) {
-      SpResponseDataObject response = (SpResponseDataObject) pz2.doCommand("categories");
-      if (response.unsupportedCommand()) {
-        logger.warn("Command 'categories' not supported by this Service Proxy");        
+      if (pzresp.getSp().getCategories().unsupportedCommand()) {
+        logger.info("Skipping seemingly unsupported command: " + command);  
         return new CategoriesResponse();
       } else {
-        if (response.hasApplicationError()) {
-          logger.debug(response.getXml());
-          return new CategoriesResponse();
-        } else {
-          try {
+        SpResponseDataObject response = (SpResponseDataObject) pz2.doCommand(command);
+        if (response.unsupportedCommand()) {
+          logger.warn("Command 'categories' not supported by this Service Proxy");          
+        } else if (response.hasApplicationError()) {
+          logger.error(response.getXml());            
+        }  
+        try {
             return (CategoriesResponse) response;
-          } catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             logger.debug(response.getXml());
             return new CategoriesResponse();
-          }
         }
       }
     } else {
