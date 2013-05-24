@@ -117,4 +117,5 @@ public interface Pz2Interface extends Serializable {
   public boolean isPazpar2Service ();  
   public boolean isServiceProxyService();  
   public boolean serviceIsToBeDecided ();
+  public SearchClient getSearchClient();
 }

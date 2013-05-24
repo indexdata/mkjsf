@@ -1,14 +1,13 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
-import com.indexdata.mkjsf.pazpar2.state.StateManager;
 
 public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = -4915976465898889987L;
-
-  public InitCommand(StateManager stateMgr) {
-    super("init",stateMgr);
+  
+  public InitCommand() {
+    super("init");
   }
   
   public void setClear(String clear) { 
@@ -38,7 +37,7 @@ public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
   }
   
   public InitCommand copy () {
-    InitCommand newCommand = new InitCommand(stateMgr);
+    InitCommand newCommand = new InitCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    

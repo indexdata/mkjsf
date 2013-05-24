@@ -7,14 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.SessionScoped;
-
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.utils.Utils;
 
-@SessionScoped
 public class StateManager implements Serializable {
   
   private static final long serialVersionUID = 8152558351351730035L;
@@ -25,16 +22,16 @@ public class StateManager implements Serializable {
                                                                 /* SP extras */ "auth","categories"));
   Map<String,Boolean> pendingStateChanges = new HashMap<String,Boolean>();
   private static Logger logger = Logger.getLogger(StateManager.class);
-  private List<StateListener> listeners = new ArrayList<StateListener>();
+  private List<StateListener> listeners = new ArrayList<StateListener>();  
   
   public StateManager () {
     logger.info("Initializing a Pazpar2 state manager [" + Utils.objectId(this) + "]");
-    Pazpar2State initialState = new Pazpar2State(this);
+    Pazpar2State initialState = new Pazpar2State();
     states.put(initialState.getKey(), initialState);
     currentKey = initialState.getKey();
     for (String command : allCommands) {
       pendingStateChanges.put(command, new Boolean(false));
-    }
+    }    
   }
   
   public void addStateListener(StateListener listener) {

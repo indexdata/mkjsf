@@ -6,27 +6,46 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
+import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
+import com.indexdata.mkjsf.pazpar2.Pz2Bean;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
-import com.indexdata.mkjsf.pazpar2.state.StateManager;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
+import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
 public abstract class Pazpar2Command implements Serializable  {
   
   private static Logger logger = Logger.getLogger(Pazpar2Command.class);
   private static final long serialVersionUID = -6825491856480675917L;   
   protected String name = "";
-  protected Map<String,CommandParameter> parameters = new HashMap<String,CommandParameter>();
+  protected Map<String,CommandParameter> parameters = new HashMap<String,CommandParameter>();  
   
-  protected StateManager stateMgr;
+  public Pazpar2Command () {
     
-  public Pazpar2Command (String name, StateManager stateMgr) {
+  }
+  
+  public void setCommandName(String name) {
     this.name = name;
-    this.stateMgr = stateMgr;
+  }
+          
+  public Pazpar2Command (String name) {
+    this.name = name;    
   }
       
   public abstract Pazpar2Command copy ();
-  
+          
   public String getCommandName() {
     return name;
+  }
+  
+  public ResponseDataObject run() {
+    logger.info("Running " + getCommandName() + " using " + Pz2Bean.get().getSearchClient());    
+    HttpResponseWrapper httpResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
+    logger.info("Parsing response for " + getCommandName());
+    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse) httpResponse);
+    logger.info("Storing response for " + getCommandName());
+    Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
+    return responseObject;
   }
     
   public void setParameter (CommandParameter parameter) {
@@ -141,11 +160,12 @@ public abstract class Pazpar2Command implements Serializable  {
   } 
   
   private void checkInState(Pazpar2Command command) {
-    if (stateMgr != null) {
-      stateMgr.checkIn(command);
-    } else {
-      logger.info("Command '" + command.getCommandName() + "' not affecting state (history) as no state manager was defined for this command.");
-    }
+    Pz2Bean.get().getStateMgr().checkIn(command);
+    // if (stateMgr() != null) {
+    //   stateMgr().checkIn(command);
+    // } else {
+    //   logger.info("Command '" + command.getCommandName() + "' not affecting state (history) as no state manager was defined for this command.");
+    // }
   }
   
   public abstract ServiceProxyCommand getSp();

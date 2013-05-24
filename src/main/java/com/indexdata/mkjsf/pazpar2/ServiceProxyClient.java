@@ -71,9 +71,9 @@ public class ServiceProxyClient implements SearchClient {
       config = configReader.getConfiguration(this);      
       serviceUrl = config.get("SERVICE_PROXY_URL");
       this.initDocPaths = config.getMultiProperty(SP_INIT_DOC_PATHS,",");
-      checkAuth = new AuthCommand(null);
+      checkAuth = new AuthCommand();
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
-      ipAuth = new AuthCommand(null);
+      ipAuth = new AuthCommand();
       ipAuth.setParameterInState(new CommandParameter("action","=","ipauth"));
     } catch (ConfigurationException c) {
       // TODO: 

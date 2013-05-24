@@ -1,15 +1,53 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+import org.apache.log4j.Logger;
+
+import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
+import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
+import com.indexdata.mkjsf.pazpar2.Pz2Bean;
 import com.indexdata.mkjsf.pazpar2.commands.sp.RecordCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
-import com.indexdata.mkjsf.pazpar2.state.StateManager;
+import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
+import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
 public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 2817539422114569506L;
+  private static Logger logger = Logger.getLogger(RecordCommand.class);
 
-  public RecordCommand(StateManager stateMgr) {
-    super("record",stateMgr);
+  public RecordCommand() {
+    super("record");
+  }
+  
+  @Override
+  public ResponseDataObject run() {
+    HttpResponseWrapper commandResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
+    ResponseDataObject responseObject = null;
+    if (commandResponse.getContentType().contains("xml")) {
+      responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
+      if (ResponseParser.docTypes.contains(responseObject.getType())) {
+        logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
+      } else {        
+        logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
+        ResponseDataObject recordResponse = new RecordResponse(); 
+        recordResponse.setType("record");
+        recordResponse.setXml(responseObject.getXml());          
+        recordResponse.setAttribute("activeclients", "0");             
+      }
+    } else if (commandResponse.isBinary()) {
+      responseObject = new RecordResponse(); 
+      responseObject.setType(getCommandName());
+      logger.info("Binary response");
+      responseObject.setAttribute("activeclients", "0");
+      responseObject.setXml("<record>binary response</record>");
+      responseObject.setBinary(commandResponse.getBytes());
+      
+    } else {
+      logger.error("Response was not found to be XML or binary. The response was not handled.");
+    }
+    Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
+    return responseObject;
   }
   
   public void setId(String recId) {
@@ -70,7 +108,7 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
 
   @Override
   public RecordCommand copy () {
-    RecordCommand newCommand = new RecordCommand(stateMgr);
+    RecordCommand newCommand = new RecordCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    

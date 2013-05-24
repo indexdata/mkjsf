@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -12,28 +11,24 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.config.ConfigurationReader;
-import com.indexdata.mkjsf.pazpar2.data.Responses;
+import com.indexdata.mkjsf.pazpar2.Pz2Bean;
 
-@Named("errors") @SessionScoped
+@SessionScoped @Named
 public class ErrorCentral implements Serializable {
 
   private static final long serialVersionUID = -1658192041068396628L;
   private static Logger logger = Logger.getLogger(ErrorCentral.class);  
   private ErrorHelper errorHelper = null;
-  
-  @Inject Responses pzresp;
-  @Inject ConfigurationReader configurator;
+    
+  @Inject ConfigurationReader configurator;  
   
   private List<ErrorInterface> configurationErrors = new ArrayList<ErrorInterface>();
 
-  public ErrorCentral() {}
-  
-  @PostConstruct 
-  public void postConstruct() {
-    errorHelper = new ErrorHelper(configurator);
-    pzresp.setErrorHelper(errorHelper);    
+  public ErrorCentral() {
+    logger.info("Instantiating ErrorCentral "+this);
+    errorHelper = new ErrorHelper(configurator);       
   }
-    
+      
   public void addConfigurationError (ErrorInterface configError) {
     configError.setErrorHelper(errorHelper);
     configurationErrors.add(configError);
@@ -44,11 +39,11 @@ public class ErrorCentral implements Serializable {
   }
 
   public boolean hasCommandErrors () {
-    return pzresp.hasApplicationError();
+    return Pz2Bean.get().getPzresp().hasApplicationError();
   }
   
   public ErrorInterface getCommandError () {
-    return pzresp.getCommandError();
+    return Pz2Bean.get().getPzresp().getCommandError();
   }
 
   /**
@@ -61,6 +56,10 @@ public class ErrorCentral implements Serializable {
   
   public List<ErrorInterface> getConfigurationErrors() {    
     return configurationErrors;
+  }
+  
+  public ErrorHelper getHelper () {
+    return errorHelper;
   }
 
 

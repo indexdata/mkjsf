@@ -3,8 +3,6 @@ package com.indexdata.mkjsf.pazpar2;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
@@ -15,12 +13,10 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
-import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.pazpar2.commands.sp.InitDocUpload;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
-import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 import com.indexdata.mkjsf.utils.Utils;
@@ -36,8 +32,6 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     
   @Inject ConfigurationReader configurator;  
   @Inject Pz2Bean pz2;
-  @Inject Pazpar2Commands pzreq;
-  @Inject Responses pzresp;
     
   public ServiceProxyExtensions() {
     this.initDocUpload = new InitDocUpload(this);
@@ -45,20 +39,19 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     //stateMgr.addStateListener(this);
   }
      
-  public void authenticate() {
-    String command = "auth";
-    if (pzresp.getSp().getAuth().unsupportedCommand()) {
+  public void authenticate() {    
+    if (pz2.getPzresp().getSp().getAuth().unsupportedCommand()) {
       logger.warn("Running seemingly unsupported command [auth] against SP.");
     }
     pz2.resetSearchAndRecordCommands();
-    pzresp.getSp().resetAuthAndBeyond(true);
-    AuthCommand auth = pzreq.getSp().getAuth();     
+    pz2.getPzresp().getSp().resetAuthAndBeyond(true);
+    AuthCommand auth = pz2.getPzreq().getSp().getAuth();     
     ClientCommandResponse commandResponse = pz2.getSpClient().send(auth);      
     String renamedResponse = renameResponseElement(commandResponse.getResponseString(), "auth");    
     commandResponse.setResponseToParse(renamedResponse);
     SpResponseDataObject responseObject = (SpResponseDataObject) ResponseParser.getParser().getDataObject(commandResponse);    
     if (ResponseParser.docTypes.contains(responseObject.getType())) {
-      pzresp.put(auth.getCommandName(), responseObject);
+      pz2.getPzresp().put(auth.getCommandName(), responseObject);
     }
     if (responseObject.unsupportedCommand()) {
       logger.error("auth command does not seem to be supported by this Service Proxy");
@@ -72,21 +65,21 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   }
   
   public void login(String un, String pw, String navigateTo) {      
-    pzreq.getSp().getAuth().setUsername(un);
-    pzreq.getSp().getAuth().setPassword(pw);
+    pz2.getPzreq().getSp().getAuth().setUsername(un);
+    pz2.getPzreq().getSp().getAuth().setPassword(pw);
     login("");
   }  
     
   @Override  
   public String login(String navigateTo) {
-    AuthCommand auth = pzreq.getSp().getAuth(); 
+    AuthCommand auth = pz2.getPzreq().getSp().getAuth(); 
     auth.setParameterInState(new CommandParameter("action","=","login"));
     authenticate();
     return navigateTo;
   }
     
   public void ipAuthenticate () {  
-    AuthCommand auth = pzreq.getSp().getAuth(); 
+    AuthCommand auth = pz2.getPzreq().getSp().getAuth(); 
     auth.setParameterInState(new CommandParameter("action","=","ipAuth"));
     authenticate();
   }
@@ -118,7 +111,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
     logger.info("Paths: " + pz2.getSpClient().getInitDocPaths());
     logger.info("Path: " + initDocPath);   
     pz2.resetSearchAndRecordCommands();
-    pzresp.getSp().resetAuthAndBeyond(true);
+    pz2.getPzresp().getSp().resetAuthAndBeyond(true);
     ClientCommandResponse response = pz2.getSpClient().postInitDoc(initDocPath + getInitFileName());    
     return response;
   }
@@ -126,7 +119,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   @Override
   public HttpResponseWrapper postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
     pz2.resetSearchAndRecordCommands();
-    pzresp.getSp().resetAuthAndBeyond(true);
+    pz2.getPzresp().getSp().resetAuthAndBeyond(true);
     HttpResponseWrapper response = pz2.getSpClient().postInitDoc(initDoc,includeDebug);    
     return response;
   }
@@ -147,8 +140,8 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public void submitInitDoc () throws IOException {
     ClientCommandResponse response =  (ClientCommandResponse) initDocUpload.submit();
     ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(response);
-    logger.info("Putting init response to : " + Utils.objectId(pzresp));
-    pzresp.put("init", responseObject);
+    logger.info("Putting init response to : " + Utils.objectId(pz2.getPzresp()));
+    pz2.getPzresp().put("init", responseObject);
   }
   
   public void setIncludeInitDocDebug(boolean bool) {
@@ -168,7 +161,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public CategoriesResponse getCategories () {       
     String command="categories";
     if (pz2.isServiceProxyService()) {
-      if (pzresp.getSp().getCategories().unsupportedCommand()) {
+      if (pz2.getPzresp().getSp().getCategories().unsupportedCommand()) {
         logger.info("Skipping seemingly unsupported command: " + command);  
         return new CategoriesResponse();
       } else {

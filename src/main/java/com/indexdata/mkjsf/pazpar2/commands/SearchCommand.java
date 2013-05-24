@@ -1,22 +1,40 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
+import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
+import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
+import com.indexdata.mkjsf.pazpar2.Pz2Bean;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
-import com.indexdata.mkjsf.pazpar2.state.StateManager;
+import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
+import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
-@SessionScoped
+@SessionScoped @Named
 public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand {
   
   private static final long serialVersionUID = -1888520867838597236L;
   private static Logger logger = Logger.getLogger(SearchCommand.class);
   private SingleTargetFilter singleTargetFilter = null;
-  
-  public SearchCommand(StateManager stateMgr) {
-    super("search",stateMgr);
+    
+  public SearchCommand() {
+    super("search");
   }
+  
+  public ResponseDataObject run() {
+    logger.info("Running " + getCommandName());
+    logger.info("Using client " + Pz2Bean.get().getSearchClient());
+    logger.info("Storing responses to " + Pz2Bean.get().getPzresp());
+    Pz2Bean.get().getSearchClient().setSearchCommand(this);
+    logger.info("Executing command " + getCommandName());
+    HttpResponseWrapper httpResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
+    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse) httpResponse);
+    Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
+    return responseObject;
+  }
+
     
   public void setQuery(String query) {    
     setParameter(new CommandParameter("query","=",query));
@@ -212,7 +230,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   }
     
   public SearchCommand copy () {
-    SearchCommand newCommand = new SearchCommand(stateMgr);
+    SearchCommand newCommand = new SearchCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }

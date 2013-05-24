@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.indexdata.mkjsf.errors.ErrorHelper;
-import com.indexdata.mkjsf.errors.ErrorInterface;
 import com.indexdata.mkjsf.errors.ErrorHelper.ErrorCode;
+import com.indexdata.mkjsf.errors.ErrorInterface;
 import com.indexdata.utils.XmlUtils;
 
 /**
@@ -53,7 +53,7 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
   }
     
   public List<String> getSuggestions() { 
-    if (errorHelper!=null) {
+    if (errorHelper!=null) {      
       return errorHelper.getSuggestions(this);
     } else {
       List<String> nohelper = new ArrayList<String>();

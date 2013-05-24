@@ -1,14 +1,13 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
-import com.indexdata.mkjsf.pazpar2.state.StateManager;
 
 public class TermlistCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = -7067878552863021727L;
 
-  public TermlistCommand(StateManager stateMgr) {
-    super("termlist",stateMgr);
+  public TermlistCommand() {
+    super("termlist");
   }
 
   public void setName(String names) {
@@ -28,7 +27,7 @@ public class TermlistCommand extends Pazpar2Command implements ServiceProxyComma
   }
   
   public TermlistCommand copy () {
-    TermlistCommand newCommand = new TermlistCommand(stateMgr);
+    TermlistCommand newCommand = new TermlistCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    

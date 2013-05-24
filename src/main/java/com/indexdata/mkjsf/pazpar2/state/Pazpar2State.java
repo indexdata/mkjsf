@@ -28,21 +28,23 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommands;
 public class Pazpar2State {
 
   String key = null;
-  Map<String,Pazpar2Command> commands = new HashMap<String,Pazpar2Command>();;
+  Map<String,Pazpar2Command> commands = new HashMap<String,Pazpar2Command>();  
 
-  public Pazpar2State (StateManager stateManager) {
-    commands.put(Pazpar2Commands.INIT,     new InitCommand(stateManager));
-    commands.put(Pazpar2Commands.PING,     new PingCommand(stateManager));
-    commands.put(Pazpar2Commands.SETTINGS, new SettingsCommand(stateManager));
-    commands.put(Pazpar2Commands.SEARCH,   new SearchCommand(stateManager));
-    commands.put(Pazpar2Commands.STAT,     new StatCommand(stateManager));
-    commands.put(Pazpar2Commands.SHOW,     new ShowCommand(stateManager));
-    commands.put(Pazpar2Commands.RECORD,   new RecordCommand(stateManager));
-    commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand(stateManager));
-    commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand(stateManager));  
+  public Pazpar2State () {
+    
+    commands.put(Pazpar2Commands.INIT,     new InitCommand());
+    commands.put(Pazpar2Commands.PING,     new PingCommand());
+    commands.put(Pazpar2Commands.SETTINGS, new SettingsCommand());
+    commands.put(Pazpar2Commands.SEARCH,   new SearchCommand());
+    commands.put(Pazpar2Commands.STAT,     new StatCommand());
+    commands.put(Pazpar2Commands.SHOW,     new ShowCommand());
+    commands.put(Pazpar2Commands.RECORD,   new RecordCommand());
+    commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand());
+    commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand());  
 
-    commands.put(ServiceProxyCommands.AUTH, new AuthCommand(stateManager));
-    commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand(stateManager));
+    commands.put(ServiceProxyCommands.AUTH, new AuthCommand());
+    commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand());
+    
     // key = "#1";
   }
     
@@ -58,7 +60,7 @@ public class Pazpar2State {
       this.commands.put(commandName, previousState.commands.get(commandName).copy());
     }
     this.commands.put(newCommand.getCommandName(),newCommand);
-    this.key = getKey();           
+    this.key = getKey();    
   }
     
   /**

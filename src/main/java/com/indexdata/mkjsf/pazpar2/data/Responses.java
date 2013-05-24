@@ -20,7 +20,7 @@ import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 import com.indexdata.mkjsf.utils.Utils;
 
-@Named("pzresp") @SessionScoped
+@SessionScoped @Named
 public class Responses implements Serializable {
     
   private static final long serialVersionUID = -7543231258346154642L;

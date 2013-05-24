@@ -1,6 +1,8 @@
 package com.indexdata.mkjsf.pazpar2;
 
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,8 +12,11 @@ import java.util.StringTokenizer;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Qualifier;
 
 import org.apache.log4j.Logger;
 
@@ -56,10 +61,11 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   protected SearchClient searchClient = null;  
     
   @Inject ConfigurationReader configurator;
-  @Inject StateManager stateMgr;
-  @Inject Pazpar2Commands pzreq;
-  @Inject Responses pzresp;
-  @Inject ErrorCentral errors;  
+  
+  private StateManager stateMgr = null;
+  private Pazpar2Commands pzreq = null;
+  private Responses pzresp = null;
+  private ErrorCentral errors = null;  
   
   protected ResultsPager pager = null; 
   
@@ -69,9 +75,21 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");    
   }
   
+  public static Pz2Bean get() {
+    FacesContext context = FacesContext.getCurrentInstance();
+    return (Pz2Bean) context.getApplication().evaluateExpressionGet(context, "#{pz2}", Object.class); 
+  }
+  
   @PostConstruct
-  public void postConstruct() {    
-    logger.debug("Pz2Bean post-construct: Configurator is " + configurator);
+  public void postConstruct() {
+    logger.info("Pz2Bean PostConstruct of " + this);
+    stateMgr = new StateManager();
+    pzreq = new Pazpar2Commands();
+    pzresp = new Responses();    
+    errors = new ErrorCentral(); 
+    pzresp.setErrorHelper(errors.getHelper());
+    
+    logger.debug("Pz2Bean PostConstruct: Configurator is " + configurator);
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Client next.");
     pz2Client = new Pz2Client();
     configureClient(pz2Client,configurator);
@@ -84,7 +102,36 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       e.printStackTrace();
     }    
     stateMgr.addStateListener(this);    
-  }  
+  }
+  
+  @Qualifier
+  @Target({java.lang.annotation.ElementType.TYPE,
+           java.lang.annotation.ElementType.METHOD,
+           java.lang.annotation.ElementType.PARAMETER,
+           java.lang.annotation.ElementType.FIELD})
+  @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  public  @interface Preferred{}
+  
+  @Produces @Preferred @SessionScoped @Named("pzresp") public Responses getPzresp () {
+    logger.info("Producing pzresp");
+    return pzresp;
+  }
+  
+  @Produces @Preferred @SessionScoped @Named("pzreq") public Pazpar2Commands getPzreq () {
+    logger.info("Producing pzreq");
+    return pzreq;
+  }
+  
+  @Produces @Preferred @SessionScoped @Named("errors") public ErrorCentral getErrors() {
+    logger.info("Producing errors");
+    return errors;
+  }
+  
+  @Produces @Preferred @SessionScoped @Named("stateMgr") public StateManager getStateMgr() {
+    logger.info("Produces stateMgr");
+    return stateMgr;
+  }
+
   
   public void configureClient(SearchClient client, ConfigurationReader configReader) {
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
@@ -109,6 +156,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   }
 
   public void doSearch() {
+    try {
     if (errors.hasConfigurationErrors()) {
       logger.error("Ignoring search request due to configuration errors.");
     } else if (searchClient == null){
@@ -122,6 +170,9 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
       searchClient.setSearchCommand(pzreq.getCommand("search"));
       doCommand("search");
+    }
+    } catch (NullPointerException npe) {
+      npe.printStackTrace();      
     }
   }
   
@@ -315,44 +366,16 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
    * @return An XML response parsed to form a response data object
    */
   protected ResponseDataObject doCommand(String commandName) {
-    if (pzreq.getCommand(commandName).spOnly() && isPazpar2Service()) {
-      logger.warn("Skipping " + commandName + " - SP-only command, un-supported by Pazpar2");
+    Pazpar2Command command = pzreq.getCommand(commandName);
+    if (command.spOnly() && isPazpar2Service()) {
+      logger.warn("Skipping " + commandName + " - SP-only command, not supported by Pazpar2");
       return new ResponseDataObject();
     } else {
-      ResponseDataObject responseObject = null;     
-      logger.info("Request "+commandName + ": "+ pzreq.getCommand("search").toString());
-      Pazpar2Command command = pzreq.getCommand(commandName);
+      logger.info("Request "+commandName + ". Search command is: "+ pzreq.getCommand("search").toString());      
       long start = System.currentTimeMillis();
-      HttpResponseWrapper commandResponse = searchClient.executeCommand(command);
+      ResponseDataObject responseObject = command.run();      
       long end = System.currentTimeMillis();
       logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
-      responseLogger.debug("Response was: " + commandResponse.getResponseString());
-      if (commandResponse.getContentType().contains("xml")) {
-        responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
-        if (ResponseParser.docTypes.contains(responseObject.getType())) {
-          logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
-          pzresp.put(commandName, responseObject);
-        } else {
-          if (commandName.equals("record")) {
-            logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
-            ResponseDataObject recordResponse = new RecordResponse(); 
-            recordResponse.setType("record");
-            recordResponse.setXml(responseObject.getXml());          
-            recordResponse.setAttribute("activeclients", "0");
-            pzresp.put("record", recordResponse); 
-          }        
-        }
-      } else if (commandResponse.isBinary()) {
-        responseObject = new RecordResponse(); 
-        responseObject.setType(commandName);
-        logger.info("Binary response");
-        responseObject.setAttribute("activeclients", "0");
-        responseObject.setXml("<record>binary response</record>");
-        responseObject.setBinary(commandResponse.getBytes());
-        pzresp.put("record", responseObject);
-      } else {
-        logger.error("Response was not found to be XML or binary. The response was not handled.");
-      }
       return responseObject;
     }
   }
@@ -402,6 +425,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       pzreq.getSearch().removeParametersInState();
       pzresp.getSp().resetAuthAndBeyond(true);      
       searchClient.setServiceUrl(url);
+      // pzreq.setService(this);
     }    
   }
   
@@ -549,6 +573,10 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       logger.info("Clearing search client. No client defined to serve requests at this point.");
       searchClient = null;
     }
+  }
+  
+  public SearchClient getSearchClient() {
+    return searchClient;
   }
   
 }

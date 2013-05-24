@@ -2,14 +2,13 @@ package com.indexdata.mkjsf.pazpar2.commands.sp;
 
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
-import com.indexdata.mkjsf.pazpar2.state.StateManager;
 
 public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 5487611235664162578L;
 
-  public AuthCommand(StateManager stateMgr) {
-    super("auth", stateMgr);
+  public AuthCommand() {
+    super("auth");
   }
   
   public void setAction (String action) {
@@ -37,7 +36,7 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
   }
     
   public AuthCommand copy () {
-    AuthCommand newCommand = new AuthCommand(stateMgr);
+    AuthCommand newCommand = new AuthCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
