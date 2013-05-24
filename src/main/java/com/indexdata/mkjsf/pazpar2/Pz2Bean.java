@@ -28,12 +28,10 @@ import com.indexdata.mkjsf.errors.ConfigurationError;
 import com.indexdata.mkjsf.errors.ConfigurationException;
 import com.indexdata.mkjsf.errors.ErrorCentral;
 import com.indexdata.mkjsf.errors.ErrorHelper;
-import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
-import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.state.StateListener;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
@@ -54,8 +52,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
 
 
   private static final long serialVersionUID = 3440277287081557861L;
-  private static Logger logger = Logger.getLogger(Pz2Bean.class);
-  private static Logger responseLogger = Logger.getLogger("com.indexdata.mkjsf.pazpar2.responses");   
+  private static Logger logger = Logger.getLogger(Pz2Bean.class);     
   protected Pz2Client pz2Client = null;
   protected ServiceProxyClient spClient = null;
   protected SearchClient searchClient = null;  
@@ -113,25 +110,24 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public  @interface Preferred{}
   
   @Produces @Preferred @SessionScoped @Named("pzresp") public Responses getPzresp () {
-    logger.info("Producing pzresp");
+    logger.trace("Producing pzresp");
     return pzresp;
   }
   
   @Produces @Preferred @SessionScoped @Named("pzreq") public Pazpar2Commands getPzreq () {
-    logger.info("Producing pzreq");
+    logger.trace("Producing pzreq");
     return pzreq;
   }
   
   @Produces @Preferred @SessionScoped @Named("errors") public ErrorCentral getErrors() {
-    logger.info("Producing errors");
+    logger.trace("Producing errors");
     return errors;
   }
   
   @Produces @Preferred @SessionScoped @Named("stateMgr") public StateManager getStateMgr() {
-    logger.info("Produces stateMgr");
+    logger.trace("Producing stateMgr");
     return stateMgr;
   }
-
   
   public void configureClient(SearchClient client, ConfigurationReader configReader) {
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
@@ -148,49 +144,6 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   public void resetSearchAndRecordCommands () {
     pzreq.getRecord().removeParametersInState();
     pzreq.getSearch().removeParametersInState();   
-  }
-    
-  public void doSearch(String query) {
-    pzreq.getSearch().setParameter(new CommandParameter("query","=",query));     
-    doSearch();
-  }
-
-  public void doSearch() {
-    try {
-    if (errors.hasConfigurationErrors()) {
-      logger.error("Ignoring search request due to configuration errors.");
-    } else if (searchClient == null){
-      logger.error("No search client defined. A client must either be pre-configured or selected before searching.");
-      errors.addConfigurationError(new ConfigurationError("No client defined","Client is null","No search client defined. A client must be pre-configured or selected runtime, prior to searching."));
-    } else {
-      stateMgr.hasPendingStateChange("search",false);
-      pzresp.resetSearchAndBeyond();
-      pzreq.getRecord().removeParametersInState();        
-      pzreq.getShow().setParameterInState(new CommandParameter("start","=",0));    
-      logger.debug(Utils.objectId(this) + " is searching using "+pzreq.getCommand("search").getUrlEncodedParameterValue("query"));
-      searchClient.setSearchCommand(pzreq.getCommand("search"));
-      doCommand("search");
-    }
-    } catch (NullPointerException npe) {
-      npe.printStackTrace();      
-    }
-  }
-  
-  public String doRecord() {
-    if (errors.hasConfigurationErrors()) {
-      logger.error("Ignoring record request due to configuration errors.");
-      return "";
-    } else if (!pzreq.getCommand("record").hasParameterValue("id")) {
-      logger.debug("Ignoring record request due to no id parameter.");
-      return "";
-    } else if (pzresp.getSearch().hasApplicationError()) {
-      logger.debug("Ignoring record request due search error.");
-      return "";
-    } else {
-      logger.debug("Executing record command");
-      doCommand("record");
-      return pzresp.getRecord().getActiveClients();
-    }
   }
       
   /**
@@ -225,10 +178,11 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     logger.debug("Request to update: " + commands);
     try {
       if (commands.equals("search")) {
-        doSearch();
+        pzreq.getSearch().run();
         return "new";
       } else if (commands.equals("record")) {
-        return doRecord();
+        pzreq.getRecord().run();
+        return pzresp.getRecord().getActiveClients();
       } else if (pzresp.getSearch().isNew()) {
         // For returning notification of 'search started' quickly to UI
         logger.info("New search. Marking it old, then returning 'new' to trigger another round-trip.");
@@ -247,7 +201,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
           List<CommandThread> threadList = new ArrayList<CommandThread>();
           StringTokenizer tokens = new StringTokenizer(commands,",");
           while (tokens.hasMoreElements()) {          
-            threadList.add(new CommandThread(pzreq.getCommand(tokens.nextToken()),searchClient));            
+            threadList.add(new CommandThread(pzreq.getCommand(tokens.nextToken()),searchClient,Pz2Bean.get().getPzresp()));            
           }
           for (CommandThread thread : threadList) {
             thread.start();
@@ -258,17 +212,6 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
             } catch (InterruptedException e) {
               e.printStackTrace();
             }
-          }
-          for (CommandThread thread : threadList) {
-             String commandName = thread.getCommand().getCommandName();
-             ClientCommandResponse response = (ClientCommandResponse) thread.getCommandResponse();
-             responseLogger.debug("Response was: " + response.getResponseString());
-             ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(response);
-             if (ResponseParser.docTypes.contains(responseObject.getType())) {
-               pzresp.put(commandName, responseObject);
-             } else {
-               logger.info("Unknown doc type [" + responseObject.getType() + "]. Was not cached.");
-             }
           }
           return pzresp.getActiveClients();
         }
@@ -345,16 +288,12 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   protected void handleQueryStateChanges (String commands) {
     if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
       logger.info("Triggered search: Found pending search change [" + pzreq.getCommand("search").toString() + "], doing search before updating " + commands);      
-      doSearch();
+      pzreq.getSearch().run();
     } 
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
       stateMgr.hasPendingStateChange("record",false);
-      if (pzreq.getCommand("record").hasParameterValue("id")) {
-        doRecord();
-      } else {         
-        pzresp.put("record", new RecordResponse());
-      }
+      pzreq.getRecord().run();
     }
   }
   
@@ -425,7 +364,6 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
       pzreq.getSearch().removeParametersInState();
       pzresp.getSp().resetAuthAndBeyond(true);      
       searchClient.setServiceUrl(url);
-      // pzreq.setService(this);
     }    
   }
   

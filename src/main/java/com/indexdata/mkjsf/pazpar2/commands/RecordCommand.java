@@ -22,31 +22,37 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
   
   @Override
   public ResponseDataObject run() {
-    HttpResponseWrapper commandResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
     ResponseDataObject responseObject = null;
-    if (commandResponse.getContentType().contains("xml")) {
-      responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
-      if (ResponseParser.docTypes.contains(responseObject.getType())) {
-        logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
-      } else {        
-        logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
-        ResponseDataObject recordResponse = new RecordResponse(); 
-        recordResponse.setType("record");
-        recordResponse.setXml(responseObject.getXml());          
-        recordResponse.setAttribute("activeclients", "0");             
-      }
-    } else if (commandResponse.isBinary()) {
-      responseObject = new RecordResponse(); 
-      responseObject.setType(getCommandName());
-      logger.info("Binary response");
-      responseObject.setAttribute("activeclients", "0");
-      responseObject.setXml("<record>binary response</record>");
-      responseObject.setBinary(commandResponse.getBytes());
+    if (hasParameterValue("id")) {
+      HttpResponseWrapper commandResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
       
+      if (commandResponse.getContentType().contains("xml")) {
+        responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
+        if (ResponseParser.docTypes.contains(responseObject.getType())) {
+          logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
+        } else {        
+          logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
+          ResponseDataObject recordResponse = new RecordResponse(); 
+          recordResponse.setType("record");
+          recordResponse.setXml(responseObject.getXml());          
+          recordResponse.setAttribute("activeclients", "0");             
+        }
+      } else if (commandResponse.isBinary()) {
+        responseObject = new RecordResponse(); 
+        responseObject.setType(getCommandName());
+        logger.info("Binary response");
+        responseObject.setAttribute("activeclients", "0");
+        responseObject.setXml("<record>binary response</record>");
+        responseObject.setBinary(commandResponse.getBytes());
+        
+      } else {
+        logger.error("Response was not found to be XML or binary. The response was not handled.");
+      }
+      Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
     } else {
-      logger.error("Response was not found to be XML or binary. The response was not handled.");
+      logger.debug("No record id parameter on this command. Ignoring request but clearing any previous record result.");
+      Pz2Bean.get().getPzresp().put(getCommandName(), new RecordResponse());
     }
-    Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
     return responseObject;
   }
   

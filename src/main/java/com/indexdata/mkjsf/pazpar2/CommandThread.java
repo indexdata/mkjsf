@@ -3,17 +3,20 @@ package com.indexdata.mkjsf.pazpar2;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
+import com.indexdata.mkjsf.pazpar2.data.Responses;
 
 public class CommandThread extends Thread {
 
   private static Logger logger = Logger.getLogger(CommandThread.class);
   Pazpar2Command command;
   SearchClient client;
+  Responses pzresp;
   HttpResponseWrapper commandResponse = null;      
   
-  public CommandThread (Pazpar2Command command, SearchClient client) {
+  public CommandThread (Pazpar2Command command, SearchClient client, Responses pzresp) {
     this.command = command;
     this.client = client;
+    this.pzresp = pzresp;
   }
   
   /**
@@ -21,7 +24,7 @@ public class CommandThread extends Thread {
    */
   public void run() {    
     logger.debug(command.getCommandName() + " executing asynchronously");
-    commandResponse = client.executeCommand(command);
+    command.run(client,pzresp);
   }
   
   /**

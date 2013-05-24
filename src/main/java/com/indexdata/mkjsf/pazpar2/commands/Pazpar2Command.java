@@ -9,9 +9,11 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
 import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
 import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.SearchClient;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
+import com.indexdata.mkjsf.pazpar2.data.Responses;
 
 public abstract class Pazpar2Command implements Serializable  {
   
@@ -20,8 +22,7 @@ public abstract class Pazpar2Command implements Serializable  {
   protected String name = "";
   protected Map<String,CommandParameter> parameters = new HashMap<String,CommandParameter>();  
   
-  public Pazpar2Command () {
-    
+  public Pazpar2Command () {    
   }
   
   public void setCommandName(String name) {
@@ -39,14 +40,29 @@ public abstract class Pazpar2Command implements Serializable  {
   }
   
   public ResponseDataObject run() {
-    logger.info("Running " + getCommandName() + " using " + Pz2Bean.get().getSearchClient());    
-    HttpResponseWrapper httpResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
+    return run(Pz2Bean.get().getSearchClient(),
+               Pz2Bean.get().getPzresp());
+  }
+  
+  /**
+   * For running the command in a thread. Client and Responses must be 
+   * provided because at this point the CDI bean cannot be retrieved 
+   * from within a thread.
+   * 
+   * @param client
+   * @param pzresp
+   * @return
+   */
+  public ResponseDataObject run(SearchClient client,Responses pzresp) {
+    logger.info("Running " + getCommandName() + " using " + client);    
+    HttpResponseWrapper httpResponse = client.executeCommand(this);
     logger.info("Parsing response for " + getCommandName());
     ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse) httpResponse);
     logger.info("Storing response for " + getCommandName());
-    Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
-    return responseObject;
+    pzresp.put(getCommandName(), responseObject);
+    return responseObject;    
   }
+  
     
   public void setParameter (CommandParameter parameter) {
     Pazpar2Command copy = this.copy();
@@ -143,8 +159,7 @@ public abstract class Pazpar2Command implements Serializable  {
   }
 
   public String getParameterValue(String parameterName) {
-    return getParameter(parameterName)==null ? "" : getParameter(parameterName).getValueWithExpressions();
-    
+    return getParameter(parameterName)==null ? "" : getParameter(parameterName).getValueWithExpressions();    
   }
 
   public String getUrlEncodedParameterValue(String parameterName) {
@@ -161,11 +176,6 @@ public abstract class Pazpar2Command implements Serializable  {
   
   private void checkInState(Pazpar2Command command) {
     Pz2Bean.get().getStateMgr().checkIn(command);
-    // if (stateMgr() != null) {
-    //   stateMgr().checkIn(command);
-    // } else {
-    //   logger.info("Command '" + command.getCommandName() + "' not affecting state (history) as no state manager was defined for this command.");
-    // }
   }
   
   public abstract ServiceProxyCommand getSp();

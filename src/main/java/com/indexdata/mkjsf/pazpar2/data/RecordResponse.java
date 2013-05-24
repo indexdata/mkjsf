@@ -23,7 +23,7 @@ public class RecordResponse extends ResponseDataObject {
         locations.add((Location)element);
       }
     } else {
-      logger.debug("Found no locations");
+      logger.trace("Found no locations");
     }
     return locations;
   }

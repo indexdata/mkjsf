@@ -11,18 +11,18 @@ public interface Pz2Interface extends Serializable {
    * 
    * @param query
    */
-  public void doSearch(String query);
+  //public void doSearch(String query);
   
   /**
    * Executes a Pazpar2 search using the current query 
    */
-  public void doSearch();
+  // public void doSearch();
   
   /**
    * Executes a Pazpar2 record requests
    * @return Active clients for the record request
    */
-  public String doRecord();
+  // public String doRecord();
   
   /**
    * Updates display data objects by issuing the following pazpar2 commands: 

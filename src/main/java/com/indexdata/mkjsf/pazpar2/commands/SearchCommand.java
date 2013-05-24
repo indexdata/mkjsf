@@ -5,12 +5,9 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
-import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
 import com.indexdata.mkjsf.pazpar2.Pz2Bean;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
-import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
 @SessionScoped @Named
 public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand {
@@ -25,14 +22,12 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   
   public ResponseDataObject run() {
     logger.info("Running " + getCommandName());
-    logger.info("Using client " + Pz2Bean.get().getSearchClient());
-    logger.info("Storing responses to " + Pz2Bean.get().getPzresp());
+    Pz2Bean.get().getStateMgr().hasPendingStateChange("search",false);
+    Pz2Bean.get().getPzresp().resetSearchAndBeyond();
+    Pz2Bean.get().getPzreq().getRecord().removeParametersInState();        
+    Pz2Bean.get().getPzreq().getShow().setParameterInState(new CommandParameter("start","=",0));    
     Pz2Bean.get().getSearchClient().setSearchCommand(this);
-    logger.info("Executing command " + getCommandName());
-    HttpResponseWrapper httpResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
-    ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse) httpResponse);
-    Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
-    return responseObject;
+    return super.run();
   }
 
     
