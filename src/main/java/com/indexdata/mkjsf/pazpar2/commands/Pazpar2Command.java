@@ -56,9 +56,9 @@ public abstract class Pazpar2Command implements Serializable  {
   public ResponseDataObject run(SearchClient client,Responses pzresp) {
     logger.info("Running " + getCommandName() + " using " + client);    
     HttpResponseWrapper httpResponse = client.executeCommand(this);
-    logger.info("Parsing response for " + getCommandName());
+    logger.debug("Parsing response for " + getCommandName());
     ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse) httpResponse);
-    logger.info("Storing response for " + getCommandName());
+    logger.trace("Storing response for " + getCommandName());
     pzresp.put(getCommandName(), responseObject);
     return responseObject;    
   }
