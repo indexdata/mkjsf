@@ -11,7 +11,7 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.config.ConfigurationReader;
-import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.Pz2Service;
 
 @SessionScoped @Named
 public class ErrorCentral implements Serializable {
@@ -39,11 +39,11 @@ public class ErrorCentral implements Serializable {
   }
 
   public boolean hasCommandErrors () {
-    return Pz2Bean.get().getPzresp().hasApplicationError();
+    return Pz2Service.get().getPzresp().hasApplicationError();
   }
   
   public ErrorInterface getCommandError () {
-    return Pz2Bean.get().getPzresp().getCommandError();
+    return Pz2Service.get().getPzresp().getCommandError();
   }
 
   /**

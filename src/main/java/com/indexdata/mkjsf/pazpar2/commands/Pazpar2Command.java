@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
 import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
-import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.SearchClient;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
@@ -41,8 +41,8 @@ public abstract class Pazpar2Command implements Serializable  {
   }
   
   public ResponseDataObject run() {    
-    return run(Pz2Bean.get().getSearchClient(),
-               Pz2Bean.get().getPzresp());
+    return run(Pz2Service.get().getSearchClient(),
+               Pz2Service.get().getPzresp());
   }
   
   public ResponseDataObject runWith(String... parameters) {
@@ -187,7 +187,7 @@ public abstract class Pazpar2Command implements Serializable  {
   } 
   
   private void checkInState(Pazpar2Command command) {
-    Pz2Bean.get().getStateMgr().checkIn(command);
+    Pz2Service.get().getStateMgr().checkIn(command);
   }
   
   public String navigateTo (String target) {

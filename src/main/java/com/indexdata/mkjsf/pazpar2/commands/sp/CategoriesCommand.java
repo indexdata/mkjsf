@@ -2,7 +2,7 @@ package com.indexdata.mkjsf.pazpar2.commands.sp;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 
@@ -17,11 +17,11 @@ public class CategoriesCommand extends Pazpar2Command implements ServiceProxyCom
   
   @Override
   public CategoriesResponse run () {
-    if (Pz2Bean.get().getPzresp().getSp().getCategories().unsupportedCommand()) {
+    if (Pz2Service.get().getPzresp().getSp().getCategories().unsupportedCommand()) {
       logger.info("Skipping seemingly unsupported categories command");  
       return new CategoriesResponse();
     } else {
-      if (Pz2Bean.get().isServiceProxyService()) {
+      if (Pz2Service.get().isServiceProxyService()) {
         try {
           CategoriesResponse response = (CategoriesResponse) super.run();
           if (response.unsupportedCommand()) {

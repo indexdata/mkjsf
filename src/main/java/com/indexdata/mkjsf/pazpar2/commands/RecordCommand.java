@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
 import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
-import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.sp.RecordCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
@@ -24,7 +24,7 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
   public ResponseDataObject run() {
     ResponseDataObject responseObject = null;
     if (hasParameterValue("id")) {
-      HttpResponseWrapper commandResponse = Pz2Bean.get().getSearchClient().executeCommand(this);
+      HttpResponseWrapper commandResponse = Pz2Service.get().getSearchClient().executeCommand(this);
       
       if (commandResponse.getContentType().contains("xml")) {
         responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
@@ -48,10 +48,10 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
       } else {
         logger.error("Response was not found to be XML or binary. The response was not handled.");
       }
-      Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
+      Pz2Service.get().getPzresp().put(getCommandName(), responseObject);
     } else {
       logger.debug("No record id parameter on this command. Ignoring request but clearing any previous record result.");
-      Pz2Bean.get().getPzresp().put(getCommandName(), new RecordResponse());
+      Pz2Service.get().getPzresp().put(getCommandName(), new RecordResponse());
     }
     return responseObject;
   }
