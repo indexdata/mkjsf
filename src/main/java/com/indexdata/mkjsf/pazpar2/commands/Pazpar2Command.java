@@ -3,6 +3,7 @@ package com.indexdata.mkjsf.pazpar2.commands;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
@@ -39,9 +40,20 @@ public abstract class Pazpar2Command implements Serializable  {
     return name;
   }
   
-  public ResponseDataObject run() {
+  public ResponseDataObject run() {    
     return run(Pz2Bean.get().getSearchClient(),
                Pz2Bean.get().getPzresp());
+  }
+  
+  public ResponseDataObject runWith(String... parameters) {
+    for (String parameter : parameters) {
+      StringTokenizer tokenizer = new StringTokenizer(parameter,"=");
+      String name = (String) tokenizer.nextElement();
+      String value = (String) tokenizer.nextElement();
+      CommandParameter commandParameter = new CommandParameter(name,"=",value);
+      setParameterInState(commandParameter);
+    }
+    return run();
   }
   
   /**
@@ -54,7 +66,7 @@ public abstract class Pazpar2Command implements Serializable  {
    * @return
    */
   public ResponseDataObject run(SearchClient client,Responses pzresp) {
-    logger.info("Running " + getCommandName() + " using " + client);    
+    logger.debug("Running " + getCommandName() + " using " + client);    
     HttpResponseWrapper httpResponse = client.executeCommand(this);
     logger.debug("Parsing response for " + getCommandName());
     ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse) httpResponse);
@@ -176,6 +188,10 @@ public abstract class Pazpar2Command implements Serializable  {
   
   private void checkInState(Pazpar2Command command) {
     Pz2Bean.get().getStateMgr().checkIn(command);
+  }
+  
+  public String navigateTo (String target) {
+    return target;
   }
   
   public abstract ServiceProxyCommand getSp();

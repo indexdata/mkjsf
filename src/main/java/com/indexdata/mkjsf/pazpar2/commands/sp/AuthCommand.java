@@ -19,6 +19,8 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
   }
   
   public SpResponseDataObject run() {
+    Pz2Bean.get().resetSearchAndRecordCommands();
+    Pz2Bean.get().getPzresp().getSp().resetAuthAndBeyond(true);
     ClientCommandResponse response = (ClientCommandResponse) Pz2Bean.get().getSearchClient().executeCommand(this);      
     String renamedResponse = renameResponseElement(response.getResponseString(), "auth");    
     response.setResponseToParse(renamedResponse);
