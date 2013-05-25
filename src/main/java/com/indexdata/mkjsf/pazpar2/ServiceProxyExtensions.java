@@ -35,7 +35,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   }
            
   public String getInitDocPath () {
-    return Pz2Bean.get().getSpClient().getConfiguration().get("INIT_DOC_PATH");
+    return Pz2Service.get().getSpClient().getConfiguration().get("INIT_DOC_PATH");
   }
   
   @Override
@@ -50,20 +50,20 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
 
   @Override
   public ClientCommandResponse postInit() throws UnsupportedEncodingException, IOException {    
-    String initDocPath = Pz2Bean.get().getSpClient().getInitDocPaths().get(0);
-    logger.info("Paths: " + Pz2Bean.get().getSpClient().getInitDocPaths());
+    String initDocPath = Pz2Service.get().getSpClient().getInitDocPaths().get(0);
+    logger.info("Paths: " + Pz2Service.get().getSpClient().getInitDocPaths());
     logger.info("Path: " + initDocPath);   
-    Pz2Bean.get().resetSearchAndRecordCommands();
-    Pz2Bean.get().getPzresp().getSp().resetAuthAndBeyond(true);
-    ClientCommandResponse response = Pz2Bean.get().getSpClient().postInitDoc(initDocPath + getInitFileName());    
+    Pz2Service.get().resetSearchAndRecordCommands();
+    Pz2Service.get().getPzresp().getSp().resetAuthAndBeyond(true);
+    ClientCommandResponse response = Pz2Service.get().getSpClient().postInitDoc(initDocPath + getInitFileName());    
     return response;
   }
   
   @Override
   public HttpResponseWrapper postInit(byte[] initDoc, boolean includeDebug) throws UnsupportedEncodingException, IOException {    
-    Pz2Bean.get().resetSearchAndRecordCommands();
-    Pz2Bean.get().getPzresp().getSp().resetAuthAndBeyond(true);
-    HttpResponseWrapper response = Pz2Bean.get().getSpClient().postInitDoc(initDoc,includeDebug);    
+    Pz2Service.get().resetSearchAndRecordCommands();
+    Pz2Service.get().getPzresp().getSp().resetAuthAndBeyond(true);
+    HttpResponseWrapper response = Pz2Service.get().getSpClient().postInitDoc(initDoc,includeDebug);    
     return response;
   }
 
@@ -83,7 +83,7 @@ public class ServiceProxyExtensions implements ServiceProxyInterface, Serializab
   public void submitInitDoc () throws IOException {
     ClientCommandResponse response =  (ClientCommandResponse) initDocUpload.submit();
     ResponseDataObject responseObject = ResponseParser.getParser().getDataObject(response);    
-    Pz2Bean.get().getPzresp().put("init", responseObject);
+    Pz2Service.get().getPzresp().put("init", responseObject);
   }
   
   public void setIncludeInitDocDebug(boolean bool) {

@@ -5,7 +5,7 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 
-import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
@@ -22,11 +22,11 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   
   public ResponseDataObject run() {
     logger.info("Running " + getCommandName());
-    Pz2Bean.get().getStateMgr().hasPendingStateChange("search",false);
-    Pz2Bean.get().getPzresp().resetSearchAndBeyond();
-    Pz2Bean.get().getPzreq().getRecord().removeParametersInState();        
-    Pz2Bean.get().getPzreq().getShow().setParameterInState(new CommandParameter("start","=",0));    
-    Pz2Bean.get().getSearchClient().setSearchCommand(this);
+    Pz2Service.get().getStateMgr().hasPendingStateChange("search",false);
+    Pz2Service.get().getPzresp().resetSearchAndBeyond();
+    Pz2Service.get().getPzreq().getRecord().removeParametersInState();        
+    Pz2Service.get().getPzreq().getShow().setParameterInState(new CommandParameter("start","=",0));    
+    Pz2Service.get().getSearchClient().setSearchCommand(this);
     return super.run();
   }
 

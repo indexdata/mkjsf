@@ -89,7 +89,7 @@ public class StateManager implements Serializable {
    * @See  The state field in pz2watch.xhtml<br/> 
    *       The state listeners windowlocationhashListener() and StateListener()
    *       in listeners.js<br/>
-   *       The method {@link com.indexdata.mkjsf.pazpar2.Pz2Bean#handleQueryStateChanges}<br/>
+   *       The method {@link com.indexdata.mkjsf.pazpar2.Pz2Service#handleQueryStateChanges}<br/>
    *       The class {@link com.indexdata.mkjsf.pazpar2.state.Pazpar2State}<br/> 
    * ... for a complete picture of browser history handling.
    * 

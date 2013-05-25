@@ -38,7 +38,7 @@ import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pz2") @SessionScoped
-public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Serializable {
+public class Pz2Service implements Pz2Interface, StateListener, Configurable, Serializable {
 
   private static final String MODULE_NAME = "service";
   private static String SERVICE_TYPE_TBD = "TBD", SERVICE_TYPE_PZ2 = "PZ2", SERVICE_TYPE_SP = "SP";
@@ -52,7 +52,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
 
 
   private static final long serialVersionUID = 3440277287081557861L;
-  private static Logger logger = Logger.getLogger(Pz2Bean.class);     
+  private static Logger logger = Logger.getLogger(Pz2Service.class);     
   protected Pz2Client pz2Client = null;
   protected ServiceProxyClient spClient = null;
   protected SearchClient searchClient = null;  
@@ -68,25 +68,25 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
   
   protected ErrorHelper errorHelper = null;
               
-  public Pz2Bean () {
+  public Pz2Service () {
     logger.info("Instantiating pz2 bean [" + Utils.objectId(this) + "]");    
   }
   
-  public static Pz2Bean get() {
+  public static Pz2Service get() {
     FacesContext context = FacesContext.getCurrentInstance();
-    return (Pz2Bean) context.getApplication().evaluateExpressionGet(context, "#{pz2}", Object.class); 
+    return (Pz2Service) context.getApplication().evaluateExpressionGet(context, "#{pz2}", Object.class); 
   }
   
   @PostConstruct
   public void postConstruct() {
-    logger.info("Pz2Bean PostConstruct of " + this);
+    logger.info("Pz2Service PostConstruct of " + this);
     stateMgr = new StateManager();
     pzreq = new Pazpar2Commands();
     pzresp = new Responses();    
     errors = new ErrorCentral(); 
     pzresp.setErrorHelper(errors.getHelper());
     
-    logger.debug("Pz2Bean PostConstruct: Configurator is " + configurator);
+    logger.debug("Pz2Service PostConstruct: Configurator is " + configurator);
     logger.debug(Utils.objectId(this) + " will instantiate a Pz2Client next.");
     pz2Client = new Pz2Client();
     configureClient(pz2Client,configurator);
@@ -95,7 +95,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     try {
       this.configure(configurator);
     } catch (ConfigurationException e) {
-      logger.error("There was a problem configuring the Pz2Bean (\"pz2\")");
+      logger.error("There was a problem configuring the Pz2Service (\"pz2\")");
       e.printStackTrace();
     }    
     stateMgr.addStateListener(this);    
@@ -134,7 +134,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
     try {
       client.configure(configReader);            
     } catch (ConfigurationException e) {
-      logger.debug("Pz2Bean adding configuration error");
+      logger.debug("Pz2Service adding configuration error");
       errors.addConfigurationError(new ConfigurationError("Search Client","Configuration",e.getMessage()));                
     } 
     logger.info(configReader.document());
@@ -201,7 +201,7 @@ public class Pz2Bean implements Pz2Interface, StateListener, Configurable, Seria
           List<CommandThread> threadList = new ArrayList<CommandThread>();
           StringTokenizer tokens = new StringTokenizer(commands,",");
           while (tokens.hasMoreElements()) {          
-            threadList.add(new CommandThread(pzreq.getCommand(tokens.nextToken()),searchClient,Pz2Bean.get().getPzresp()));            
+            threadList.add(new CommandThread(pzreq.getCommand(tokens.nextToken()),searchClient,Pz2Service.get().getPzresp()));            
           }
           for (CommandThread thread : threadList) {
             thread.start();

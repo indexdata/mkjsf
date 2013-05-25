@@ -3,7 +3,7 @@ package com.indexdata.mkjsf.pazpar2.commands.sp;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.ClientCommandResponse;
-import com.indexdata.mkjsf.pazpar2.Pz2Bean;
+import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
@@ -19,14 +19,14 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
   }
   
   public SpResponseDataObject run() {
-    Pz2Bean.get().resetSearchAndRecordCommands();
-    Pz2Bean.get().getPzresp().getSp().resetAuthAndBeyond(true);
-    ClientCommandResponse response = (ClientCommandResponse) Pz2Bean.get().getSearchClient().executeCommand(this);      
+    Pz2Service.get().resetSearchAndRecordCommands();
+    Pz2Service.get().getPzresp().getSp().resetAuthAndBeyond(true);
+    ClientCommandResponse response = (ClientCommandResponse) Pz2Service.get().getSearchClient().executeCommand(this);      
     String renamedResponse = renameResponseElement(response.getResponseString(), "auth");    
     response.setResponseToParse(renamedResponse);
     SpResponseDataObject responseObject = (SpResponseDataObject) ResponseParser.getParser().getDataObject(response);    
     if (ResponseParser.docTypes.contains(responseObject.getType())) {
-      Pz2Bean.get().getPzresp().put(getCommandName(), responseObject);
+      Pz2Service.get().getPzresp().put(getCommandName(), responseObject);
     }
     if (responseObject.unsupportedCommand()) {
       logger.error("auth command does not seem to be supported by this Service Proxy");
