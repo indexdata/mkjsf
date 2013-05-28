@@ -103,6 +103,15 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
     return getParameterValue("mergekey");
   }
   
+  public void setRank (String rank) {
+    setParameter(new CommandParameter("rank","=",rank));
+  }
+  
+  public String getRank () {
+    return getParameterValue("rank");
+  }
+
+  
   public ShowCommand copy () {
     ShowCommand newCommand = new ShowCommand();
     for (String parameterName : parameters.keySet()) {
