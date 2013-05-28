@@ -1,10 +1,15 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+import org.apache.log4j.Logger;
+
+import com.indexdata.mkjsf.pazpar2.commands.sp.InitCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = -4915976465898889987L;
+  private static Logger logger = Logger.getLogger(InitCommand.class);
+  private InitCommandSp spCommand = null;
   
   public InitCommand() {
     super("init");
@@ -34,18 +39,23 @@ public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
   @Override
   public String getSession () {
     throw new UnsupportedOperationException("Cannot set or get session id on init command");
-  }
+  }  
   
   public InitCommand copy () {
+    logger.info("Copying init command");
     InitCommand newCommand = new InitCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
-    }    
+    }
+    newCommand.spCommand = this.spCommand;
     return newCommand;
   }
   
   public ServiceProxyCommand getSp() {
-    return this;
+    if (spCommand==null) {
+      spCommand = new InitCommandSp(this);
+    } 
+    return spCommand;
   }
 
   @Override

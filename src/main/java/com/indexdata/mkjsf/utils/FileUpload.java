@@ -10,20 +10,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
-import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
-
 public abstract class FileUpload implements Serializable {
 
-
-  protected HttpResponseWrapper response;
   private static Logger logger = Logger.getLogger(FileUpload.class);
   private static final long serialVersionUID = 748784638056392862L;
 
   public FileUpload() {
   }
 
-  public abstract HttpResponseWrapper submit() throws IOException;
-  
   public abstract UploadedFile getUploadedFile();
   
   public abstract void setUploadedFile(UploadedFile uploadedFile);
