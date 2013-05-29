@@ -11,7 +11,7 @@ public class TermlistCommand extends Pazpar2Command implements ServiceProxyComma
   }
 
   public void setName(String names) {
-    setParameter(new CommandParameter("name","name",names));
+    setParameter(new CommandParameter("name","=",names));
   }
   
   public String getName () {
