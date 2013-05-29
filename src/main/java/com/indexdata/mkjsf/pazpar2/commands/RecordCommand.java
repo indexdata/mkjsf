@@ -30,21 +30,21 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
         responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)commandResponse);
         if (ResponseParser.docTypes.contains(responseObject.getType())) {
           logger.debug("Storing " + responseObject.getType() + " in pzresp. ");
-        } else {        
+        } else {
           logger.debug("Command was 'record' but response not '<record>' - assuming raw record response.");
-          ResponseDataObject recordResponse = new RecordResponse(); 
+          ResponseDataObject recordResponse = new RecordResponse();
           recordResponse.setType("record");
-          recordResponse.setXml(responseObject.getXml());          
-          recordResponse.setAttribute("activeclients", "0");             
+          recordResponse.setXml(responseObject.getXml());
+          recordResponse.setAttribute("activeclients", "0");
+          responseObject = recordResponse;
         }
       } else if (commandResponse.isBinary()) {
-        responseObject = new RecordResponse(); 
+        responseObject = new RecordResponse();
         responseObject.setType(getCommandName());
         logger.info("Binary response");
         responseObject.setAttribute("activeclients", "0");
         responseObject.setXml("<record>binary response</record>");
         responseObject.setBinary(commandResponse.getBytes());
-        
       } else {
         logger.error("Response was not found to be XML or binary. The response was not handled.");
       }
