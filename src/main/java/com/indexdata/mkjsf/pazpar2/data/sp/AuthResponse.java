@@ -20,5 +20,9 @@ public class AuthResponse extends SpResponseDataObject  {
     return getOneElementValue("type");
   }
   
+  public String onSuccess(String navigateTo) {
+    return navigateTo;
+  }
+  
   
 }
