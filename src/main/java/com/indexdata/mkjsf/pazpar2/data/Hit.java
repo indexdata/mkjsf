@@ -39,6 +39,14 @@ public class Hit extends ResponseDataObject {
     return getOneElementValue("md-title-responsibility");
   }
   
+  public String getDate() {
+    return getOneElementValue("md-date");
+  }
+  
+  public String getTitleComplete() {
+    return getOneElementValue("md-title-complete");
+  }
+    
   public String getRecId() {
     return getOneElementValue("recid");
   }
