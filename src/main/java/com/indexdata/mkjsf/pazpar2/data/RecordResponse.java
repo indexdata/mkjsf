@@ -11,7 +11,7 @@ public class RecordResponse extends ResponseDataObject {
   private static final long serialVersionUID = 6682722004285796002L;
 
   public String getRecId () {
-    return getOneElementValue("recid");
+    return getOneValue("recid");
   }
   
   public List<Location> getLocations() {
@@ -29,19 +29,19 @@ public class RecordResponse extends ResponseDataObject {
   }
 
   public String getTitle() {
-    return getOneElementValue("md-title");
+    return getOneValue("md-title");
   }
   
   public String getDate() {
-    return getOneElementValue("md-date");
+    return getOneValue("md-date");
   }
   
   public String getAuthor() {
-    return getOneElementValue("md-author");
+    return getOneValue("md-author");
   }
   
   public String getSubject() {
-    return getOneElementValue("md-subject");
+    return getOneValue("md-subject");
   }
   
   public String getSubjects() {
@@ -65,7 +65,7 @@ public class RecordResponse extends ResponseDataObject {
     if (getIsBinary()) {
       return "0";
     } else {
-      String activeclients = getOneElementValue("activeclients");
+      String activeclients = getOneValue("activeclients");
       if (activeclients == null || activeclients.length()==0) {
         // Look for override
         activeclients = getAttribute("activeclients");

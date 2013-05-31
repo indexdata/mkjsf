@@ -7,27 +7,27 @@ public class Target extends ResponseDataObject {
   private static final long serialVersionUID = 3343881183545520108L;
 
   public String getId () {
-    return getOneElementValue("id");
+    return getOneValue("id");
   }
   
   public String getName() {
-    return getOneElementValue("name");
+    return getOneValue("name");
   }
   
   public String getHits() {
-    return getOneElementValue("hits");
+    return getOneValue("hits");
   }
   
   public String getDiagnostic() {
-    return getOneElementValue("diagnostic");
+    return getOneValue("diagnostic");
   }
   
   public String getRecords() {
-    return getOneElementValue("records");
+    return getOneValue("records");
   }
   
   public String getState () {
-    return getOneElementValue("state");
+    return getOneValue("state");
   }
     
 }

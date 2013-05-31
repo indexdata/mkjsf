@@ -20,11 +20,11 @@ public class Hit extends ResponseDataObject {
   }
   
   public String getTitle () {
-    return getOneElementValue("md-title");
+    return getOneValue("md-title");
   }
   
   public String getTitleRemainder() {
-    return getOneElementValue("md-title-remainder");
+    return getOneValue("md-title-remainder");
   }
   
   public String getAuthor (String prefix) {
@@ -32,24 +32,27 @@ public class Hit extends ResponseDataObject {
   }
   
   public String getAuthor () {
-    return getOneElementValue("md-author");
+    return getOneValue("md-author");
   }
   
   public String getTitleResponsibility() {
-    return getOneElementValue("md-title-responsibility");
+    return getOneValue("md-title-responsibility");
   }
   
   public String getDate() {
-    return getOneElementValue("md-date");
+    return getOneValue("md-date");
   }
   
   public String getTitleComplete() {
-    return getOneElementValue("md-title-complete");
+    return getOneValue("md-title-complete");
   }
     
   public String getRecId() {
-    return getOneElementValue("recid");
+    return getOneValue("recid");
   }
-
+  
+  public String getDescription() {
+    return getOneValue("md-description");
+  }
   
 }

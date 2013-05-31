@@ -6,7 +6,7 @@ public class SearchResponse extends ResponseDataObject {
   private boolean isNew = true;
   
   public String getStatus() {
-    return getOneElementValue("status");
+    return getOneValue("status");
   }
       
   public boolean isNew () {

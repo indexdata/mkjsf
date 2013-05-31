@@ -37,19 +37,19 @@ public class CommandError extends ResponseDataObject implements ErrorInterface {
   }
   
   public String getLabel() {
-    return getOneElementValue("commandname");
+    return getOneValue("commandname");
   }
       
   public String getMessage() {
     if (isServiceError()) {      
       return getServiceError().getMsg();
     } else {      
-      return getOneElementValue("errormessage");
+      return getOneValue("errormessage");
     }
   }
     
   public String getException () {
-    return getOneElementValue("exception");
+    return getOneValue("exception");
   }
     
   public List<String> getSuggestions() { 

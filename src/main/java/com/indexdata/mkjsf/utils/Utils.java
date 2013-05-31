@@ -1,5 +1,10 @@
 package com.indexdata.mkjsf.utils;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
+
+@Named("utils")
+@ApplicationScoped
 public class Utils {
   
   public static String nl = System.getProperty("line.separator");  
@@ -20,5 +25,13 @@ public class Utils {
     } else {
       return objectId(objName);
     }
+  }
+  
+  public static String concat(String... strings) {
+    StringBuilder concatenated = new StringBuilder("");
+    for (String string : strings) {
+      concatenated.append(string);
+    }
+    return concatenated.toString();
   }
 }

@@ -43,7 +43,7 @@ public class ResponseDataObject implements Serializable {
       elements.get(name).add(value);
     } else {
       List<ResponseDataObject> list = new ArrayList<ResponseDataObject>();
-      list.add(value);
+      list.add(value);      
       elements.put(name,list);
     }
   }
@@ -51,6 +51,37 @@ public class ResponseDataObject implements Serializable {
   public List<ResponseDataObject> getElements (String name) {
     return elements.get(name);
   }
+  
+  public List<ResponseDataObject> getElements(String name, int maxElements) {
+    if (getElements(name)!=null) {
+      int size = getElements(name).size();
+      if (size>0) {
+        return ((ArrayList<ResponseDataObject>) getElements(name)).subList(0, Math.min(maxElements,size));        
+      } 
+    }   
+    return getElements(name);
+  }
+  
+  public List<ResponseDataObject> getElements(String name, int maxElements, int maxTotalValueLength) {
+    if (getElements(name)!=null) {
+      int size = getElements(name).size();
+      if (size>0) {
+        List<ResponseDataObject> maxElementsList = ((ArrayList<ResponseDataObject>) getElements(name)).subList(0, Math.min(maxElements,size));
+        int i = 0;
+        int totalLength = 0;
+        for (ResponseDataObject element : maxElementsList) {
+          totalLength += element.getValue().length(); 
+          i++;
+          if (totalLength>maxTotalValueLength) {
+            break;
+          } 
+        }
+        return maxElementsList.subList(0, i);
+      } 
+    }   
+    return getElements(name);
+  }
+
   
   public ResponseDataObject getOneElement (String name) {
     if (elements.get(name) != null) {
@@ -66,7 +97,7 @@ public class ResponseDataObject implements Serializable {
    * @param name of the element 
    * @return text value, empty string if none found
    */
-  public String getOneElementValue (String name) {
+  public String getOneValue (String name) {
     if (getOneElement(name)!=null && getOneElement(name).getValue().length()>0) {
       return getOneElement(name).getValue();
     } else {
@@ -74,6 +105,19 @@ public class ResponseDataObject implements Serializable {
     }
   }
   
+  public String[] getValueArray (String name) {
+    List<ResponseDataObject> elements = getElements(name);
+    String[] valueArray = {};
+    if (elements != null) {
+      valueArray = new String[elements.size()];
+      int i = 0;
+      for (ResponseDataObject element : elements) {
+        valueArray[i++] = element.getValue();
+      }      
+    }
+    return valueArray;
+  }
+    
   public void appendContent (String content) {
     textContent = textContent + content;
   }
@@ -92,7 +136,7 @@ public class ResponseDataObject implements Serializable {
   }
   
   public int getIntValue(String name) {
-    String val = getOneElementValue(name);
+    String val = getOneValue(name);
     if (val.length()==0) {
       return 0;
     } else {

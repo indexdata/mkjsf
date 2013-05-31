@@ -5,19 +5,19 @@ public class AuthResponse extends SpResponseDataObject  {
   private static final long serialVersionUID = 8006774126022849936L;
 
   public String getDisplayName () {
-    return getOneElementValue("displayName");
+    return getOneValue("displayName");
   }
   
   public String getRealm () {
-    return getOneElementValue("realm");
+    return getOneValue("realm");
   }
   
   public String getStatus () {
-    return getOneElementValue("status");
+    return getOneValue("status");
   }
   
   public String getAuthenticationType () {
-    return getOneElementValue("type");
+    return getOneValue("type");
   }
   
   public String onSuccess(String navigateTo) {

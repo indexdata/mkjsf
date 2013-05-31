@@ -22,7 +22,7 @@ public class Location extends ResponseDataObject {
   }
   
   public String getSubject() {
-    return getOneElementValue("md-subject");
+    return getOneValue("md-subject");
   }
   
   public void setSequenceNumber(int num) {
@@ -47,7 +47,7 @@ public class Location extends ResponseDataObject {
   }
 
   public String getAuthor() {
-    return getOneElementValue("md-author");
+    return getOneValue("md-author");
   }
   
   public String getAuthors() {

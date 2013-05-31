@@ -7,11 +7,11 @@ public class TargetCategory extends ResponseDataObject {
   private static final long serialVersionUID = -3027515807117682584L;
 
   public String getCategoryName () {
-    return getOneElementValue("categoryName");
+    return getOneValue("categoryName");
   }
   
   public String getCategoryId() {
-    return getOneElementValue("categoryId");
+    return getOneValue("categoryId");
   }
    
 }

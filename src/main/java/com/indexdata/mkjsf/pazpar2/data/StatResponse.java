@@ -47,7 +47,7 @@ public class StatResponse extends ResponseDataObject {
   }
   
   public String getProgress() {
-    return getOneElementValue("progress");
+    return getOneValue("progress");
   }
   
 }

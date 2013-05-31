@@ -12,11 +12,11 @@ public class ShowResponse extends ResponseDataObject {
   
 
   public String getStatus() {
-    return getOneElementValue("status");
+    return getOneValue("status");
   }
   
   public String getActiveClients () {
-    return getOneElementValue("activeclients");
+    return getOneValue("activeclients");
   }
   
   public int getMerged () {
@@ -24,7 +24,7 @@ public class ShowResponse extends ResponseDataObject {
   }
   
   public String getTotal () {
-    return getOneElementValue("total");    
+    return getOneValue("total");    
   }
   
   public int getStart () {
