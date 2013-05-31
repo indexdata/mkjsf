@@ -55,10 +55,17 @@ public class UiUtils {
    * @param string
    * @return
    */
-  public static String quotes(String string) {
+  public static String quote(String string) {
     return "\"" + string + "\"";
   }
   
+  /**
+   * Gets at most maxElements elements of the given elementName
+   * @param container The parent element containing the elements to retrieve
+   * @param elementName The name of the element(s) to retrieve
+   * @param maxElements Maximum number of elements to retrieve
+   * @return At most maxElements data objects of the given type
+   */
   public static List<ResponseDataObject> getMaxNumElements(ResponseDataObject container, String elementName, int maxElements) {
     if (container.getElements(elementName)!=null) {
       int elementCount = container.getElements(elementName).size();
@@ -69,6 +76,17 @@ public class UiUtils {
     return container.getElements(elementName);
   }
   
+  /**
+   * Gets at most maxElements data objects, up to a total string length of maxTotalValueLength
+   * @param container The parent element containing the elements to retrieve
+   * @param elementName The name of the element(s) to retrieve
+   * @param maxElements  Maximum number of elements to retrieve
+   * @param maxTotalValueLength The maximum total string length of the values of the elements retrieved
+   * @param hardLimit If set to true, the list will be cut of at or below the total string length, if false, the list
+   *                  will contain the first element that exceeds the length limit - for instance thus guaranteeing 
+   *                  that at least one of the elements will be returned, no matter it's length. 
+   * @return Delimited list of elements
+   */
   public List<ResponseDataObject> getMaxElements(ResponseDataObject container, String elementName, int maxElements, int maxTotalValueLength, boolean hardLimit) {
     List<ResponseDataObject> maxNumList = getMaxNumElements(container,elementName,maxElements);
     if (maxNumList!=null) {
