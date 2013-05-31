@@ -51,38 +51,7 @@ public class ResponseDataObject implements Serializable {
   public List<ResponseDataObject> getElements (String name) {
     return elements.get(name);
   }
-  
-  public List<ResponseDataObject> getElements(String name, int maxElements) {
-    if (getElements(name)!=null) {
-      int size = getElements(name).size();
-      if (size>0) {
-        return ((ArrayList<ResponseDataObject>) getElements(name)).subList(0, Math.min(maxElements,size));        
-      } 
-    }   
-    return getElements(name);
-  }
-  
-  public List<ResponseDataObject> getElements(String name, int maxElements, int maxTotalValueLength) {
-    if (getElements(name)!=null) {
-      int size = getElements(name).size();
-      if (size>0) {
-        List<ResponseDataObject> maxElementsList = ((ArrayList<ResponseDataObject>) getElements(name)).subList(0, Math.min(maxElements,size));
-        int i = 0;
-        int totalLength = 0;
-        for (ResponseDataObject element : maxElementsList) {
-          totalLength += element.getValue().length(); 
-          i++;
-          if (totalLength>maxTotalValueLength) {
-            break;
-          } 
-        }
-        return maxElementsList.subList(0, i);
-      } 
-    }   
-    return getElements(name);
-  }
-
-  
+    
   public ResponseDataObject getOneElement (String name) {
     if (elements.get(name) != null) {
       return elements.get(name).get(0);
