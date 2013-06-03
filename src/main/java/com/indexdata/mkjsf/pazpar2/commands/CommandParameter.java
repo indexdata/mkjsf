@@ -3,14 +3,12 @@ package com.indexdata.mkjsf.pazpar2.commands;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-
-import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 
 public class CommandParameter implements Serializable {
 
@@ -20,7 +18,7 @@ public class CommandParameter implements Serializable {
   String name = null;
   String operator = null;
   String value = null;
-  Map<String,Expression> expressions = new HashMap<String,Expression>();
+  List<Expression> expressions = new ArrayList<Expression>();
   private static List<String> nologparams = Arrays.asList("password");
   
   public CommandParameter (String name) {
@@ -29,14 +27,24 @@ public class CommandParameter implements Serializable {
   }
   
   public CommandParameter (String name, String operator, String value, Expression... expressions) {
-    logger.trace("Instantiating command parameter " + name + " with expressions: [" + expressions + "]");
+    logger.trace("Instantiating command parameter " + name + " with value [" + value + "] and expressions: [" + expressions + "]");
     this.name = name;
     this.operator = operator;
     this.value = value;
     for (Expression expr : expressions) {
-      this.expressions.put(expr.toString(), expr);
+      this.expressions.add(expr);
     }
   }
+  
+  public CommandParameter (String name, String operator, Expression... expressions) {
+    logger.trace("Instantiating command parameter " + name + " with expressions: [" + expressions + "]");
+    this.name = name;
+    this.operator = operator;    
+    for (Expression expr : expressions) {
+      this.expressions.add(expr);
+    }
+  }
+
 
   public CommandParameter (String name, String operator, String value) {
     if (!nologparams.contains(name)) logger.trace("Instantiating command parameter '" + name + "' with String: [" + value + "]");    
@@ -57,19 +65,66 @@ public class CommandParameter implements Serializable {
     return name;
   }
   
-  public Map<String,Expression> getExpressions () {
+  public List<Expression> getExpressions () {
     return expressions;
+  }
+  
+  public List<Expression> getExpressions(String... expressionFields) {
+    List<String> requestedFields = Arrays.asList(expressionFields);
+    List<Expression> exprs = new ArrayList<Expression>();
+    for (Expression expr : expressions) {
+      if (requestedFields.contains(expr.getField())) {
+        exprs.add(expr);
+      }
+    }
+    return exprs;
   }
   
   public void addExpression(Expression expression) {
     logger.debug("Adding expression [" + expression + "] to '" + name + "'");
-    this.expressions.put(expression.toString(),expression);
+    this.expressions.add(expression);
   }
   
   public void removeExpression(Expression expression) {
-    this.expressions.remove(expression.toString());
+    for (Expression expr : expressions) {
+      if (expr.toString().equals(expression.toString())) {
+        expressions.remove(expr);
+        break;
+      }
+    }    
   }
   
+  public void removeExpressionsAfter (Expression expression, String... expressionFields) {
+    List<String> exprFieldsToRemove = Arrays.asList(expressionFields);
+    int fromIdx = 0;    
+    for (Expression expr : expressions) {      
+      fromIdx++;
+      if (expr.toString().equals(expression.toString())) {        
+        break;
+      }      
+    }
+    if (fromIdx<expressions.size()) {      
+      Iterator<Expression> candidatesForRemoval = expressions.subList(fromIdx, expressions.size()).iterator();
+      while (candidatesForRemoval.hasNext()) {
+        Expression exp = candidatesForRemoval.next();
+        if (exprFieldsToRemove.contains(exp.getField())) {
+          expressions.remove(exp);
+        }
+      }
+    }
+  }
+  
+  public void removeExpressions (String... expressionFields) {
+    List<String> fieldsToRemove = Arrays.asList(expressionFields);
+    Iterator<Expression> i = expressions.iterator();
+    while (i.hasNext()) {
+       Expression expr = i.next(); 
+       if (fieldsToRemove.contains(expr.getField())) {
+         logger.trace("Removing expression: " + expr.toString());
+         i.remove();
+       }
+    }
+  }
   
   public boolean hasOperator() {
     return operator != null;
@@ -77,6 +132,19 @@ public class CommandParameter implements Serializable {
   
   public boolean hasValue() {
     return value != null && value.length()>0;
+  }
+  
+  public boolean hasExpressions() {
+    return expressions.size()>0;
+  }
+  
+  public boolean hasExpressions(String expressionField) {    
+    for (Expression expr : expressions) {
+      if (expr.getField().equals(expressionField)) {
+        return true;
+      }
+    }     
+    return false;    
   }
   
   public String getEncodedQueryString () {
@@ -94,12 +162,11 @@ public class CommandParameter implements Serializable {
   
   public String getValueWithExpressions () {
     StringBuilder completeValue = new StringBuilder((value==null ? "" : value));    
-    for (String key : expressions.keySet()) {      
-      completeValue.append(" and " + expressions.get(key));
+    for (Expression expr : expressions) {      
+      completeValue.append(" and " + expr.toString());
     }
-    return completeValue.toString();
-    
-  }
+    return completeValue.toString();    
+  }  
   
   @Override
   public boolean equals (Object otherParameter) {
@@ -122,8 +189,8 @@ public class CommandParameter implements Serializable {
     CommandParameter newParam = new CommandParameter(name);
     newParam.value = this.value;
     newParam.operator = this.operator;
-    for (String key : expressions.keySet()) {
-      newParam.addExpression(expressions.get(key).copy());      
+    for (Expression expr : expressions) {
+      newParam.addExpression(expr.copy());      
     }
     return newParam;
   }

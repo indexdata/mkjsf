@@ -101,7 +101,7 @@ public class ServiceProxyClient implements SearchClient {
     try {
       response = client.execute(httpget, handler);
       if (handler.getStatusCode()==200 && (handler.getContentType().contains("xml") || handler.getContentType().contains("octet-stream"))) {
-        logger.debug("Creating command response holding content of type " + handler.getContentType());
+        logger.trace("Creating command response holding content of type " + handler.getContentType());
         commandResponse = new ClientCommandResponse(handler.getStatusCode(),response,handler.getContentType());
       } else {
         logger.error("Service Proxy status code: " + handler.getStatusCode());

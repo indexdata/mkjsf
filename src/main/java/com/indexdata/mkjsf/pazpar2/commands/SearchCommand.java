@@ -1,5 +1,7 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+import java.util.List;
+
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
@@ -29,7 +31,6 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     Pz2Service.get().getSearchClient().setSearchCommand(this);
     return super.run();
   }
-
     
   public void setQuery(String query) {    
     setParameter(new CommandParameter("query","=",query));
@@ -40,44 +41,127 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   }
   
   public void setFilter(String filterExpression) {
-    setParameter(new CommandParameter("filter","=",filterExpression));
+    if (filterExpression != null && filterExpression.length()>0) {
+      setParameter(new FilterParameter(new Expression(filterExpression)));
+    }
+  }
+  
+  public void setFilter(String field, String operator, String value, String label) {
+    setParameter(new FilterParameter(new Expression(field,operator,value,label)));
   }
   
   public String getFilter() {
-    return getParameter("filter") == null ? null : getParameter("filter").getValueWithExpressions();
+    return getParameter("filter") == null ? null : ((FilterParameter)getParameter("filter")).getValueWithExpressions();
   }
   
-  public void addFilter(String filterExpression) {
-    // TODO: implement
-    if (hasParameterValue("filter")) {
-      setFilter(filterExpression);
+  public List<Expression> getFilters() {
+    return getParameter("filter").getExpressions();
+  }
+  
+  public void addFilter(String field, String operator, String value, String label) {
+    if (getParameter("filter") == null) {
+      setFilter(field + operator + value);
     } else {
-      getParameter("filter");
+      getParameter("filter").addExpression(new Expression(field,operator,value,(label != null ? label : value)));
     }
-    throw new UnsupportedOperationException("removeFilter(filterExpression) yet to be implemented.");
   }
   
   public void removeFilters () {
     removeParameter("filter");
   }
   
-  public void removeFilter(String filterExpression) {
-    // TODO: implement
-    throw new UnsupportedOperationException("removeFilter(filterExpression) yet to be implemented.");
+  public void removeFilter(String field, String operator, String value) {
+    removeExpression("filter",new Expression(field, operator, value, null));
   }
-
+  
+  public void removeFiltersAfter(String field, String operator, String value) {
+    removeExpressionsAfter("filter",new Expression(field,operator,value,null));
+  }
+  
   public boolean hasFilter () {
     return getFilter().length()>0;
   }
   
-  public void setLimit (String limitExpression) {
-    setParameter(new CommandParameter("limit","=",limitExpression));
+  public void setLimit (String limitExpression) {   
+    if (limitExpression != null && limitExpression.length()>0) {
+      setParameter(new LimitParameter(new Expression(limitExpression)));
+    }
   }
   
-  public String getLimit () {
-    return getParameterValue("limit");
+  public void setLimit(String field, String operator, String value, String label) {
+    setParameter(new LimitParameter(new Expression(field,operator,value,label)));
   }
       
+  public String getLimit () {
+    return getParameter("limit") == null ? null : ((FilterParameter)getParameter("limit")).getValueWithExpressions();    
+  }
+  
+  public List<Expression> getLimitExpressions() {
+    return getParameter("limit").getExpressions();
+  }
+  
+  public boolean hasLimitExpression(String... expressionFields) {
+    logger.trace("Checking for limit expression for " + expressionFields);
+    for (String field : expressionFields) {
+      if (getLimitExpressions(field) != null && getLimitExpressions(field).size()>0) {
+        logger.trace("Limit expression found (" + field + ")");
+        return true;
+      }  
+    }
+    logger.trace("No limit expressions found");
+    return false;
+  }
+  
+  public Expression getOneLimitExpression(String expressionField) {
+    List<Expression> exprs = getLimitExpressions(expressionField);
+    if (exprs != null && exprs.size()>0) {
+      if (exprs.size()>1) {
+        logger.warn("More that one limit expression found for [" + expressionField + "] but only asked to return the first one");
+      }
+      return exprs.get(0);
+    } else {
+      return null;
+    }
+    
+  }
+  
+  public List<Expression> getLimitExpressions(String... expressionFields) {
+    logger.trace("Checking for limit parameter");
+    if (parameters.get("limit")!=null) {
+      logger.trace("Found");
+      return getParameter("limit").getExpressions(expressionFields);
+    } else {
+      logger.trace("Not found");
+      return null;
+    }
+  }
+  
+  public void addLimit(String field, String operator, String value, String label) {
+    if (getParameter("limit") == null) {
+      setLimit(field, operator, value, label);
+    } else {
+      addExpression("limit",new Expression(field,operator,value,label));
+      
+    }
+  }
+  
+  public void removeLimits() {
+    removeParameter("limit");
+  }
+  
+  public void removeLimits(String... fields) {    
+    removeExpressions("limit",fields);    
+  }
+  
+  public void removeLimit(String field, String operator, String value) {
+    removeExpression("limit",new Expression(field, operator, value, null));    
+  }
+  
+  public void removeLimitsAfter(String field, String operator, String value, String... fields) {     
+    removeExpressionsAfter("limit",new Expression(field,operator,value,null),fields);    
+  }
+
+        
   public void setStartrecs (String startrecs) {
     setParameter(new CommandParameter("startrecs","=",startrecs));
   }
@@ -120,15 +204,14 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   
   
   /**
-   * Sets a facet, in CQL, to restrict the current results,
-   * then executes the search 
+   * Sets a facet, in CQL, to restrict the current results
    * 
    * @param facetKey  i.e.  'au' for author
    * @param term  i.e. 'Dickens, Charles'
    */
   public void setFacet(String facetKey, String term) {
     if (term != null && term.length()>0) {         
-      getParameter("query").addExpression(new Expression(facetKey,"=",term));            
+      getParameter("query").addExpression(new Expression(facetKey,"=",term,null));            
     }            
   }
   
@@ -151,8 +234,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   }
       
   /**
-   * Removes a facet set by setFacet(...), then executes
-   * the search.
+   * Removes a facet set by setFacet(...)
    * 
    * Will not remove facets set by setFacetOnQuery(...)
    *  
@@ -161,7 +243,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    */
   public void removeFacet(String facetKey, String term) {
     if (getParameter("query") != null) {
-      getParameter("query").removeExpression(new Expression(facetKey,"=",term));
+      getParameter("query").removeExpression(new Expression(facetKey,"=",term,null));
     }
   }
   

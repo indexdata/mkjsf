@@ -124,20 +124,46 @@ public abstract class Pazpar2Command implements Serializable  {
   public void removeParametersInState() {
     parameters = new HashMap<String,CommandParameter>();    
   }
-
+  
+  public void addExpression(String parameterName, Expression expression) {
+    Pazpar2Command copy = this.copy();
+    copy.getParameter(parameterName).addExpression(expression);
+    checkInState(copy);
+  }
+  
+  public void removeExpression(String parameterName, Expression expression) {
+    Pazpar2Command copy = this.copy();
+    copy.getParameter(parameterName).removeExpression(expression);
+    checkInState(copy);    
+  }
+  
+  public void removeExpressionsAfter(String parameterName, Expression expression,String... expressionFields) {
+    Pazpar2Command copy = this.copy();
+    copy.getParameter(parameterName).removeExpressionsAfter(expression,expressionFields);
+    checkInState(copy);    
+  }
+  
+  public void removeExpressions(String parameterName, String... expressionFields) {
+    Pazpar2Command copy = this.copy();    
+    copy.getParameter(parameterName).removeExpressions(expressionFields);    
+    if (!getParameter(parameterName).hasValue() && !getParameter(parameterName).hasExpressions()) {
+      copy.parameters.remove(parameterName);
+    }
+    checkInState(copy);    
+  }
   
   public boolean hasParameters () {
     return (parameters.keySet().size()>0);
   }
   
   public boolean hasParameterValue(String parameterName) {
-    return (parameters.get(parameterName) != null && parameters.get(parameterName).hasValue());
+    return (parameters.get(parameterName) != null && (parameters.get(parameterName).hasValue()));
   }
-  
+    
   public String getEncodedQueryString () {
     StringBuilder queryString = new StringBuilder("command="+name);
     for (CommandParameter parameter : parameters.values()) {
-      if (parameter.hasValue()) {
+      if (parameter.hasValue() || parameter.hasExpressions()) {
         queryString.append("&"+parameter.getEncodedQueryString());
       }
     }
@@ -147,7 +173,7 @@ public abstract class Pazpar2Command implements Serializable  {
   public String getValueWithExpressions() {    
     StringBuilder value = new StringBuilder("");
     for (CommandParameter parameter : parameters.values()) {
-      if (parameter.hasValue()) {
+      if (parameter.hasValue() || parameter.hasExpressions()) {
         value.append("&" + parameter.getName() + parameter.operator + parameter.getValueWithExpressions());
       }
    }
@@ -156,6 +182,7 @@ public abstract class Pazpar2Command implements Serializable  {
   
   @Override
   public boolean equals (Object otherCommand) {
+    logger.trace("Comparing commands ["+this.toString()+"] and ["+otherCommand.toString() +"]");
     return
         ((otherCommand instanceof Pazpar2Command)
          && this.getValueWithExpressions().equals(((Pazpar2Command) otherCommand).getValueWithExpressions()));
