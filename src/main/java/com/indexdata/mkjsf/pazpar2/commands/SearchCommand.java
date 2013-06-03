@@ -1,5 +1,6 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
@@ -15,8 +16,7 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand {
   
   private static final long serialVersionUID = -1888520867838597236L;
-  private static Logger logger = Logger.getLogger(SearchCommand.class);
-  private SingleTargetFilter singleTargetFilter = null;
+  private static Logger logger = Logger.getLogger(SearchCommand.class);  
     
   public SearchCommand() {
     super("search");
@@ -50,12 +50,53 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     setParameter(new FilterParameter(new Expression(field,operator,value,label)));
   }
   
+  public boolean hasFilterExpression(String... expressionFields) {
+    logger.trace("Checking for filter expression for " + Arrays.deepToString(expressionFields));
+    for (String field : expressionFields) {
+      if (getFilterExpressions(field) != null && getFilterExpressions(field).size()>0) {
+        logger.trace("Filter expression found (" + field + ")");
+        return true;
+      }  
+    }
+    logger.trace("No filter expressions found");
+    return false;
+  }
+
+  
   public String getFilter() {
     return getParameter("filter") == null ? null : ((FilterParameter)getParameter("filter")).getValueWithExpressions();
   }
   
-  public List<Expression> getFilters() {
+  public Expression getOneFilterExpression(String expressionField) {
+    List<Expression> exprs = getFilterExpressions(expressionField);
+    if (exprs != null && exprs.size()>0) {
+      if (exprs.size()>1) {
+        logger.warn("More that one filter expression found for [" + expressionField + "] but only asked to return the first one");
+      }
+      return exprs.get(0);
+    } else {
+      return null;
+    }    
+  }
+
+  
+  public List<Expression> getFilterExpressions() {
     return getParameter("filter").getExpressions();
+  }
+    
+  public List<Expression> getFilterExpressions(String... expressionFields) {
+    logger.trace("Checking for filter parameter");
+    if (parameters.get("filter")!=null) {
+      logger.trace("Found");
+      return getParameter("filter").getExpressions(expressionFields);
+    } else {
+      logger.trace("Not found");
+      return null;
+    }
+  }
+  
+  public boolean hasFilter () {
+    return getFilter().length()>0;
   }
   
   public void addFilter(String field, String operator, String value, String label) {
@@ -74,14 +115,14 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     removeExpression("filter",new Expression(field, operator, value, null));
   }
   
-  public void removeFiltersAfter(String field, String operator, String value) {
-    removeExpressionsAfter("filter",new Expression(field,operator,value,null));
+  public void removeFilters(String... fieldsToRemove) {    
+    removeExpressions("filter",fieldsToRemove);    
+  }  
+    
+  public void removeFiltersAfter(String field, String operator, String value, String... fieldsToRemove) {     
+    removeExpressionsAfter("filter",new Expression(field,operator,value,null),fieldsToRemove);    
   }
-  
-  public boolean hasFilter () {
-    return getFilter().length()>0;
-  }
-  
+
   public void setLimit (String limitExpression) {   
     if (limitExpression != null && limitExpression.length()>0) {
       setParameter(new LimitParameter(new Expression(limitExpression)));
@@ -95,13 +136,9 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   public String getLimit () {
     return getParameter("limit") == null ? null : ((FilterParameter)getParameter("limit")).getValueWithExpressions();    
   }
-  
-  public List<Expression> getLimitExpressions() {
-    return getParameter("limit").getExpressions();
-  }
-  
+    
   public boolean hasLimitExpression(String... expressionFields) {
-    logger.trace("Checking for limit expression for " + expressionFields);
+    logger.trace("Checking for limit expression for " + Arrays.deepToString(expressionFields));
     for (String field : expressionFields) {
       if (getLimitExpressions(field) != null && getLimitExpressions(field).size()>0) {
         logger.trace("Limit expression found (" + field + ")");
@@ -121,8 +158,11 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
       return exprs.get(0);
     } else {
       return null;
-    }
-    
+    }    
+  }
+  
+  public List<Expression> getLimitExpressions() {
+    return getParameter("limit").getExpressions();
   }
   
   public List<Expression> getLimitExpressions(String... expressionFields) {
@@ -140,8 +180,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     if (getParameter("limit") == null) {
       setLimit(field, operator, value, label);
     } else {
-      addExpression("limit",new Expression(field,operator,value,label));
-      
+      addExpression("limit",new Expression(field,operator,value,label));      
     }
   }
   
@@ -149,16 +188,16 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     removeParameter("limit");
   }
   
-  public void removeLimits(String... fields) {    
-    removeExpressions("limit",fields);    
+  public void removeLimits(String... fieldsToRemove) {    
+    removeExpressions("limit",fieldsToRemove);    
   }
   
   public void removeLimit(String field, String operator, String value) {
     removeExpression("limit",new Expression(field, operator, value, null));    
   }
   
-  public void removeLimitsAfter(String field, String operator, String value, String... fields) {     
-    removeExpressionsAfter("limit",new Expression(field,operator,value,null),fields);    
+  public void removeLimitsAfter(String field, String operator, String value, String... fieldsToRemove) {     
+    removeExpressionsAfter("limit",new Expression(field,operator,value,null),fieldsToRemove);    
   }
 
         
@@ -246,72 +285,12 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
       getParameter("query").removeExpression(new Expression(facetKey,"=",term,null));
     }
   }
-  
-  
-  /**
-   * Adds a single target filter to restrict the current query by, 
-   * then executes the current search.
-   * 
-   * This is a special case of the general setFilter function, 
-   * allowing to associate a descriptive target name with the 
-   * filter expression for display in UI. 
-   * 
-   * @param targetId pazpar2's ID for the target to limit by
-   * @param targetName a descriptive name for the target
-   */
-  public void setSingleTargetFilter (String targetId, String targetName) {    
-    if (hasSingleTargetFilter(new SingleTargetFilter(targetId,targetName))) {
-      logger.debug("Already using target filter " + this.singleTargetFilter.getFilterExpression());
-    } else {      
-      logger.debug("Setting new single target filter for [" + targetName + "]");
-      this.singleTargetFilter = new SingleTargetFilter(targetId,targetName);
-      setParameter(new CommandParameter("filter","=",this.singleTargetFilter.getFilterExpression()));            
-    }    
-  }
-
-  public SingleTargetFilter getSingleTargetFilter () {
-    logger.debug("request to get the current single target filter " + singleTargetFilter);
-    return singleTargetFilter;
-  }
-   
-  /**
-   * Removes the current target filter from the search
-   * 
-   */
-  public String removeSingleTargetFilter () {
-    logger.debug("Removing target filter " + singleTargetFilter.getFilterExpression());
-    this.singleTargetFilter = null;
-    removeParameter("filter");
-    return null;
-  }
-  
-  /**
-   * 
-   * @return The target filter set on the current search command
-   */
-  public boolean hasSingleTargetFilter() {
-    logger.debug("Checking if a single target filter is set: " + (singleTargetFilter != null));
-    return singleTargetFilter != null;    
-  }
-  
-  /**
-   * Resolves if the current search command has a target filter - to
-   * be used by the UI for conditional rendering of target filter info.
-   * 
-   * @return true if the current search command is limited by a target 
-   * filter
-   */
-  protected boolean hasSingleTargetFilter(SingleTargetFilter targetFilter) {
-    logger.debug("Checking if target filter for [" + targetFilter.getTargetName() + "] is set.");
-    return hasSingleTargetFilter() && targetFilter.equals(this.singleTargetFilter);
-  }
-    
+      
   public SearchCommand copy () {
     SearchCommand newCommand = new SearchCommand();
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }
-    newCommand.singleTargetFilter = this.singleTargetFilter;
     return newCommand;
   }
 
