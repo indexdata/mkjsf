@@ -21,8 +21,14 @@ public class AuthResponse extends SpResponseDataObject  {
   }
   
   public String onSuccess(String navigateTo) {
-    return navigateTo;
+    if (isAuthenticationOk()) {
+      return navigateTo;
+    } else {
+      return null;
+    }
   }
   
-  
+  public boolean isAuthenticationOk () {
+    return getStatus().equalsIgnoreCase("OK");
+  }    
 }

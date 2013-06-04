@@ -28,6 +28,7 @@ import com.indexdata.mkjsf.errors.ConfigurationError;
 import com.indexdata.mkjsf.errors.ConfigurationException;
 import com.indexdata.mkjsf.errors.ErrorCentral;
 import com.indexdata.mkjsf.errors.ErrorHelper;
+import com.indexdata.mkjsf.errors.MissingConfigurationContextException;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
@@ -48,9 +49,8 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
   private List<String> pazpar2Urls = new ArrayList<String>();
   public static final String PAZPAR2_URL_LIST = "PAZPAR2_URL_LIST";
 
-
   private static final long serialVersionUID = 3440277287081557861L;
-  private static Logger logger = Logger.getLogger(Pz2Service.class);     
+  private static Logger logger = Logger.getLogger(Pz2Service.class);  
   protected Pz2Client pz2Client = null;
   protected ServiceProxyClient spClient = null;
   protected SearchClient searchClient = null;  
@@ -74,9 +74,9 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     FacesContext context = FacesContext.getCurrentInstance();
     return (Pz2Service) context.getApplication().evaluateExpressionGet(context, "#{pz2}", Object.class); 
   }
-  
+    
   @PostConstruct
-  public void postConstruct() {
+  public void postConstruct() throws MissingConfigurationContextException {    
     logger.info("Pz2Service PostConstruct of " + this);
     stateMgr = new StateManager();
     pzreq = new Pazpar2Commands();
@@ -85,18 +85,22 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     pzresp.setErrorHelper(errors.getHelper());
     
     logger.debug("Pz2Service PostConstruct: Configurator is " + configurator);
-    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Client next.");
+    logger.debug(Utils.objectId(this) + " will instantiate a Pz2Client next.");    
     pz2Client = new Pz2Client();
-    configureClient(pz2Client,configurator);
     spClient = new ServiceProxyClient();
-    configureClient(spClient,configurator);
+    stateMgr.addStateListener(this);
     try {
+      configureClient(pz2Client,configurator);      
+      configureClient(spClient,configurator);
       this.configure(configurator);
+    } catch (MissingConfigurationContextException mcc) {
+      logger.info("No configuration context available at this point");
+      logger.debug("Configuration invoked from a Servlet filter before application start?");
+      throw mcc;
     } catch (ConfigurationException e) {
-      logger.error("There was a problem configuring the Pz2Service (\"pz2\")");
+      logger.warn("There was a problem configuring the Pz2Service and/or clients (\"pz2\")");
       e.printStackTrace();
-    }    
-    stateMgr.addStateListener(this);    
+    }     
   }
   
   @Qualifier
@@ -127,14 +131,17 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     return stateMgr;
   }
   
-  public void configureClient(SearchClient client, ConfigurationReader configReader) {
+  public void configureClient(SearchClient client, ConfigurationReader configReader)  throws MissingConfigurationContextException {
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
     try {
-      client.configure(configReader);            
+      client.configure(configReader);
+    } catch (MissingConfigurationContextException mcce) {
+      logger.info("No Faces context is available to the configurator at this time of invocation");
+      throw mcce;
     } catch (ConfigurationException e) {
       logger.debug("Pz2Service adding configuration error");
       errors.addConfigurationError(new ConfigurationError("Search Client","Configuration",e.getMessage()));                
-    } 
+    }
     logger.info(configReader.document());
     pzresp.getSp().resetAuthAndBeyond(true);    
   }
@@ -236,6 +243,40 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     }
     
   }
+  
+  /**
+   * This methods main purpose is to support browser history.
+   *  
+   * When the browsers back or forward buttons are pressed, a  
+   * re-search /might/ be required - namely if the query changes.
+   * So, as the UI requests updates of the page (show,facets,
+   * etc) this method checks if a search must be executed
+   * before those updates are performed.
+   *  
+   * @see {@link com.indexdata.mkjsf.pazpar2.state.StateManager#setCurrentStateKey} 
+   * @param commands
+   */
+  protected void handleQueryStateChanges (String commands) {
+    if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
+      logger.info("Triggered search: Found pending search change [" + pzreq.getCommand("search").toString() + "], doing search before updating " + commands);      
+      pzreq.getSearch().run();
+    } 
+    if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
+      logger.debug("Found pending record ID change. Doing record before updating " + commands);
+      stateMgr.hasPendingStateChange("record",false);
+      pzreq.getRecord().run();
+    }
+  }
+      
+  @Override
+  public void stateUpdated(String commandName) {
+    logger.debug("State change reported for [" + commandName + "]");
+    if (commandName.equals("show")) {
+      logger.debug("Updating show");
+      update(commandName);
+    } 
+  }
+
       
   /**
    * Will retrieve -- or alternatively remove -- the record with the given 
@@ -318,64 +359,7 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     pager =  new ResultsPager(pzresp,pageRange,pzreq);
     return pager;
   }
-   
-  /**
-   * This methods main purpose is to support browser history.
-   *  
-   * When the browsers back or forward buttons are pressed, a  
-   * re-search /might/ be required - namely if the query changes.
-   * So, as the UI requests updates of the page (show,facets,
-   * etc) this method checks if a search must be executed
-   * before those updates are performed.
-   *  
-   * @see {@link com.indexdata.mkjsf.pazpar2.state.StateManager#setCurrentStateKey} 
-   * @param commands
-   */
-  protected void handleQueryStateChanges (String commands) {
-    if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
-      logger.info("Triggered search: Found pending search change [" + pzreq.getCommand("search").toString() + "], doing search before updating " + commands);      
-      pzreq.getSearch().run();
-    } 
-    if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
-      logger.debug("Found pending record ID change. Doing record before updating " + commands);
-      stateMgr.hasPendingStateChange("record",false);
-      pzreq.getRecord().run();
-    }
-  }
-  
-  /**
-   * Executes the command and parses the response to create data objects.
-   * If the parsed response is of a known type it will be cached in 'pzresp'
-   * 
-   * @param commandName The command to be executed
-   * @return An XML response parsed to form a response data object
-   */
-  /*
-  protected ResponseDataObject doCommand(String commandName) {
-    Pazpar2Command command = pzreq.getCommand(commandName);
-    if (command.spOnly() && isPazpar2Service()) {
-      logger.warn("Skipping " + commandName + " - SP-only command, not supported by Pazpar2");
-      return new ResponseDataObject();
-    } else {
-      logger.info("Request "+commandName + ". Search command is: "+ pzreq.getCommand("search").toString());      
-      long start = System.currentTimeMillis();
-      ResponseDataObject responseObject = command.run();      
-      long end = System.currentTimeMillis();
-      logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
-      return responseObject;
-    }
-  }
-  */
-    
-  @Override
-  public void stateUpdated(String commandName) {
-    logger.debug("State change reported for [" + commandName + "]");
-    if (commandName.equals("show")) {
-      logger.debug("Updating show");
-      update(commandName);
-    } 
-  }
-  
+     
   public void setServiceProxyUrl(String url) {
     searchClient = spClient;
     setServiceType(SERVICE_TYPE_SP);

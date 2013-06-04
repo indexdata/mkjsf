@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.indexdata.masterkey.config.MasterkeyConfiguration;
 import com.indexdata.masterkey.config.ModuleConfiguration;
 import com.indexdata.mkjsf.errors.ConfigurationException;
+import com.indexdata.mkjsf.errors.MissingConfigurationContextException;
 import com.indexdata.mkjsf.utils.Utils;
 
 import static com.indexdata.mkjsf.utils.Utils.nl;
@@ -54,9 +55,14 @@ public class Mk2ConfigReader implements ConfigurationReader  {
     
   private Configuration readConfig (Configurable configurable) throws ConfigurationException {
     Configuration config = new Configuration();
-    ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-    ServletContext servletContext = (ServletContext) externalContext.getContext();  
-    MasterkeyConfiguration mkConfigContext;
+    MasterkeyConfiguration mkConfigContext = null;
+    ExternalContext externalContext = null;
+    try {
+      externalContext = FacesContext.getCurrentInstance().getExternalContext();      
+    } catch (NullPointerException npe){
+      throw new MissingConfigurationContextException("No FacesContext available to get configuration context from: " + npe.getMessage());
+    }
+    ServletContext servletContext = (ServletContext) externalContext.getContext();
     try {
       mkConfigContext = MasterkeyConfiguration.getInstance(servletContext,
       "mkjsf", ((HttpServletRequest) externalContext.getRequest()).getServerName());

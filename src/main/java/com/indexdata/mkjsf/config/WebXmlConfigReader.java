@@ -18,6 +18,7 @@ import javax.servlet.ServletContext;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.errors.ConfigurationException;
+import com.indexdata.mkjsf.errors.MissingConfigurationContextException;
 
 /**
  * Reads a configuration from the context parameters of the deployment descriptor (web.xml)
@@ -48,7 +49,12 @@ public class WebXmlConfigReader implements ConfigurationReader {
       
   private Map<String,String> readConfig () throws ConfigurationException {
     Map<String,String> map = new HashMap<String,String>();
-    ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+    ExternalContext externalContext = null;
+    try {
+      externalContext = FacesContext.getCurrentInstance().getExternalContext();
+    } catch (NullPointerException e) {
+      throw new MissingConfigurationContextException("WebXmlConfig: Configuration failed due to missing FacesContext.");
+    }
     ServletContext servletContext = (ServletContext) externalContext.getContext();        
     Enumeration<String> enumer = servletContext.getInitParameterNames();
     while (enumer.hasMoreElements()) {

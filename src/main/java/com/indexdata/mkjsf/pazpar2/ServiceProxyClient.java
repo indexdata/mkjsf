@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.config.Configuration;
 import com.indexdata.mkjsf.config.ConfigurationReader;
 import com.indexdata.mkjsf.errors.ConfigurationException;
+import com.indexdata.mkjsf.errors.MissingConfigurationContextException;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
@@ -65,7 +66,7 @@ public class ServiceProxyClient implements SearchClient {
   }
     
   @Override
-  public void configure (ConfigurationReader configReader) {
+  public void configure (ConfigurationReader configReader) throws MissingConfigurationContextException {
     logger.info(Utils.objectId(this) + " is configuring using the provided " + Utils.objectId(configReader));
     try {
       config = configReader.getConfiguration(this);      
@@ -75,10 +76,12 @@ public class ServiceProxyClient implements SearchClient {
       checkAuth.setParameterInState(new CommandParameter("action","=","check"));
       ipAuth = new AuthCommand();
       ipAuth.setParameterInState(new CommandParameter("action","=","ipauth"));
-    } catch (ConfigurationException c) {
-      // TODO: 
-      c.printStackTrace();
-    }    
+    } catch (MissingConfigurationContextException mcce) {
+      throw mcce;
+    } catch (ConfigurationException ce) {
+      logger.error("Failed to configure Service Proxy client");
+      ce.printStackTrace();
+    }
   }
     
   public boolean isAuthenticatingClient () {
