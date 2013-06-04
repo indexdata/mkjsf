@@ -42,7 +42,13 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   
   public void setFilter(String filterExpression) {
     if (filterExpression != null && filterExpression.length()>0) {
-      setParameter(new FilterParameter(new Expression(filterExpression)));
+      if (filterExpression.split("[=~]").length==1) {
+        removeFilters(filterExpression.split("[=~]")[0]);
+      } else if (filterExpression.split("[=~]").length==2) {
+        setParameter(new FilterParameter(new Expression(filterExpression)));
+      } else {
+        logger.error("Could not parse filter expression [" + filterExpression + "]");
+      }
     }
   }
   

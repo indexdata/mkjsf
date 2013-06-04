@@ -1,11 +1,8 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
 import java.io.Serializable;
-import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-
-import com.indexdata.mkjsf.pazpar2.commands.Expression;
 
 public class Expression implements Serializable {
   
@@ -24,10 +21,10 @@ public class Expression implements Serializable {
   }
   
   public Expression (String expressionString) {
-    StringTokenizer tokenizer = new StringTokenizer(expressionString,"=");
-    this.leftEntity = tokenizer.nextToken();
-    this.operator = "=";
-    this.rightEntity = tokenizer.nextToken();
+    String[] parts = expressionString.split("[=~]");
+    this.leftEntity = parts[0];
+    this.operator = expressionString.contains("=") ? "=" : "~";
+    this.rightEntity = parts[1];
     this.label=rightEntity;
   }
   
