@@ -81,7 +81,7 @@ public class Pazpar2State {
           }
         }
       }            
-      key = "#"+querystatebuilder.toString();
+      key = "#"+querystatebuilder.toString().hashCode();
       return key;
     } else {      
       return key;

@@ -28,17 +28,15 @@ import com.indexdata.mkjsf.errors.ConfigurationError;
 import com.indexdata.mkjsf.errors.ConfigurationException;
 import com.indexdata.mkjsf.errors.ErrorCentral;
 import com.indexdata.mkjsf.errors.ErrorHelper;
-import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
 import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
-import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
 import com.indexdata.mkjsf.pazpar2.state.StateListener;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
 
 @Named("pz2") @SessionScoped
-public class Pz2Service implements Pz2Interface, StateListener, Configurable, Serializable {
+public class Pz2Service implements StateListener, Configurable, Serializable {
 
   private static final String MODULE_NAME = "service";
   private static String SERVICE_TYPE_TBD = "TBD", SERVICE_TYPE_PZ2 = "PZ2", SERVICE_TYPE_SP = "SP";
@@ -145,12 +143,22 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     pzreq.getRecord().removeParametersInState();
     pzreq.getSearch().removeParametersInState();   
   }
-      
+     
+  
   /**
-   * Refreshes 'show', 'stat', 'termlist', and 'bytarget' data object from pazpar2
+   * Updates display data objects by issuing the following pazpar2 commands: 
+   * 'show', 'stat', 'termlist' and 'bytarget'.
    * 
-   * @return Number of activeclients at the time of the 'show' command.
-   */
+   * If there is an outstanding change to the search command, a search
+   * will be issued before the updates are performed. 
+   *  
+   * Returns a count of the remaining active clients from the most recent search.
+   * 
+   * After refreshing the data from pazpar2 the UI components displaying those 
+   * data should be re-rendered.
+   * 
+   * @return count of activeclients 
+   */  
   public String update () {
     logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
     if (errors.hasConfigurationErrors()) {
@@ -228,7 +236,17 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     }
     
   }
-                                  
+      
+  /**
+   * Will retrieve -- or alternatively remove -- the record with the given 
+   * recid from memory.
+   * 
+   * A pazpar2 'record' command will then be issued. The part of the UI 
+   * showing record data should thus be re-rendered.
+   *  
+   * @param recid
+   * @return
+   */
   public String toggleRecord (String recId) {
     if (hasRecord(recId)) {
       pzreq.getRecord().removeParameters();  
@@ -236,20 +254,40 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
       return "";
     } else {
       pzreq.getRecord().setId(recId);
-      doCommand("record");
+      pzreq.getRecord().run();
+      // doCommand("record");
       return pzresp.getRecord().getActiveClients();
     }
   }
   
-  @Override
+  /**
+   * Resolves whether the backend has a record with the given recid in memory 
+   * 
+   * @return true if the bean currently holds the record with recid
+   */  
   public boolean hasRecord (String recId) {
     return pzreq.getCommand("record").hasParameters() && pzresp.getRecord().getRecId().equals(recId);
   }
         
+  /**
+   * Returns the current hash key, used for internal session state tracking
+   * and potentially for browser history entries
+   * 
+   * A UI author would not normally be concerned with retrieving this. It's used by the
+   * framework internally
+   *  
+   * @return string that can be used for browsers window.location.hash
+   */
   public String getCurrentStateKey () {    
     return stateMgr.getCurrentState().getKey();
   }
       
+  /**
+   * Sets the current state key, i.e. when user clicks back or forward in browser history.
+   * Would normally be automatically handled by the frameworks components.
+   *  
+   * @param key corresponding to browsers hash string
+   */
   public void setCurrentStateKey(String key) {       
     stateMgr.setCurrentStateKey(key);
   }
@@ -258,8 +296,10 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     return pzreq.getCommand("search").hasParameterValue("query"); 
   }
     
-    
-  @Override
+  /**
+   * Returns a component for drawing a pager to navigate by.
+   * @return ResultsPager pager component
+   */
   public ResultsPager getPager () {
     if (pager == null) {
       pager = new ResultsPager(pzresp);      
@@ -267,7 +307,13 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     return pager;      
   }
   
-  @Override
+ /**
+  * Initiates a pager object, a component holding the data to draw a sequence
+  * of page numbers to navigate by and mechanisms to navigate with
+  * 
+  * @param pageRange number of pages to display in the pager
+  * @return ResultsPager the initiated pager component
+  */
   public ResultsPager setPager (int pageRange) {
     pager =  new ResultsPager(pzresp,pageRange,pzreq);
     return pager;
@@ -304,6 +350,7 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
    * @param commandName The command to be executed
    * @return An XML response parsed to form a response data object
    */
+  /*
   protected ResponseDataObject doCommand(String commandName) {
     Pazpar2Command command = pzreq.getCommand(commandName);
     if (command.spOnly() && isPazpar2Service()) {
@@ -318,6 +365,7 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
       return responseObject;
     }
   }
+  */
     
   @Override
   public void stateUpdated(String commandName) {
@@ -356,8 +404,6 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     }
   }
 
-  
-  @Override
   public void setServiceUrl(String url) {
     if (url!=null && searchClient != null && !url.equals(searchClient.getServiceUrl())) {
       pzreq.getRecord().removeParametersInState();
@@ -420,22 +466,18 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     return spClient;
   }  
   
-  @Override
   public boolean getAuthenticationRequired () {
     return spClient.isAuthenticatingClient();
   }
 
-  @Override
   public String getCheckHistory () {
     return ":pz2watch:stateForm:windowlocationhash";
   }
     
-  @Override
   public String getWatchActiveclients () {
     return ":pz2watch:activeclientsForm:activeclientsField";
   }
   
-  @Override
   public String getWatchActiveclientsRecord () {
     return ":pz2watch:activeclientsForm:activeclientsFieldRecord";
   }
@@ -479,17 +521,14 @@ public class Pz2Service implements Pz2Interface, StateListener, Configurable, Se
     return new ArrayList<String>();
   }
 
-  @Override
   public void setServiceTypePZ2() {
     setServiceType(SERVICE_TYPE_PZ2);    
   }
 
-  @Override
   public void setServiceTypeSP() {
     setServiceType(SERVICE_TYPE_SP);        
   }
 
-  @Override
   public void setServiceTypeTBD() {
     setServiceType(SERVICE_TYPE_TBD);    
   }
