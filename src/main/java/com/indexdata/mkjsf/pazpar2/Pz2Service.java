@@ -194,6 +194,7 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     try {
       if (commands.equals("search")) {
         pzreq.getSearch().run();
+        pzresp.getSearch().setIsNew(false);
         return "new";
       } else if (commands.equals("record")) {
         pzreq.getRecord().run();
@@ -260,6 +261,7 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     if (stateMgr.hasPendingStateChange("search") && hasQuery()) { 
       logger.info("Triggered search: Found pending search change [" + pzreq.getCommand("search").toString() + "], doing search before updating " + commands);      
       pzreq.getSearch().run();
+      pzresp.getSearch().setIsNew(false);
     } 
     if (stateMgr.hasPendingStateChange("record") && ! commands.equals("record")) {        
       logger.debug("Found pending record ID change. Doing record before updating " + commands);
