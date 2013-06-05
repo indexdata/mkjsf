@@ -15,6 +15,7 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
 
   private static final long serialVersionUID = 2817539422114569506L;
   private static Logger logger = Logger.getLogger(RecordCommand.class);
+  private RecordCommandSp spCommand = null;
 
   public RecordCommand() {
     super("record");
@@ -118,6 +119,7 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
+    newCommand.spCommand = this.spCommand;
     return newCommand;
   }
   
@@ -127,7 +129,10 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
    * 
    */
   public RecordCommandSp getSp () {
-    return new RecordCommandSp(this);
+    if (spCommand==null) {
+      spCommand = new RecordCommandSp(this);
+    } 
+    return spCommand;
   }
 
   @Override
