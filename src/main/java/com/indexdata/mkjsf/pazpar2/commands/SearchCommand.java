@@ -33,10 +33,20 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   }
     
   public void setQuery(String query) {    
-    setParameter(new CommandParameter("query","=",query));
+    setParameter(new QueryParameter("query","=",query));
+  }
+  
+  public void setBooleanOperatorForQuery(String operator) {
+    Pazpar2Command copy = this.copy();
+    ((QueryParameter) getParameter("query")).setBooleanOperator(operator);
+    checkInState(copy);
   }
   
   public String getQuery () {    
+    return getParameter("query") == null ? null  : getParameter("query").getSimpleValue();
+  }
+  
+  public String getExtendedQuery () {    
     return getParameter("query") == null ? null  : getParameter("query").getValueWithExpressions();
   }
   
@@ -109,7 +119,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     if (getParameter("filter") == null) {
       setFilter(field + operator + value);
     } else {
-      getParameter("filter").addExpression(new Expression(field,operator,value,(label != null ? label : value)));
+      addExpression("filter",new Expression(field,operator,value,(label != null ? label : value)));
     }
   }
   
@@ -255,8 +265,8 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    * @param term  i.e. 'Dickens, Charles'
    */
   public void setFacet(String facetKey, String term) {
-    if (term != null && term.length()>0) {         
-      getParameter("query").addExpression(new Expression(facetKey,"=",term,null));            
+    if (term != null && term.length()>0) { 
+      addExpression("query", new Expression(facetKey,"=",term,null));                  
     }            
   }
   
@@ -288,7 +298,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    */
   public void removeFacet(String facetKey, String term) {
     if (getParameter("query") != null) {
-      getParameter("query").removeExpression(new Expression(facetKey,"=",term,null));
+      removeExpression("query",new Expression(facetKey,"=",term,null));
     }
   }
       

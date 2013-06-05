@@ -161,9 +161,15 @@ public class CommandParameter implements Serializable {
   }
   
   public String getValueWithExpressions () {
-    StringBuilder completeValue = new StringBuilder((value==null ? "" : value));    
+    StringBuilder completeValue = new StringBuilder((value==null ? "" : value));
+    boolean first=true;
     for (Expression expr : expressions) {      
-      completeValue.append(" and " + expr.toString());
+      if (value == null && first) {
+        first = false;
+        completeValue.append(expr.toString());
+      } else {
+        completeValue.append(" AND " + expr.toString());
+      }
     }
     return completeValue.toString();    
   }  
