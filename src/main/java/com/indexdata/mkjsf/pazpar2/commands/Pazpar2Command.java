@@ -334,10 +334,10 @@ public abstract class Pazpar2Command implements Serializable  {
   public abstract ServiceProxyCommand getSp();
      
   /**
-   * Implementing commands publishes whether they only 
-   * apply to the Service Proxy - or can be executed 
-   * against straight Pazpar2 as well. Convenient for a 
-   * UI that switches between service types - whether 
+   * Here implementing commands publish whether they only 
+   * apply to the Service Proxy or can be executed 
+   * against straight Pazpar2 as well. This is convenient for a 
+   * UI that switches between service types either 
    * deployment time or run time.
    *   
    * @return false if the command applies to straight Pazpar2

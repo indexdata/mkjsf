@@ -2,6 +2,12 @@ package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
+/**
+ * Represents a Pazpar2 'bytarget' command
+ * 
+ * @author Niels Erik
+ *
+ */
 public class BytargetCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 9070458716105294392L;
