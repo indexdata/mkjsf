@@ -1,5 +1,20 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+/**
+ * Represents a query parameter as it applies to the Pazpar2 search command
+ * 
+ * <p>A query parameter can consists of a term value and/or one or more expressions 
+ * separated by boolean operators.</p>
+ * 
+ * <p>A complex query can be represented in the object as either one long string 
+ * set by <code>setQuery(string)</code> or as a series of expressions set by 
+ * <code>setQueryExpression(...)</code> (or a combination of the two). The difference
+ * between the two approaches would be the option of easily removing individual 
+ * expressions again or otherwise treat them has separate entities in the UI.</p>
+ * 
+ * @author Niels Erik
+ *
+ */
 public class QueryParameter extends CommandParameter {
 
   private static final long serialVersionUID = -3649052232241100927L;

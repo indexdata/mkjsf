@@ -56,14 +56,14 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    * were added as expressions (that is, not set with <code>setQuery()</code>).
    */
   public String getQuery () {    
-    return getParameter("query") == null ? null  : getParameter("query").getSimpleValue();
+    return getParameter("query") == null ? null  : ((QueryParameter)getParameter("query")).getSimpleValue();
   }
 
   /** 
    * Returns the complete <code>query</code> parameter value, including expressions.
    */
   public String getExtendedQuery () {    
-    return getParameter("query") == null ? null  : getParameter("query").getValueWithExpressions();
+    return getParameter("query") == null ? null  : ((QueryParameter)getParameter("query")).getValueWithExpressions();
   }
     
   /**
@@ -420,16 +420,30 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   
   
   /**
-   * Sets a facet, in CQL, to restrict the current results
+   * Adds an expression - for instance a facet criterion, with an optional label - to the query parameter
    * 
-   * @param facetKey  i.e.  'au' for author
-   * @param term  i.e. 'Dickens, Charles'
+   * <p>Example:</p>
+   * <ul>
+   *  <li><code>{au}{=}{"Steinbeck, John"}{Steinbeck, John}</code>
+   * </ul>
    */
-  public void setFacet(String facetKey, String term) {
+  public void addQueryExpression(String field, String operator, String term, String label) {
     if (term != null && term.length()>0) { 
-      addExpression("query", new Expression(facetKey,"=",term,null));                  
+      addExpression("query", new Expression(field,operator,term,label));                  
     }            
   }
+  
+  /**
+   * Removes a query expression - for instance a facet criterion - by its exact attributes
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   */
+  public void removeQueryExpression(String field, String operator, String value) {
+    removeExpression("query",new Expression(field, operator, value, null));    
+  }
+
   
   /**
    * Sets a facet to limit the current query by. The 
@@ -444,8 +458,8 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   public void setFacetOnQuery (String facetKey, String term) {
     String facetExpression = facetKey + "=" + term;    
     if (term != null && term.length()>0) {
-      String currentQuery= getParameterValue("query");
-      setParameter(new CommandParameter("query","=", currentQuery + " and " + facetExpression));      
+      String currentQuery= getQuery();
+      setParameter(new QueryParameter("query","=", currentQuery + " and " + facetExpression));      
     }            
   }
       
