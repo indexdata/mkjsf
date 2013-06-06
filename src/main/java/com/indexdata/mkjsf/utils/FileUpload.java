@@ -10,6 +10,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+/**
+ * Helper class for file uploads.
+ * 
+ * @author Niels Erik
+ *
+ */
 public abstract class FileUpload implements Serializable {
 
   private static Logger logger = Logger.getLogger(FileUpload.class);

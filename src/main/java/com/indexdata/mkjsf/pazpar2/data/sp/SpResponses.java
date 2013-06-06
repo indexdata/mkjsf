@@ -4,6 +4,12 @@ import java.io.Serializable;
 
 import com.indexdata.mkjsf.pazpar2.data.Responses;
 
+/**
+ * Provides references to all current Service Proxy-only data objects.
+ *  
+ * @author Niels Erik
+ *
+ */
 public class SpResponses implements Serializable {
   
   private static final long serialVersionUID = -3831357590639961167L;
@@ -52,6 +58,7 @@ public class SpResponses implements Serializable {
     responses.put("auth", new AuthResponse());
     resetInitAndBeyond(includePazpar2Responses);    
   }
+
   
   public AuthResponse getAuth () {
     return ((AuthResponse) responses.getResponseObject("auth"));

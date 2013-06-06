@@ -1,8 +1,11 @@
 package com.indexdata.mkjsf.utils;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
-
+/**
+ * A few utilities, mostly for logging
+ *  
+ * @author Niels Erik
+ *
+ */
 public class Utils {
   
   public static String nl = System.getProperty("line.separator");  

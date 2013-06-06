@@ -8,6 +8,12 @@ import javax.inject.Named;
 
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * UI utilities 
+ * 
+ * @author Niels Erik
+ *
+ */
 @Named("pzui")
 @ApplicationScoped
 public class UiUtils {

@@ -3,8 +3,8 @@
  * ResponseParser found in this package, the output being response data
  * objects accessible to the UI. 
  * 
- * <p>The most recent responses from each command are accessible to the UI
- * through the class Responses which is exposed to the UI as <code>pzresp</code></p>
+ * <p>The most recent response from each command is accessible to the UI
+ * through the class Responses, which is exposed to the UI as <code>pzresp</code></p>
  * 
  * <p>Examples:</p>
  * <ul>
