@@ -13,11 +13,11 @@ import org.apache.log4j.Logger;
 /**
  * Represents a Pazpar2 command parameter with a name, an operator, 
  * a simple value and/or one or more complex values (expressions).
- * <p>Examples</p>
+ * <p><i>Examples:</i></p>
  * <ul>
- *  <li>{name}{=}{value}</li>
- *  <li>{name}{=}{value} AND {expr1=value1} AND {expr2=value2}</li>
- *  <li>{name}{=}{expr1~value1},{expr2~value2}</li> 
+ *  <li><code>{name}{=}{value}</code></li>
+ *  <li><code>{name}{=}{value} AND {expr1=value1} AND {expr2=value2}</code></li>
+ *  <li><code>{name}{=}{expr1~value1},{expr2~value2}</code></li> 
  * </ul> 
  * @author Niels Erik
  *

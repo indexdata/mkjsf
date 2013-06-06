@@ -178,7 +178,7 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
      
   
   /**
-   * Updates display data objects by simultaneously issuing the following pazpar2 commands: 
+   * Updates display data objects by simultaneously issuing the following Pazpar2 commands: 
    * 'show', 'stat', 'termlist' and 'bytarget'. 
    * <p>
    * If there are outstanding changes to the search command, a search
@@ -232,7 +232,7 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
    * Simultaneously refreshes the data objects listed in 'commands' from pazpar2, potentially running a
    * search or a record command first if any of these two commands have outstanding parameter changes.
    * 
-   * @param commands comma separated list of Pazpar2 commands to execute
+   * @param commands, a comma-separated list of Pazpar2 commands to execute
    * 
    * @return Number of activeclients at the time of the 'show' command,
    *         or 'new' if search was just initiated.

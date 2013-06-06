@@ -14,17 +14,17 @@ import com.indexdata.mkjsf.utils.Utils;
 /**
  * Pazpar2Commands holds references to all Pazpar2 commands. 
  * <p>
- * The Pazpar2Commands object itself is exposed to the UI as 'pzreq'. 
+ * The Pazpar2Commands object itself is exposed to the UI as <code>pzreq</code>. 
  * </p>
  * <p>
  * When the UI request a command it will be retrieved from the current state
  * through the state manager, so that the command can trigger a mutation of 
  * the state if the user/UI modifies its parameters. 
  * </p>
- * Examples:
+ * <p>Examples:</p>
  * <ul>
- *  <li>pzreq.show    - will retrieve the show command for editing or execution
- *  <li>pzreq.sp.auth - will retrieve the Service Proxy extension command 'auth'
+ *  <li><code>pzreq.show</code>    - will retrieve the show command for editing or execution
+ *  <li><code>pzreq.sp.auth</code> - will retrieve the Service Proxy extension command 'auth'
  * </ul>
  * 
  * @author Niels Erik
@@ -52,6 +52,7 @@ public class Pazpar2Commands implements Serializable {
   }
   
   /**
+   * init command - referenced from UI as <code>pzreq.init</code>
    * 
    * @return init command from current state
    */
@@ -60,6 +61,7 @@ public class Pazpar2Commands implements Serializable {
   }
     
   /** 
+   * ping command - referenced from UI as <code>pzreq.ping</code>
    * 
    * @return ping command from current state 
    */
@@ -68,6 +70,7 @@ public class Pazpar2Commands implements Serializable {
   }
   
   /**
+   * settings command - referenced from UI as <code>pzreq.settings</code>
    * 
    * @return settings command from current state
    */

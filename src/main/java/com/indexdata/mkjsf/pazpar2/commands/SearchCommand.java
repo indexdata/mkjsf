@@ -12,6 +12,12 @@ import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Represents a Pazpar2 <code>search</code> command. 
+ * 
+ * @author Niels Erik
+ *
+ */
 @SessionScoped @Named
 public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand {
   
@@ -31,7 +37,10 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     Pz2Service.get().getSearchClient().setSearchCommand(this);
     return super.run();
   }
-    
+
+  /**
+   * Sets the <code>query</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setQuery(String query) {    
     setParameter(new QueryParameter("query","=",query));
   }
@@ -42,14 +51,24 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     checkInState(copy);
   }
   
+  /** 
+   * Returns the simple part of the <code>query</code> parameter value, excluding parts that 
+   * were added as expressions (that is, not set with <code>setQuery()</code>).
+   */
   public String getQuery () {    
     return getParameter("query") == null ? null  : getParameter("query").getSimpleValue();
   }
-  
+
+  /** 
+   * Returns the complete <code>query</code> parameter value, including expressions.
+   */
   public String getExtendedQuery () {    
     return getParameter("query") == null ? null  : getParameter("query").getValueWithExpressions();
   }
-  
+    
+  /**
+   * Sets the <code>filter</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setFilter(String filterExpression) {
     if (filterExpression != null && filterExpression.length()>0) {
       if (filterExpression.split("[=~]").length==1) {
@@ -62,10 +81,18 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     }
   }
   
+  /**
+   * Sets the <code>filter</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setFilter(String field, String operator, String value, String label) {
     setParameter(new FilterParameter(new Expression(field,operator,value,label)));
   }
-  
+
+  /**
+   * Checks if there are any filter expressions matching any of the given expressionFields
+   * @param expressionFields expression fields (left-of-operator entities) to look for
+   * @return true if expression(s) found with any of <code>expressionFields</code> 
+   */
   public boolean hasFilterExpression(String... expressionFields) {
     logger.trace("Checking for filter expression for " + Arrays.deepToString(expressionFields));
     for (String field : expressionFields) {
@@ -79,10 +106,18 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   }
 
   
+  /** 
+   * Returns the <code>filter</code> parameter value.
+   */
   public String getFilter() {
     return getParameter("filter") == null ? null : ((FilterParameter)getParameter("filter")).getValueWithExpressions();
   }
   
+  /**
+   * Returns the first filter expression of the given type
+   * @param expressionField expression field (left-of-operator entity) to look for
+   * @return the first filter expression found with the field <code>expressionField</code> or null if none found 
+   */
   public Expression getOneFilterExpression(String expressionField) {
     List<Expression> exprs = getFilterExpressions(expressionField);
     if (exprs != null && exprs.size()>0) {
@@ -96,10 +131,14 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   }
 
   
+  /**
+   * Returns list of all filter expressions 
+   */
   public List<Expression> getFilterExpressions() {
     return getParameter("filter").getExpressions();
   }
     
+  
   public List<Expression> getFilterExpressions(String... expressionFields) {
     logger.trace("Checking for filter parameter");
     if (parameters.get("filter")!=null) {
@@ -114,7 +153,16 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   public boolean hasFilter () {
     return getFilter().length()>0;
   }
-  
+
+  /**
+   * Adds a filter expression with a label for display. The filter is added to the end
+   * of an ordered list.  
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   * @param label
+   */
   public void addFilter(String field, String operator, String value, String label) {
     if (getParameter("filter") == null) {
       setFilter(field + operator + value);
@@ -122,37 +170,75 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
       addExpression("filter",new Expression(field,operator,value,(label != null ? label : value)));
     }
   }
-  
+
+  /**
+   * Clears the filter parameter
+   */
   public void removeFilters () {
     removeParameter("filter");
   }
-  
+
+  /**
+   * Removes a filter expression by exact attributes
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   */
   public void removeFilter(String field, String operator, String value) {
     removeExpression("filter",new Expression(field, operator, value, null));
   }
   
+  /**
+   * Removes all filter expressions matching a field listed in <code>fieldsToRemove</code>
+   * @param fieldsToRemove
+   */
   public void removeFilters(String... fieldsToRemove) {    
     removeExpressions("filter",fieldsToRemove);    
   }  
-    
+
+  /**
+   * Removes filter expressions coming after the expression matching the provided filter expression, 
+   * if they have a field listed in <code>fieldsToRemove</code>. To be used for bread crumb like UI 
+   * controls.
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   * @param fieldsToRemove
+   */
   public void removeFiltersAfter(String field, String operator, String value, String... fieldsToRemove) {     
     removeExpressionsAfter("filter",new Expression(field,operator,value,null),fieldsToRemove);    
   }
 
+  /**
+   * Sets the <code>limit</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setLimit (String limitExpression) {   
     if (limitExpression != null && limitExpression.length()>0) {
       setParameter(new LimitParameter(new Expression(limitExpression)));
     }
   }
   
+  /**
+   * Sets the <code>limit</code> parameter including a label. See Pazpar2 documentation for details.
+   */  
   public void setLimit(String field, String operator, String value, String label) {
     setParameter(new LimitParameter(new Expression(field,operator,value,label)));
   }
       
+  /** 
+   * Returns the <code>limit</code> parameter value.
+   */
   public String getLimit () {
     return getParameter("limit") == null ? null : ((FilterParameter)getParameter("limit")).getValueWithExpressions();    
   }
     
+  /**
+   * Checks if there are any limit expressions matching any of the given expressionFields
+   * @param expressionFields expression fields (left-of-operator entities) to look for
+   * @return true if expression(s) found with any of <code>expressionFields</code> 
+   */
   public boolean hasLimitExpression(String... expressionFields) {
     logger.trace("Checking for limit expression for " + Arrays.deepToString(expressionFields));
     for (String field : expressionFields) {
@@ -165,6 +251,11 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     return false;
   }
   
+  /**
+   * Returns the first limit expression of the given type
+   * @param expressionField expression field (left-of-operator entity) to look for
+   * @return the first limit expression found with the field <code>expressionField</code> or null if none found 
+   */
   public Expression getOneLimitExpression(String expressionField) {
     List<Expression> exprs = getLimitExpressions(expressionField);
     if (exprs != null && exprs.size()>0) {
@@ -177,10 +268,18 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     }    
   }
   
+  /**
+   * Return a list of all current limit expressions
+   */
   public List<Expression> getLimitExpressions() {
     return getParameter("limit").getExpressions();
   }
   
+  /**
+   * Returns a list of limit expressions with fields that matches on of <code>expressionFields</code>
+   * 
+   * @param expressionFields limit expressions to look for
+   */
   public List<Expression> getLimitExpressions(String... expressionFields) {
     logger.trace("Checking for limit parameter");
     if (parameters.get("limit")!=null) {
@@ -192,6 +291,15 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     }
   }
   
+  /**
+   * Adds a limit expression with a label for display. The limit is added to the end
+   * of an ordered list.  
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   * @param label
+   */
   public void addLimit(String field, String operator, String value, String label) {
     if (getParameter("limit") == null) {
       setLimit(field, operator, value, label);
@@ -200,59 +308,112 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
     }
   }
   
+  /**
+   * Clears the limit parameter
+   */
   public void removeLimits() {
     removeParameter("limit");
   }
   
+  /**
+   * Removes all limit expressions that have fields as listed in <code>fieldsToRemove</code>
+   * @param fieldsToRemove
+   */
   public void removeLimits(String... fieldsToRemove) {    
     removeExpressions("limit",fieldsToRemove);    
   }
   
+  /**
+   * Removes a limit expression by exact attributes
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   */
   public void removeLimit(String field, String operator, String value) {
     removeExpression("limit",new Expression(field, operator, value, null));    
   }
   
+  /**
+   * Removes limit expressions coming after the provided limit expression, if they have a field listed in
+   * <code>fieldsToRemove</code>. To be used for bread crumb like UI controls.
+   * 
+   * @param field
+   * @param operator
+   * @param value
+   * @param fieldsToRemove
+   */
   public void removeLimitsAfter(String field, String operator, String value, String... fieldsToRemove) {     
     removeExpressionsAfter("limit",new Expression(field,operator,value,null),fieldsToRemove);    
   }
 
         
+  /**
+   * Sets the <code>startrecs</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setStartrecs (String startrecs) {
     setParameter(new CommandParameter("startrecs","=",startrecs));
   }
   
+  /** 
+   * Returns the <code>startrecs</code> parameter value.
+   */
   public String getStartrecs () {
     return getParameterValue("startrecs");
   }
   
+  /**
+   * Sets the <code>maxrecs</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setMaxrecs (String maxrecs) {
     setParameter(new CommandParameter("maxrecs","=",maxrecs));
   }
   
+  /** 
+   * Returns the <code>maxrecs</code> parameter value.
+   */
   public String getMaxrecs () {
     return getParameterValue("maxrecs");
   }
   
+  /**
+   * Sets the <code>sort</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setSort (String sort) {
     setParameter(new CommandParameter("sort","=",sort));
   }
   
+  /** 
+   * Returns the <code>sort</code> parameter value.
+   */
   public String getSort () {
     return getParameterValue("sort");
   }
   
+  /**
+   * Sets the <code>rank</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setRank (String rank) {
     setParameter(new CommandParameter("rank","=",rank));
   }
   
+  /** 
+   * Returns the <code>rank</code> parameter value.
+   */
   public String getRank () {
     return getParameterValue("rank");
   }
   
+  /**
+   * Sets the <code>mergekey</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setMergekey (String mergekey) {
     setParameter(new CommandParameter("mergekey","=",mergekey));
   }
   
+  /** 
+   * Returns the <code>mergekey</code> parameter value.
+   */
   public String getMergekey () {
     return getParameterValue("mergekey");
   }

@@ -11,11 +11,11 @@ import org.apache.log4j.Logger;
  * An expression consist of a left-of-operator field or key, an equality operator (= or ~), 
  * a right-of-operator value, and optionally a label describing the value for UI display.
  * </p> 
- * Examples:
+ * <p>Examples:</p>
  * <ul>
- *  <li>pz:id=1234 "My Target"</li>
- *  <li>category~libcatalog "Library Catalogs"</li>
- *  <li>author="Steinbeck, John"</li>
+ *  <li><code>pz:id=1234</code> "My Target"</li>
+ *  <li><code>category~libcatalog</code> "Library Catalogs"</li>
+ *  <li><code>author="Steinbeck, John"</code></li>
  * </ul>
  * @author Niels Erik
  *

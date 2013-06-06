@@ -11,6 +11,12 @@ import com.indexdata.mkjsf.pazpar2.data.RecordResponse;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
+/**
+ * Represents a Pazpar2 <code>record</code> command. 
+ * 
+ * @author Niels Erik
+ *
+ */
 public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 2817539422114569506L;
@@ -57,58 +63,102 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
     return responseObject;
   }
   
+  /**
+   * Sets the <code>id</code> parameter. See Pazpar2 documentation for details.
+   * 
+   * @param recId record ID
+   */
   public void setId(String recId) {
     setParameter(new CommandParameter("id","=",recId));
   }
-  
+
+  /** 
+   * Returns the <code>id</code> parameter value.
+   */
   public String getId () {
     return getParameterValue("id");
   }
-  
+
+  /**
+   * Sets the <code>offset</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setOffset (String offset) {
     setParameter(new CommandParameter("offset","=",offset));
   }
-  
+
+  /** 
+   * Returns the <code>offset</code> parameter value.
+   */
   public String getOffset () {
     return getParameterValue("offset");
   }
   
+  /**
+   * Sets the <code>checksum</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setChecksum (String checksum) {
     setParameter(new CommandParameter("checksum","=",checksum));
   }
   
+  /** 
+   * Returns the <code>checksum</code> parameter value.
+   */
   public String getChecksum () {
     return getParameterValue("checksum");
   }
   
+  /**
+   * Sets the <code>nativesyntax</code> parameter. See Pazpar2 documentation for details.
+   */    
   public void setNativesyntax (String nativesyntax) {
     setParameterInState(new CommandParameter("nativesyntax","=",nativesyntax));
   }
   
+  /** 
+   * Returns the <code>nativesyntax</code> parameter value.
+   */
   public String getNativesyntax () {
     return getParameterValue("nativesyntax");
   }
   
+  /**
+   * Sets the <code>syntax</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setSyntax (String syntax) {
     setParameterInState(new CommandParameter("syntax","=",syntax));    
   }
   
+  /** 
+   * Returns the <code>syntax</code> parameter value.
+   */
   public String getSyntax () {
     return getParameterValue("syntax");
   }
   
+  /**
+   * Sets the <code>esn</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setEsn (String esn) {
     setParameter(new CommandParameter("esn","=",esn));
   }
   
+  /** 
+   * Returns the <code>esn</code> parameter value.
+   */
   public String getEsn () {
     return getParameterValue("esn");
   }
   
+  /**
+   * Sets the <code>binary</code> parameter. See Pazpar2 documentation for details.
+   */  
   public void setBinary (String binary) {
     setParameter(new CommandParameter("binary","=",binary));
   }
   
+  /** 
+   * Returns the <code>binary</code> parameter value.
+   */
   public String getBinary () {
     return getParameterValue("binary");
   }

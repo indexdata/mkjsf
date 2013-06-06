@@ -2,6 +2,14 @@ package com.indexdata.mkjsf.pazpar2.commands;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Represents a limit parameter as it applies to the Pazpar2 search command
+ * 
+ * <p>A limit parameter consists of one or more expressions separated by commas.</p> 
+ *  
+ * @author Niels Erik
+ *
+ */
 public class LimitParameter extends CommandParameter {
 
   private static final long serialVersionUID = -1410691265213389826L;
@@ -29,7 +37,7 @@ public class LimitParameter extends CommandParameter {
     return completeValue.toString();    
   }
   
-  public String pz2escape (String expressionString) {
+  private String pz2escape (String expressionString) {
     String escaped = expressionString.replaceAll("\\\\","\\\\\\\\");
     escaped = escaped.replaceAll(",","\\\\,");
     escaped = escaped.replaceAll("\\|", "\\\\|");

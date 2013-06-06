@@ -2,6 +2,12 @@ package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
+/**
+ * Represents a Pazpar2 <code>ping</code> command.
+ * 
+ * @author Niels Erik
+ *
+ */
 public class PingCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 8876721711326535847L;

@@ -2,6 +2,14 @@ package com.indexdata.mkjsf.pazpar2.commands;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Represents a filter parameter as it applies to the Pazpar2 search command
+ * 
+ * <p>A filter parameter consists of one or more expressions separated by commas.</p> 
+ *  
+ * @author Niels Erik
+ *
+ */
 public class FilterParameter extends CommandParameter {
 
   private static final long serialVersionUID = -3697328835895528654L;
@@ -28,7 +36,13 @@ public class FilterParameter extends CommandParameter {
     return completeValue.toString();    
   }  
   
-  public String pz2escape (String expressionString) {
+  /**
+   * Escapes backslash (\), comma (,) and pipe (|) from an expression string.
+   *  
+   * @param expressionString
+   * @return escaped expressionString
+   */
+  private String pz2escape (String expressionString) {
     String escaped = expressionString.replaceAll("\\\\","\\\\\\\\");
     escaped = escaped.replaceAll(",","\\\\,");
     escaped = escaped.replaceAll("\\|", "\\\\|");

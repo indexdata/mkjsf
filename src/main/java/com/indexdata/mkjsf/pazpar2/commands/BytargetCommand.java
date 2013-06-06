@@ -3,7 +3,7 @@ package com.indexdata.mkjsf.pazpar2.commands;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 /**
- * Represents a Pazpar2 'bytarget' command
+ * Represents a Pazpar2 <code>bytarget</code> command
  * 
  * @author Niels Erik
  *
