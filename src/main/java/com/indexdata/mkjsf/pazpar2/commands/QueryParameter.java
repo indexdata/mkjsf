@@ -3,7 +3,7 @@ package com.indexdata.mkjsf.pazpar2.commands;
 /**
  * Represents a query parameter as it applies to the Pazpar2 search command
  * 
- * <p>A query parameter can consists of a term value and/or one or more expressions 
+ * <p>A query parameter can consist of a term value and/or one or more expressions 
  * separated by boolean operators.</p>
  * 
  * <p>A complex query can be represented in the object as either one long string 

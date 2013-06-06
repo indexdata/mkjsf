@@ -10,7 +10,9 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 
 /**
- * Authenticates a user against a Pazpar2 Service Proxy
+ * Represents a Service Proxy <code>auth</code> command. 
+ * 
+ * <p>Authenticates a user against a Pazpar2 Service Proxy</p>
  * 
  * @author Niels Erik
  *
@@ -40,33 +42,59 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
     return responseObject;
   }
   
+  /**
+   * Normalizes the response XML for the benefit of the SAX parser that creates data objects. 
+   * <p>The parser expects responses to have document element names corresponding to the names of
+   * the commands that created the responses.</p>
+   * 
+   * @param responseString
+   * @param newName
+   * @return
+   */
   private String renameResponseElement(String responseString, String newName) {
     responseString = responseString.replace("<response>", "<" + newName + ">");
     responseString = responseString.replace("</response>", "</" + newName + ">");
     return responseString;
   }
 
-  
+  /**
+   * Sets Service Proxy command parameter <code>action</code>. See Service Proxy documentation for details. 
+   */
   public void setAction (String action) {
     setParameterInState(new CommandParameter("action","=",action));
   }  
   
+  /**
+   * Gets parameter value for <code>action</cod>
+   */
   public String getAction () {
     return getParameterValue("action");
   }
   
+  /**
+   * Sets Service Proxy command parameter <code>username</code>. See Service Proxy documentation for details. 
+   */
   public void setUsername(String username) {
     setParameterInState(new CommandParameter("username","=",username));
   }
   
+  /**
+   * Gets parameter value for <code>username</cod>
+   */
   public String getUsername () {
     return getParameterValue("username");
   }
-  
+    
+  /**
+   * Sets Service Proxy command parameter <code>password</code>. See Service Proxy documentation for details. 
+   */
   public void setPassword (String password) {
     setParameterInState(new CommandParameter("password","=",password));
   }
   
+  /**
+   * Gets parameter value for <code>password</cod>
+   */
   public String getPassword () {
     return getParameterValue("password");
   }

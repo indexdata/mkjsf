@@ -2,6 +2,12 @@ package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
+/**
+ * Represents a Pazpar2 <code>settings</code> command. 
+ * 
+ * @author Niels Erik
+ *
+ */
 public class SettingsCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 2291179325470387102L;

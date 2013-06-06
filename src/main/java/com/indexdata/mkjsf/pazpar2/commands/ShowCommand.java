@@ -2,6 +2,13 @@ package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
+
+/**
+ * Represents a Pazpar2 <code>show</code> command. 
+ * 
+ * @author Niels Erik
+ *
+ */
 public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = -8242768313266051307L;
@@ -12,21 +19,14 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
   }
 
   /**
-   * Sets the sort order for results, the updates the 'show' data object
-   * from pazpar2. Set valid sort options in the documentation for pazpar2.
-   * 
-   * The parts of the UI that display 'show' data should be rendered following
-   * this request.
-   * 
-   * @param sortOption
+   * Sets Pazpar2 parameter <code>sort</code>. See Pazpar2 documentation for details. 
    */
   public void setSort (String sort) {
     setParameter(new CommandParameter("sort","=",sort));
   }
   
   /**
-   * Retrieves the current sort order for results
-   * @return sort order - i.e. 'relevance'
+   * Gets parameter value for <code>sort</cod>
    */
   public String getSort () {
     return getParameter("sort") != null ? getParameter("sort").value : "relevance";
@@ -56,13 +56,7 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
   }
   
   /**
-   * Sets the first record to show - starting at record '0'. After setting
-   * first record number, the 'show' data object will be updated from pazpar2,
-   * and the parts of the UI displaying show data should be re-rendered.
-   * 
-   * To be used by the UI for paging.
-   * 
-   * @param start first record to show
+   * Sets Pazpar2 parameter <code>start</code>. See Pazpar2 documentation for details. 
    */
   public void setStart (int start) {    
     setParameter(new CommandParameter("start","=",start));      
@@ -79,34 +73,58 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
     return getParameter("start") != null ? Integer.parseInt(getParameter("start").value) : 0;
   }
   
+  /**
+   * Sets Pazpar2 parameter <code>num</code>. See Pazpar2 documentation for details. 
+   */
   public void setNum (int num) {
     setParameter(new CommandParameter("num","=",num));
   }
-  
+    
+  /** 
+   * Get the parameter value for <code>num</code>
+   */
   public int getNum () {
     return getParameter("num") != null ? Integer.parseInt(getParameter("num").value) : 0;
   }
   
+  /**
+   * Sets Pazpar2 parameter <code>block</code>. See Pazpar2 documentation for details. 
+   */
   public void setBlock(String block) {
     setParameterInState(new CommandParameter("block","=",block));
   }
-  
+
+  /** 
+   * Get the parameter value for <code>block</code>
+   */
   public String getBlock() {
     return getParameterValue("block");
   }
   
+  /**
+   * Sets Pazpar2 parameter <code>mergekey</code>. See Pazpar2 documentation for details. 
+   */
   public void setMergekey (String mergekey) {
     setParameter(new CommandParameter("mergekey","=",mergekey));
   }
   
+  /** 
+   * Get the parameter value for <code>mergekey</code>
+   */
   public String getMergekey () {
     return getParameterValue("mergekey");
   }
   
+  /**
+   * Sets Pazpar2 parameter <code>rank</code>. See Pazpar2 documentation for details. 
+   */
   public void setRank (String rank) {
     setParameter(new CommandParameter("rank","=",rank));
   }
   
+  /** 
+   * Get the parameter value for <code>rank</code>
+   */
   public String getRank () {
     return getParameterValue("rank");
   }

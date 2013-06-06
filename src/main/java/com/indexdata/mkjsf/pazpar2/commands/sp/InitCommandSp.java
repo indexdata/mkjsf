@@ -16,9 +16,11 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 
 /**
- * Service Proxy extensions to the init command - specifically 
+ * Service Proxy extensions to the Pazpar2 <code>init</code> command - specifically 
  * support for POSTing to the Service Proxy an init doc containing Pazpar2 
  * definitions and settings. 
+ * 
+ * This feature, however, is not supported in the publicly released Service Proxy at this point. 
  * 
  * @author Niels Erik
  *
@@ -36,6 +38,9 @@ public class InitCommandSp implements Serializable, ServiceProxyCommand {
     initDocUpload = new InitDocUpload();
   }
   
+  /**
+   * Sets Service Proxy command parameter <code>includeDebug</code>.  
+   */
   public void setIncludeDebug (String includeDebug) {
     command.setParameterInState(new CommandParameter("includeDebug","=",includeDebug));
   }

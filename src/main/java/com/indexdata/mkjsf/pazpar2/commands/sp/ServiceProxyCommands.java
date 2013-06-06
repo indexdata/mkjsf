@@ -9,7 +9,7 @@ import com.indexdata.mkjsf.utils.Utils;
 
 /**
  * ServiceProxyCommands holds references to all commands that are 
- * Service Proxy-only, that is, not supported by straight Pazpar2.
+ * Service Proxy-only, those that are NOT supported by straight Pazpar2, that is.
  * 
  * @author Niels Erik
  *
@@ -27,10 +27,20 @@ public class ServiceProxyCommands implements Serializable {
     this.stateMgr = stateMgr;
   }
   
+  /**
+   * auth command - referenced from UI as <code>pzreq.sp.auth</code>
+   * 
+   * @return auth command from current state
+   */
   public AuthCommand getAuth() {
     return (AuthCommand) (stateMgr.getCommand(AUTH));
   }
   
+  /**
+   * categories command - referenced from UI as <code>pzreq.sp.categories</code>
+   * 
+   * @return categories command from current state
+   */  
   public CategoriesCommand getCategories() {
     return (CategoriesCommand) (stateMgr.getCommand(CATEGORIES));
   }
