@@ -10,7 +10,7 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 
 /**
- * Represents a Service Proxy <code>auth</code> command. 
+ * Represents a Service Proxy <code>auth</code> command, can be accessed by <code>pzreq.sp.auth</code> 
  * 
  * <p>Authenticates a user against a Pazpar2 Service Proxy</p>
  * 

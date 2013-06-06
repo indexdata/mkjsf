@@ -23,6 +23,12 @@ import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.TargetCategory;
 
+/**
+ * Parses the XML stored in ClientCommandResponses and builds ResponseDataObjects from it.
+ *  
+ * @author Niels Erik
+ *
+ */
 public class ResponseParser extends DefaultHandler {
 
   private XMLReader xmlReader = null;
@@ -99,7 +105,7 @@ public class ResponseParser extends DefaultHandler {
     } else if (localName.equals("record")) {
       currentElement = new RecordResponse();            
     } else if (localName.equals("bytarget")) {
-      currentElement = new ByTarget();      
+      currentElement = new ByTargetResponse();      
     } else if (localName.equals("target")) {
       currentElement = new Target();
     } else if (localName.equals("stat")) {

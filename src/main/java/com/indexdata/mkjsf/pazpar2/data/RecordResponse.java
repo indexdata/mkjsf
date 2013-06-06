@@ -6,6 +6,12 @@ import java.util.List;
 import com.indexdata.mkjsf.pazpar2.data.Location;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Data from the <code>record</code> command, can be accessed by <code>pzresp.record</code>
+ * 
+ * @author Niels Erik
+ *
+ */
 public class RecordResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = 6682722004285796002L;

@@ -7,6 +7,12 @@ import javax.enterprise.context.SessionScoped;
 
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Data from the <code>categories</code> command, can be accessed by <code>pzresp.sp.categories</code>
+ * 
+ * @author Niels Erik
+ *
+ */
 @SessionScoped
 public class CategoriesResponse extends SpResponseDataObject  {
 

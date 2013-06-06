@@ -7,7 +7,7 @@ import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 
 /**
- * Represents a Service Proxy <code>categories</code> command.
+ * Represents a Service Proxy <code>categories</code> command, can be accessed by <code>pzreq.sp.categories</code>
  * 
  * <p>Retrieves target categories available to the current Service Proxy user.</p> 
  * <p>Target categories can be used to limit a search to resources tagged with the given 

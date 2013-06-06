@@ -8,7 +8,12 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.TermListResponse;
 import com.indexdata.mkjsf.pazpar2.data.TermResponse;
-
+/**
+ * Data from the <code>termlist</code> command, child object of TermListsResponse
+ * 
+ * @author Niels Erik
+ *
+ */
 public class TermListResponse extends ResponseDataObject {
 
   private static Logger logger = Logger.getLogger(TermListResponse.class);

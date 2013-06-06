@@ -27,6 +27,20 @@ import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.CommandError;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**
+ * Search client handling straight Pazpar2 requests. 
+ * 
+ * <p>Although it is described here as straight Pazpar2, the client itself 
+ * actually represents a layer between Pazpar2 and the JSF application because it 
+ * uses the Pazpar2 client from the library masterkey-common.</p>
+ * That client, which is the one also used by the Service Proxy, does perform certain 
+ * types of session handling, bootstraps lost sessions, avoids repeating already 
+ * executed queries etc, so it is -- in other words -- still a mediated interaction 
+ * with Pazpar2 that takes place. At least for now.</p>  
+ *  
+ * @author Niels Erik
+ *
+ */
 public class Pz2Client implements SearchClient {
 
   private static final long serialVersionUID = 5414266730169982028L;
@@ -88,6 +102,13 @@ public class Pz2Client implements SearchClient {
     client.setSearchCommand(clientCommand);    
   }
 
+  /**
+   * Runs the give Pazpar2 command and returns a response wrapper with either the received response or 
+   * with some form of error message. 
+   * 
+   * It is intended that this method never throws an exception. All events are supposed to be captured and
+   * returned in some form of response. 
+   */
   @Override
   public HttpResponseWrapper executeCommand(Pazpar2Command command) {
     ClientCommandResponse commandResponse = null;
@@ -132,7 +153,7 @@ public class Pz2Client implements SearchClient {
       commandResponse = new ClientCommandResponse(0,CommandError.createErrorXml(command.getCommandName(), "", "ServiceError", e.getMessage(),""),"text/xml");
     }
     long end = System.currentTimeMillis();      
-    logger.debug("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
+    logger.info("Executed " + command.getCommandName() + " in " + (end-start) + " ms." );
     return commandResponse;
   }
 
@@ -144,11 +165,17 @@ public class Pz2Client implements SearchClient {
     return clone;
   }
 
+  /**
+   * Returns default configuration parameters for the client.
+   */
   @Override
   public Map<String, String> getDefaults() {
     return DEFAULTS;
   }
 
+  /**
+   * Returns the configuration name of the client
+   */
   @Override
   public String getModuleName() {
     return MODULENAME;
@@ -178,6 +205,9 @@ public class Pz2Client implements SearchClient {
     }
   }
 
+  /**
+   * Provides configuration documentation -- mostly for diagnosing problems   
+   */
   @Override
   public List<String> documentConfiguration() {
     List<String> doc = new ArrayList<String>();
@@ -189,25 +219,41 @@ public class Pz2Client implements SearchClient {
     return config;
   }
 
+  /**
+   * Returns the currently configured Papzar2 URL.
+   */
   @Override
   public String getServiceUrl() {
     return cfg.PAZPAR2_URL;    
   }
 
+  /**
+   * Returns true if a Papzar2 URL was defined yet. 
+   */
   @Override
   public boolean hasServiceUrl() {
     return cfg.PAZPAR2_URL != null && cfg.PAZPAR2_URL.length()>0;
   }
   
+  /**
+   * Sets the Pazpar2 URL to use for requests. 
+   */
   @Override 
   public void setServiceUrl (String serviceUrl) {    
     cfg.PAZPAR2_URL = serviceUrl;    
   }
   
+  /**
+   * Returns the Pazpar2 Service ID 
+   */
   public String getServiceId () {
     return cfg.PAZPAR2_SERVICE_ID;
   }
   
+  /**
+   * Sets the service ID that Pazpar2 should use when servicing requests
+   * @param serviceId
+   */
   public void setServiceId(String serviceId) {
     cfg.PAZPAR2_SERVICE_ID = serviceId;
     try {

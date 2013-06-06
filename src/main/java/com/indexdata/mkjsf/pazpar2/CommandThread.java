@@ -5,6 +5,13 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.Responses;
 
+/**
+ * Helper class for running multiple concurrent Pazpar2 commands. Basically 
+ * used for updating display data (show,stat,bytarget,termlist) together.
+ * 
+ * @author Niels Erik
+ *
+ */
 public class CommandThread extends Thread {
 
   private static Logger logger = Logger.getLogger(CommandThread.class);

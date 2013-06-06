@@ -13,7 +13,7 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
 /**
- * Represents a Pazpar2 <code>search</code> command. 
+ * Represents a Pazpar2 <code>search</code> command, can be accessed by <code>pzreq.search</code> 
  * 
  * @author Niels Erik
  *

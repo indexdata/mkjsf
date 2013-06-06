@@ -2,6 +2,12 @@ package com.indexdata.mkjsf.pazpar2.data;
 
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Data from the <code>stat</code> command, can be accessed by <code>pzresp.stat</code>
+ * 
+ * @author Niels Erik
+ *
+ */
 public class StatResponse extends ResponseDataObject {
   
   private static final long serialVersionUID = -6578979787689458761L;

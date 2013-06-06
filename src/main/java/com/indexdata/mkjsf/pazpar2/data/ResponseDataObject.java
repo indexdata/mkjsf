@@ -9,6 +9,12 @@ import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Parent class of all response data objects, with generic methods for retrieving data elements
+ * 
+ * @author Niels Erik
+ *
+ */
 public class ResponseDataObject implements Serializable {
 
   Logger logger = Logger.getLogger(ResponseDataObject.class);
@@ -38,6 +44,12 @@ public class ResponseDataObject implements Serializable {
     return attributes.get(name);
   }
     
+  /**
+   * Used by the response XML parser to add child element objects to a parent element object
+   * 
+   * @param name of the child element
+   * @param value the child object itself
+   */
   public void addElement (String name, ResponseDataObject value) {    
     if (elements.containsKey(name)) {
       elements.get(name).add(value);
@@ -74,6 +86,12 @@ public class ResponseDataObject implements Serializable {
     }
   }
   
+  /**
+   * Returns string array with the values of the named element(s)
+   *   
+   * @param name of the child object(s) to retrieve value(s) from
+   * @return
+   */
   public String[] getValueArray (String name) {
     List<ResponseDataObject> elements = getElements(name);
     String[] valueArray = {};

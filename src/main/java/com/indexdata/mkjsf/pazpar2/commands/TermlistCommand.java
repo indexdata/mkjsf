@@ -3,7 +3,7 @@ package com.indexdata.mkjsf.pazpar2.commands;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 /**
- * Represents a Pazpar2 <code>termlist</code> command. 
+ * Represents a Pazpar2 <code>termlist</code> command, can be accessed by <code>pzreq.termlist</code> 
  * 
  * @author Niels Erik
  *

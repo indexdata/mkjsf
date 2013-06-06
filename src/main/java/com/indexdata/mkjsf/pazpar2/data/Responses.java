@@ -20,6 +20,12 @@ import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponses;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**
+ * Provides references to all current data objects and has general methods for clearing certain response data.
+ *  
+ * @author Niels Erik
+ *
+ */
 @SessionScoped @Named
 public class Responses implements Serializable {
     
@@ -81,17 +87,25 @@ public class Responses implements Serializable {
     return error;         
   }
   
+  /**
+   * Empties all data objects populated after a search (including the search response itself)
+   * 
+   */
   public void resetSearchAndBeyond() {
     logger.debug("Resetting show,stat,termlist,bytarget,record,search response objects.");
     dataObjects.put("show", new ShowResponse());
     dataObjects.put("stat", new StatResponse());
     dataObjects.put("termlist", new TermListsResponse());
-    dataObjects.put("bytarget", new ByTarget());
+    dataObjects.put("bytarget", new ByTargetResponse());
     dataObjects.put("record", new RecordResponse());
     dataObjects.put("search", new SearchResponse());
     getSp().resetSearchAndBeyond(false);
   }
   
+  /**
+   * Empties all data objects populated after a service was initialized, including the init response itself
+   * but excluding a possible auth response
+   */
   public void resetInitAndBeyond () {
     dataObjects.put("init", new InitResponse());        
     resetSearchAndBeyond();
@@ -130,8 +144,8 @@ public class Responses implements Serializable {
     return (getTermLists().getTermList(facet).getTerms());
   }
   
-  public ByTarget getByTarget() {
-    return ((ByTarget) dataObjects.get("bytarget"));
+  public ByTargetResponse getByTarget() {
+    return ((ByTargetResponse) dataObjects.get("bytarget"));
   }
 
   public ResponseDataObject getResponseObject (String name) {

@@ -3,7 +3,7 @@ package com.indexdata.mkjsf.pazpar2.commands;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 /**
- * Represents a Pazpar2 <code>settings</code> command. 
+ * Represents a Pazpar2 <code>settings</code> command, can be accessed by <code>pzreq.settings</code>
  * 
  * @author Niels Erik
  *

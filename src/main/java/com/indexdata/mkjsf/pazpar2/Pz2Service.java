@@ -322,6 +322,9 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     }
   }
       
+  /**
+   * Used by the state manager to notify Pz2Service about state changes
+   */
   @Override
   public void stateUpdated(String commandName) {
     logger.debug("State change reported for [" + commandName + "]");
@@ -413,12 +416,21 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     return pager;
   }
      
+  /**
+   * Sets the URL of the Service Proxy to use for requests
+   * 
+   * @param url
+   */
   public void setServiceProxyUrl(String url) {
     searchClient = spClient;
     setServiceType(SERVICE_TYPE_SP);
     setServiceUrl(url);
   }
   
+  /**
+   * Returns the Service Proxy URL currently defined for servicing requests
+   * 
+   */
   public String getServiceProxyUrl () {
     if (isServiceProxyService()) {
       return spClient.getServiceUrl();
@@ -426,13 +438,22 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
       return "";
     }
   }
-  
+
+  /**
+   * Sets the URL of the Pazpar2 to use for requests
+   * 
+   * @param url
+   */
   public void setPazpar2Url(String url) {
     searchClient = pz2Client;
     setServiceType(SERVICE_TYPE_PZ2);
     setServiceUrl(url);
   }
   
+  /**
+   * Returns the Pazpar2 URL currently defined for servicing requests
+   * 
+   */  
   public String getPazpar2Url() {
     if (isPazpar2Service()) {
       return pz2Client.getServiceUrl();
@@ -441,6 +462,12 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     }
   }
 
+  /**
+   * Sets the URL to be used by the currently selected search client 
+   * when running requests. 
+   * 
+   * @param url
+   */
   public void setServiceUrl(String url) {
     if (url!=null && searchClient != null && !url.equals(searchClient.getServiceUrl())) {
       pzreq.getRecord().removeParametersInState();
@@ -450,6 +477,10 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     }    
   }
   
+  /**
+   * Gets the currently selected URL used for executing requests. 
+   * @return
+   */
   public String getServiceUrl() {
     return (searchClient!=null ? searchClient.getServiceUrl() : "");
   }

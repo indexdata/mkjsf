@@ -41,6 +41,12 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
 import com.indexdata.mkjsf.pazpar2.data.CommandError;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**
+ * Search client handling Service Proxy requests. 
+ *   
+ * @author Niels Erik
+ *
+ */
 public class ServiceProxyClient implements SearchClient {
     
   private static final long serialVersionUID = -4031644009579840277L;
@@ -165,6 +171,9 @@ public class ServiceProxyClient implements SearchClient {
     return handler.getReasonPhrase();
   }
 
+  /**
+   * Does nothing in Service Proxy context
+   */
   @Override
   public void setSearchCommand(Pazpar2Command command) {
     // Do nothing, Service Proxy is handling this    
@@ -184,11 +193,17 @@ public class ServiceProxyClient implements SearchClient {
     return clone;
   }
 
+  /**
+   * Returns default configuration parameters for the client.
+   */
   @Override
   public Map<String, String> getDefaults() {    
     return new HashMap<String,String>();
   }
 
+  /**
+   * Returns the configuration name of the client
+   */
   @Override
   public String getModuleName() {
     return MODULENAME;
@@ -251,6 +266,9 @@ public class ServiceProxyClient implements SearchClient {
     return commandResponse;    
   }
   
+  /**
+   * Sets the URL of the Service Proxy that should service requests. 
+   */
   public void setServiceUrl (String url) {    
     serviceUrl = url;
   }
@@ -264,6 +282,9 @@ public class ServiceProxyClient implements SearchClient {
     return serviceUrl;
   }
 
+  /**
+   * Returns true if a Service Proxy URL was defined yet.
+   */
   @Override
   public boolean hasServiceUrl() {
     return serviceUrl != null && serviceUrl.length()>0;

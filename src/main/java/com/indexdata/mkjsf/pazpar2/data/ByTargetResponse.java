@@ -6,7 +6,13 @@ import java.util.List;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.Target;
 
-public class ByTarget extends ResponseDataObject {
+/**
+ * Data from the <code>bytarget</code> command, can be accessed by <code>pzresp.byTarget</code>
+ * 
+ * @author Niels Erik
+ *
+ */
+public class ByTargetResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = 3960644950805644518L;
   

@@ -6,6 +6,12 @@ import java.util.Map;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.TermListResponse;
 
+/**
+ * Data from the <code>termlist</code> command, can be accessed by <code>pzresp.termLists</code>
+ * 
+ * @author Niels Erik
+ *
+ */
 public class TermListsResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = -1370643625715834978L;

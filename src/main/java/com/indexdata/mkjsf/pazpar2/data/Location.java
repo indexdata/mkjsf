@@ -2,7 +2,12 @@ package com.indexdata.mkjsf.pazpar2.data;
 
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
-
+/**
+ * Data from the <code>show</code> command, child object of Hit
+ * 
+ * @author Niels Erik
+ *
+ */
 public class Location extends ResponseDataObject {
     
   private static final long serialVersionUID = -1386527442857478225L;

@@ -4,7 +4,7 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 
 /**
- * Represents a Pazpar2 <code>show</code> command. 
+ * Represents a Pazpar2 <code>show</code> command, can be accessed by <code>pzreq.show</code> 
  * 
  * @author Niels Erik
  *

@@ -1,5 +1,11 @@
 package com.indexdata.mkjsf.pazpar2.data.sp;
 
+/**
+ * Data from the <code>auth</code> command, can be accessed by <code>pzresp.sp.auth</code>
+ * 
+ * @author Niels Erik
+ *
+ */
 public class AuthResponse extends SpResponseDataObject  {
 
   private static final long serialVersionUID = 8006774126022849936L;

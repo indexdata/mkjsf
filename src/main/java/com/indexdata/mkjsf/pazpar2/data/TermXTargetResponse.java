@@ -2,6 +2,12 @@ package com.indexdata.mkjsf.pazpar2.data;
 
 import com.indexdata.mkjsf.pazpar2.data.TermResponse;
 
+/**
+ * Data from the <code>termlist</code> command, child object of TermListResponse
+ * 
+ * @author Niels Erik
+ *
+ */
 public class TermXTargetResponse extends TermResponse {
 
   private static final long serialVersionUID = 5201902652960804977L;
@@ -10,19 +16,19 @@ public class TermXTargetResponse extends TermResponse {
     return getOneElement("id").getValue();
   }
   public int getApproximation () {
-    return Integer.parseInt(getOneElement("approximation").getValue());
+    return Integer.parseInt(getOneValue("approximation"));
   }
   public int getRecords () {
-    return Integer.parseInt(getOneElement("records").getValue());
+    return Integer.parseInt(getOneValue("records"));
   }
   public int getFiltered () {
-    return Integer.parseInt(getOneElement("filtered").getValue());
+    return Integer.parseInt(getOneValue("filtered"));
   }
   public String getState () {
-    return getOneElement("state").getValue();
+    return getOneValue("state");
   }
   public String getDiagnostic () {
-    return getOneElement("diagnostic").getValue();
+    return getOneValue("diagnostic");
   }
 
 }

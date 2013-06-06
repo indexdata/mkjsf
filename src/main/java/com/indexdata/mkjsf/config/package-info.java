@@ -77,7 +77,7 @@
  * 
  * <code>pz2client.PAZPAR2_URL = http://localhost:8004/</code>
  * 
- * <p>Some of the other know parameters in this format could be:</p>
+ * <p>Some of the other known parameters in this format could be:</p>
  * 
  * <pre>
  * service.TYPE = SP              
@@ -89,7 +89,7 @@
  * and inject that class in beans.xml instead of any of the two predefined options. The extended
  * class must construct a Configuration object -- which is basically a set of key-value pairs -- 
  * and then set the desired values and hand it off to the Configurable (currently Pz2Service, Pz2Client, 
- * ServiceProxyClient</p> 
+ * and ServiceProxyClient)</p> 
  * 
  * <p>Finally it's possible to set the URL runtime even from the UI pages.</p> 
  * 

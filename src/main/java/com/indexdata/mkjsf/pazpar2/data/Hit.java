@@ -6,6 +6,12 @@ import java.util.List;
 import com.indexdata.mkjsf.pazpar2.data.Location;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Data from the <code>show</code> command, child object of ShowResponse, can be accessed by <code>pzresp.show.hits</code>
+ *  
+ * @author Niels Erik
+ *
+ */
 public class Hit extends ResponseDataObject {
 
   

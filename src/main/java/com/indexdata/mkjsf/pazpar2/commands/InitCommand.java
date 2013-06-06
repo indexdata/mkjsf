@@ -6,7 +6,7 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.InitCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 /**
- * Represents a Pazpar2 <code>init</code> command.
+ * Represents a Pazpar2 <code>init</code> command, can be accessed by <code>pzreq.init</code>
  * 
  * @author Niels Erik
  *

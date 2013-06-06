@@ -6,7 +6,8 @@ import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.RecordCommand;
 
 /**
- * Service Proxy extensions to the Papzar2 <code>record</code> command. 
+ * Service Proxy extensions to the Papzar2 <code>record</code> command, 
+ * these parameters being accessible by <code>pzreq.record.sp.[parameter]</code>
  * 
  * @author Niels Erik
  *

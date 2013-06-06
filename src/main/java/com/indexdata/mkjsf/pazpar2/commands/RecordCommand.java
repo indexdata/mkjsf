@@ -12,7 +12,7 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
 /**
- * Represents a Pazpar2 <code>record</code> command. 
+ * Represents a Pazpar2 <code>record</code> command, can be accessed by <code>pzreq.record</code>
  * 
  * @author Niels Erik
  *
@@ -27,6 +27,14 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
     super("record");
   }
   
+  /**
+   * Special handling of record responses since they come in three distinctly different ways
+   * <ol>
+   *  <li>As a regular &lt;record&gt; document</li>
+   *  <li>In arbitrary XML format, in case of an offset request to get the native format</li>
+   *  <li>In binary (non XML) format</li>
+   * </ol> 
+   */
   @Override
   public ResponseDataObject run() {
     ResponseDataObject responseObject = null;

@@ -6,6 +6,12 @@ import java.util.List;
 import com.indexdata.mkjsf.pazpar2.data.Hit;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
+/**
+ * Data from the <code>show</code> command, can be accessed by <code>pzresp.show</code>
+ * 
+ * @author Niels Erik
+ *
+ */
 public class ShowResponse extends ResponseDataObject {
 
   private static final long serialVersionUID = 7103554232106330370L;
