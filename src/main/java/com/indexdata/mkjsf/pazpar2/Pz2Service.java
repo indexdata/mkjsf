@@ -36,6 +36,21 @@ import com.indexdata.mkjsf.pazpar2.state.StateListener;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**  
+ * Pz2Service is the main controller of the search logic, used for selecting the service 
+ * type (which can be done by configuration and/or run-time), selecting which search client 
+ * to use, and performing high-level control of request cycles and state management. 
+ * <p>
+ * Command and response beans are also obtained through Pz2Service - although it is 
+ * transparent to the UI that they are retrieved through this object.
+ * </p>
+ * <p>
+ * Pz2Service is exposed to the UI as 'pz2'. However, if the service is pre-configured, 
+ * the Faces pages might never need to reference 'pz2' explicitly. Indirectly they UI will, 
+ * though, if the polling mechanism in the tag &lt;pz2utils:pz2watch&gt; is used.
+ * 
+ * 
+ **/ 
 @Named("pz2") @SessionScoped
 public class Pz2Service implements StateListener, Configurable, Serializable {
 
@@ -131,6 +146,16 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     return stateMgr;
   }
   
+  /**
+   * Configures the selected search client using the selected configuration reader.
+   * 
+   * The configuration reader is select deploy-time - by configuration in the application's beans.xml.
+   * 
+   * @param client search client to use
+   * @param configReader the selected configuration mechanism
+   * @throws MissingConfigurationContextException if this object is injected before there is a Faces context
+   * for example in a Servlet filter.
+   */
   public void configureClient(SearchClient client, ConfigurationReader configReader)  throws MissingConfigurationContextException {
     logger.debug(Utils.objectId(this) + " will configure search client for the session");
     try {
@@ -153,18 +178,39 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
      
   
   /**
-   * Updates display data objects by issuing the following pazpar2 commands: 
-   * 'show', 'stat', 'termlist' and 'bytarget'.
+   * Updates display data objects by simultaneously issuing the following pazpar2 commands: 
+   * 'show', 'stat', 'termlist' and 'bytarget'. 
+   * <p>
+   * If there are outstanding changes to the search command, a search
+   * will be issued before the updates are performed. Outstanding changes could come 
+   * from the UI changing a search parameter and not executing search before starting 
+   * the update cycle - OR - it could come from the user clicking the browsers back/forward
+   * buttons. 
+   * </p>
+   * <p>
+   * This method is invoked from the composite 'pz2watch', which uses Ajax
+   * to keep invoking this method until it returns '0' (for zero active clients).
+   * </p>
+   * <p>
+   * UI components that display data from show, stat, termlist or bytarget, 
+   * should be re-rendered after each update. 
+   * </p>
+   * Example of invocation in UI:
+   * <pre>
+   *    &lt;pz2utils:pz2watch id="pz2watch"
+   *       renderWhileActiveclients="myshowui mystatui mytermsui" /&lt; 
+   *       
+   *    &lt;h:form&gt;
+   *     &lt;h:inputText id="query" value="#{pzreq.search.query}" size="50"/&gt;                            
+   *      &lt;h:commandButton id="button" value="Search"&gt;              
+   *       &lt;f:ajax execute="query" render="${pz2.watchActiveclients}"/&gt;
+   *      &lt;/h:commandButton&gt;
+   *     &lt;/h:form&gt;
+   * </pre>
+   * The expression pz2.watchActiveClients will invoke the method repeatedly, and the
+   * UI sections myshowui, mystatui, and mytermsui will be rendered on each poll. 
    * 
-   * If there is an outstanding change to the search command, a search
-   * will be issued before the updates are performed. 
-   *  
-   * Returns a count of the remaining active clients from the most recent search.
-   * 
-   * After refreshing the data from pazpar2 the UI components displaying those 
-   * data should be re-rendered.
-   * 
-   * @return count of activeclients 
+   * @return a count of the remaining active clients from the most recent search. 
    */  
   public String update () {
     logger.debug("Updating show,stat,termlist,bytarget from pazpar2");
@@ -183,9 +229,11 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
   }
      
   /**
-   * Refreshes the data objects listed in 'commands' from pazpar2
+   * Simultaneously refreshes the data objects listed in 'commands' from pazpar2, potentially running a
+   * search or a record command first if any of these two commands have outstanding parameter changes.
    * 
-   * @param commands
+   * @param commands comma separated list of Pazpar2 commands to execute
+   * 
    * @return Number of activeclients at the time of the 'show' command,
    *         or 'new' if search was just initiated.
    */
@@ -254,6 +302,10 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
    * etc) this method checks if a search must be executed
    * before those updates are performed.
    *  
+   * It will consequently also run a search if the UI updates a
+   * search parameter without actually explicitly executing the search 
+   * before setting of the polling.
+   *  
    * @see {@link com.indexdata.mkjsf.pazpar2.state.StateManager#setCurrentStateKey} 
    * @param commands
    */
@@ -298,13 +350,12 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
     } else {
       pzreq.getRecord().setId(recId);
       pzreq.getRecord().run();
-      // doCommand("record");
       return pzresp.getRecord().getActiveClients();
     }
   }
   
   /**
-   * Resolves whether the backend has a record with the given recid in memory 
+   * Resolves whether the back-end has a record with the given recid in memory 
    * 
    * @return true if the bean currently holds the record with recid
    */  

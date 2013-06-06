@@ -9,6 +9,12 @@ import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 
+/**
+ * Authenticates a user against a Pazpar2 Service Proxy
+ * 
+ * @author Niels Erik
+ *
+ */
 public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 5487611235664162578L;

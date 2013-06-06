@@ -6,6 +6,20 @@ import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.sp.CategoriesResponse;
 
+/**
+ * Retrieves target categories available to the current Service Proxy user.
+ * <p>
+ * Target categories can be used to limit a search to resources tagged with the given 
+ * category. The following request in a Faces page would obtain categories for displaying, say, a select list:
+ * <p>
+ *  pzreq.sp.categories.run().targetCategories   
+ * <p>
+ * This would get the Service Proxy extension commands, pick the categories command, execute it, and retrieve
+ *  a list of TargetCategory objects from the returned response data object.  
+ * </p>
+ * @author Niels Erik
+ *
+ */
 public class CategoriesCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   private static final long serialVersionUID = 5023993689780291641L;

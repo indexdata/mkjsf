@@ -5,6 +5,12 @@ import java.io.Serializable;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.RecordCommand;
 
+/**
+ * Service Proxy extensions to the record command. 
+ * 
+ * @author Niels Erik
+ *
+ */
 public class RecordCommandSp  implements Serializable, ServiceProxyCommand {
 
   private static final long serialVersionUID = -3901864271733337221L;

@@ -11,6 +11,25 @@ import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommands;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**
+ * Pazpar2Commands holds references to all Pazpar2 commands. 
+ * <p>
+ * The Pazpar2Commands object itself is exposed to the UI as 'pzreq'. 
+ * </p>
+ * <p>
+ * When the UI request a command it will be retrieved from the current state
+ * through the state manager, so that the command can trigger a mutation of 
+ * the state if the user/UI modifies its parameters. 
+ * </p>
+ * Examples:
+ * <ul>
+ *  <li>pzreq.show    - will retrieve the show command for editing or execution
+ *  <li>pzreq.sp.auth - will retrieve the Service Proxy extension command 'auth'
+ * </ul>
+ * 
+ * @author Niels Erik
+ *
+ */
 @SessionScoped @Named
 public class Pazpar2Commands implements Serializable {
 
@@ -31,52 +50,93 @@ public class Pazpar2Commands implements Serializable {
   public Pazpar2Commands() {
     logger.info("Initializing Pazpar2Commands [" + Utils.objectId(this) + "]");   
   }
-      
-  // public void setService(Pz2Service service) {
-  //   this.pz2 = service;
-  //  logger.info("Post construct Pazpar2Command: Service is " + pz2);    
-  // }
-      
+  
+  /**
+   * 
+   * @return init command from current state
+   */
   public InitCommand getInit() {
     return (InitCommand) (Pz2Service.get().getStateMgr().getCommand(INIT));    
   }
     
+  /** 
+   * 
+   * @return ping command from current state 
+   */
   public PingCommand getPing() {
     return (PingCommand) (Pz2Service.get().getStateMgr().getCommand(PING));
   }
   
+  /**
+   * 
+   * @return settings command from current state
+   */
   public SettingsCommand getSettings() {
     return (SettingsCommand) (Pz2Service.get().getStateMgr().getCommand(SETTINGS));
   }
 
+  /**
+   * 
+   * @return search command from current state
+   */
   public SearchCommand getSearch() {
     return (SearchCommand) (Pz2Service.get().getStateMgr().getCommand(SEARCH));
   }
   
+  /**
+   * 
+   * @return stat command from current state
+   */
   public StatCommand getStat() {
     return (StatCommand) (Pz2Service.get().getStateMgr().getCommand(STAT));
   }
   
+  /**
+   * 
+   * @return show command from current state
+   */
   public ShowCommand getShow() {
     return (ShowCommand) (Pz2Service.get().getStateMgr().getCommand(SHOW));
   }
     
+  /**
+   * 
+   * @return record command from current state
+   */
   public RecordCommand getRecord() {
     return (RecordCommand) (Pz2Service.get().getStateMgr().getCommand(RECORD));
   }
 
+  /**
+   * 
+   * @return termlist command from current state
+   */
   public TermlistCommand getTermlist() {
     return (TermlistCommand) (Pz2Service.get().getStateMgr().getCommand(TERMLIST));
   }
   
+  /**
+   * 
+   * @return bytarget command from current state
+   */
   public BytargetCommand getBytarget() {
     return (BytargetCommand) (Pz2Service.get().getStateMgr().getCommand(BYTARGET));
   }
   
+  /**
+   * Generically retrieves any command
+   * 
+   * @param name name of command to retrieve
+   * @return command of the given type
+   */
   public Pazpar2Command getCommand(String name) {    
     return Pz2Service.get().getStateMgr().getCommand(name);
   }
   
+  /**
+   * Gets the object holding references to Service Proxy-only commands.
+   * @return
+   */
   public ServiceProxyCommands getSp() {
     if (sp == null) {
       sp = new ServiceProxyCommands(Pz2Service.get().getStateMgr());

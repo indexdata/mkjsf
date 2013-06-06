@@ -15,6 +15,14 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 
+/**
+ * Service Proxy extensions to the init command - specifically 
+ * support for POSTing to the Service Proxy an init doc containing Pazpar2 
+ * definitions and settings. 
+ * 
+ * @author Niels Erik
+ *
+ */
 public class InitCommandSp implements Serializable, ServiceProxyCommand {
 
   private static final long serialVersionUID = -6609045941782375651L;

@@ -11,6 +11,12 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 import com.indexdata.mkjsf.utils.FileUpload;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**
+ * Helper class for file upload of an Service Proxy init doc.
+ * 
+ * @author Niels Erik
+ *
+ */
 @Named
 @SessionScoped
 public class InitDocUpload extends FileUpload {

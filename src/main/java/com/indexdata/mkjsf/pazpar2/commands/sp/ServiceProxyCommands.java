@@ -7,6 +7,13 @@ import org.apache.log4j.Logger;
 import com.indexdata.mkjsf.pazpar2.state.StateManager;
 import com.indexdata.mkjsf.utils.Utils;
 
+/**
+ * ServiceProxyCommands holds references to all commands that are 
+ * Service Proxy-only, that is, not supported by straight Pazpar2.
+ * 
+ * @author Niels Erik
+ *
+ */
 public class ServiceProxyCommands implements Serializable {
 
   public static final String AUTH = "auth";
