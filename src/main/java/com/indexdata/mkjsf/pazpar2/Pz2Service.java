@@ -45,9 +45,9 @@ import com.indexdata.mkjsf.utils.Utils;
  * transparent to the UI that they are retrieved through this object.
  * </p>
  * <p>
- * Pz2Service is exposed to the UI as 'pz2'. However, if the service is pre-configured, 
- * the Faces pages might never need to reference 'pz2' explicitly. Indirectly they UI will, 
- * though, if the polling mechanism in the tag &lt;pz2utils:pz2watch&gt; is used.
+ * Pz2Service is exposed to the UI as <code>pz2</code>. However, if the service is pre-configured, 
+ * the Faces pages might never need to reference <code>pz2</code> explicitly. Indirectly they will, 
+ * though, if the polling mechanism in the tag <code>&lt;pz2utils:pz2watch&gt;</code> is used.
  * 
  * 
  **/ 
