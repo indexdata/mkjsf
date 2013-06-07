@@ -1,7 +1,7 @@
 /**
  * 
  * Each Pazpar2 command is represented by a class with methods for 
- * setting parameters and ultimately running the command against 
+ * setting parameters and running the command against 
  * the selected Pazpar2 service. 
  * <p>
  * The UI can access the command objects through the bean Pazpar2Commands, 

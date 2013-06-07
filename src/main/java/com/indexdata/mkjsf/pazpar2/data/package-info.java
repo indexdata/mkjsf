@@ -1,10 +1,9 @@
 /**
  * Pazpar2 responses produced by Pazpar2 commands are parsed by the
- * ResponseParser found in this package, the output being response data
- * objects accessible to the UI. 
+ * ResponseParser, which outputs response data objects that are accessible to the UI
+ * through the class Responses. 
  * 
- * <p>The most recent response from each command is accessible to the UI
- * through the class Responses, which is exposed to the UI as <code>pzresp</code></p>
+ * <p>Responses is exposed to the UI as <code>pzresp</code></p>
  * 
  * <p>Examples:</p>
  * <ul>
