@@ -13,6 +13,7 @@
 
   <cc:interface>
     <cc:attribute name="renderWhileActiveclients"/>
+    <cc:attribute name="renderWhileActiveclientsRecord"/>
     <cc:attribute name="trackHistory"/>
     <cc:attribute name="renderOnHitoryChange"/> 
     <cc:attribute name="debug"/>   
@@ -20,12 +21,13 @@
 
   <cc:implementation>
     <h:outputScript name="jsf.js" library="javax.faces" target="head" />
-    <h:outputScript name="fieldlisteners.js" library="pz2utils" target="head" />
+    <h:outputScript name="listeners.js" library="pz2utils" target="head" />
     
-    <!-- Initiate Ajax update listeners -->  
+    <!-- Initiate Ajax listeners -->  
     <script>
      //<![CDATA[
        var renderWhileActiveclients = "${cc.attrs.renderWhileActiveclients}";
+       var renderWhileActiveclientsRecord = "${cc.attrs.renderWhileActiveclientsRecord}";
        var renderOnHistoryChange = "${cc.attrs.renderOnHistoryChange}";
        var trackHistory = ("${cc.attrs.trackHistory}" == "true");  
        setUpListeners();
@@ -33,36 +35,16 @@
     </script>  
 
     <h:form id="activeclientsForm" prependId="false">
-      <h:outputText id="activeClientsLabel" value="Active clients: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
+      <h:outputText id="activeClientsLabel" value="Active clients: show: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/> 
       <h:outputText id="activeclientsField" value="${pz2.update()}"  style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
-      <h:panelGrid id="errorMessages" style="${pz2.hasErrors() ? 'display: block;' : 'display: none;'}">
-        <h:dataTable value="#{pz2.configurationErrors}" var="error" cellspace="0" cellpadding="0" style="${pz2.hasConfigurationErrors() ? 'display: block; vertical-align: top;' : 'display: none;'}">
-          <h:column valign="top">
-            <h:outputText value="#{error.message}" style="color: red;"/>
-            <h:dataTable value="#{error.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">
-             <h:column>
-               #{suggestion}        
-             </h:column>      
-            </h:dataTable>                                        
-          </h:column>
-        </h:dataTable>
-        <h:panelGrid  style="${pz2.hasCommandErrors() ? 'display: block;' : 'display: none;'}">
-          <h:column>
-            <h:outputText id="messages" value="#{pz2.commandError.message}" style="color: red;"/>
-          </h:column>
-          <h:dataTable value="#{pz2.commandError.suggestions}" var="suggestion" cellspacing="0" cellpadding="0">                  
-           <h:column>
-             #{suggestion}        
-           </h:column>      
-          </h:dataTable>
-        </h:panelGrid>                
-      </h:panelGrid>                      
+      <h:outputText id="space" value=" - record: " style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>
+      <h:outputText id="activeclientsFieldRecord" value="${pzreq.record.run().getActiveClients()}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}"/>      
     </h:form>
 
     <h:form id="stateForm" prependId="false" rendered="${cc.attrs.trackHistory == 'true'}" style="${cc.attrs.debug == 'true' ? '' : 'display:none;'}">
       State: 
       <h:inputText id="windowlocationhash" value="#{pz2.currentStateKey}" size="100">
-        <f:ajax event="change" render="#{cc.attrs.renderOnHistoryChange} #{pz2watch.activeclients}"/>
+        <f:ajax event="change" render="#{cc.attrs.renderOnHistoryChange} #{pz2.watchActiveclients}"/>
       </h:inputText>
     </h:form>
   </cc:implementation>
