@@ -122,6 +122,11 @@
       <url>http://maven.indexdata.com</url>
     </repository>
   </repositories>
+  <scm>
+    <connection>scm:git:ssh://git.indexdata.com:222/home/git/private/mkjsf</connection>
+    <url>http://gitid.indexdata.com/?p=mkjsf.git</url>
+  </scm>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
