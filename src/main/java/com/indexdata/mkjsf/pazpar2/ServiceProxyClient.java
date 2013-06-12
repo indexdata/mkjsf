@@ -38,6 +38,7 @@ import com.indexdata.mkjsf.errors.MissingConfigurationContextException;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
+import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.CommandError;
 import com.indexdata.mkjsf.utils.Utils;
 
@@ -241,8 +242,10 @@ public class ServiceProxyClient implements SearchClient {
     return initDocPaths;
   }
   
-  public HttpResponseWrapper postInitDoc(byte[] initDoc, boolean includeDebug) {
-    HttpPost post = new HttpPost(serviceUrl+"?command=init" + (includeDebug? "&includeDebug=yes" : ""));
+  public HttpResponseWrapper postInitDoc(byte[] initDoc, Pazpar2Command command) {
+    String requestParameters = command.getEncodedQueryString();
+    logger.info("Initiating session with init doc and [" + requestParameters +"]");
+    HttpPost post = new HttpPost(serviceUrl+"?" + requestParameters);
     post.setEntity(new ByteArrayEntity(initDoc));
     ClientCommandResponse commandResponse = null;
     byte[] response;
