@@ -11,6 +11,7 @@ import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
 import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.InitCommand;
+import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
@@ -31,7 +32,7 @@ public class InitCommandSp implements Serializable, ServiceProxyCommand {
   private static Logger logger = Logger.getLogger(InitCommandSp.class);
   private InitCommand command = null;
   
-  private InitDocUpload initDocUpload;
+  private InitDocUpload initDocUpload = null;
 
   public InitCommandSp(InitCommand initCommand) {
     this.command=initCommand;
@@ -66,23 +67,39 @@ public class InitCommandSp implements Serializable, ServiceProxyCommand {
   public SpResponseDataObject run() {
     Pz2Service.get().resetSearchAndRecordCommands();
     Pz2Service.get().getPzresp().getSp().resetAuthAndBeyond(true);    
-    try {
-      byte[] bytes = getUploadedInitDoc().getBytes();
-      HttpResponseWrapper response = Pz2Service.get().getSpClient().postInitDoc(bytes,getIncludeDebug().equals("yes"));    
-      ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)response);    
-      Pz2Service.get().getPzresp().put("init", responseObject);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    if (initDocUpload.hasUploadedFile()) {
+      try {
+        byte[] bytes = getUploadedInitDoc().getBytes();
+        HttpResponseWrapper response = Pz2Service.get().getSpClient().postInitDoc(bytes,command);    
+        ResponseDataObject responseObject = ResponseParser.getParser().getDataObject((ClientCommandResponse)response);    
+        Pz2Service.get().getPzresp().put("init", responseObject);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } else {
+      Pz2Service.get().getSpClient().executeCommand(this.command);
     }
     return null;
+  }
+  
+  /**
+   * Sets the <code>windowid</code> parameter. See Service Proxy documentation for details.
+   */  
+  public void setWindowid (String windowid) {
+    command.setParameterInState(new CommandParameter("windowid","=",windowid));
+  }
+  
+  /** 
+   * Returns the <code>windowid</code> parameter value.
+   */
+  public String getWindowid () {
+    return command.getParameterValue("windowid");
   }
 
   @Override
   public boolean spOnly() {
     return true;
-  }
-  
-  
+  }  
   
 }

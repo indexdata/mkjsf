@@ -74,13 +74,14 @@ public class InitCommand extends Pazpar2Command implements ServiceProxyCommand {
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }
-    newCommand.spCommand = this.spCommand;
+    newCommand.spCommand = new InitCommandSp(this);
+    newCommand.spCommand.setUploadedInitDoc(spCommand.getUploadedInitDoc());
     return newCommand;
   }
   
   public ServiceProxyCommand getSp() {
     if (spCommand==null) {
-      spCommand = new InitCommandSp(this);
+      spCommand = new InitCommandSp(this);      
     } 
     return spCommand;
   }

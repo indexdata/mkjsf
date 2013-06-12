@@ -177,7 +177,7 @@ public class RecordCommand extends Pazpar2Command implements ServiceProxyCommand
     for (String parameterName : parameters.keySet()) {
       newCommand.setParameterInState(parameters.get(parameterName).copy());      
     }    
-    newCommand.spCommand = this.spCommand;
+    newCommand.spCommand = new RecordCommandSp(newCommand);
     return newCommand;
   }
   
