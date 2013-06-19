@@ -1,5 +1,6 @@
-- Adds parameter 'windowid' (SP extension) to init command
-- Fix for state handling in record command (the SP extensions) 
+- Adds parameter 'windowid' (SP extension) to applicable commands
+- Bugfixes: State handling in record command (the SP extensions) 
+            Wrong class cast (FilterParameter to LimitParameter)
 - Adds working web.xml context parameters for SP service
 
 0.3.3  
