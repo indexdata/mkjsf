@@ -1,6 +1,7 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
+import com.indexdata.mkjsf.pazpar2.commands.sp.StatCommandSp;
 
 /**
  * Represents a Pazpar2 <code>stat</code> command, can be accessed by <code>pzreq.state</code>
@@ -26,7 +27,7 @@ public class StatCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   @Override
   public ServiceProxyCommand getSp() {
-    return this;
+    return new StatCommandSp(this);
   }
 
   @Override

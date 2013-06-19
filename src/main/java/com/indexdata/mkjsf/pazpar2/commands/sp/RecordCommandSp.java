@@ -48,6 +48,21 @@ public class RecordCommandSp  implements Serializable, ServiceProxyCommand {
   public String getAcefilter () {
     return command.getParameterValue("acefilter");
   }
+  
+  /**
+   * Sets the <code>windowid</code> parameter. See Service Proxy documentation for details.
+   */  
+  public void setWindowid (String windowid) {
+    command.setParameterInState(new CommandParameter("windowid","=",windowid));
+  }
+  
+  /** 
+   * Returns the <code>windowid</code> parameter value.
+   */
+  public String getWindowid () {
+    return command.getParameterValue("windowid");
+  }
+
 
   @Override
   public boolean spOnly() {

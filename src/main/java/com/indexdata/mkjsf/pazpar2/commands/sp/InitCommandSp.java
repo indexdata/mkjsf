@@ -11,7 +11,6 @@ import com.indexdata.mkjsf.pazpar2.HttpResponseWrapper;
 import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.InitCommand;
-import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
@@ -56,8 +55,12 @@ public class InitCommandSp implements Serializable, ServiceProxyCommand {
   
   public UploadedFile getUploadedInitDoc () {
     logger.info("initDocUpload is: " + initDocUpload );
-    logger.info("initDocUpload.getUploadedFile() is: " +initDocUpload.getUploadedFile());
+    if (initDocUpload != null) {
+      logger.info("initDocUpload.getUploadedFile() is: " +initDocUpload.getUploadedFile());    
     return initDocUpload.getUploadedFile();
+    } else {
+      return null;
+    }
   }
   
   public void downloadInitDoc () throws IOException {

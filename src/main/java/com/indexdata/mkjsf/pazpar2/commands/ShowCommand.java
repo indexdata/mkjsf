@@ -1,6 +1,7 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
+import com.indexdata.mkjsf.pazpar2.commands.sp.ShowCommandSp;
 
 
 /**
@@ -140,7 +141,7 @@ public class ShowCommand extends Pazpar2Command implements ServiceProxyCommand {
 
   @Override
   public ServiceProxyCommand getSp() {
-    return this;
+    return new ShowCommandSp(this);
   }
 
   @Override
