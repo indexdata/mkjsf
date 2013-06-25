@@ -31,17 +31,23 @@
  * </pre>
  * 
  * <p>For the web.xml configuration scheme (choosing WebXmlConfigReader in beans.xml)
- * to pre-define the URL of the Pazpar2 to use, the configuration could be:</p>
+ * to pre-define the URL of the Pazpar2 to use and choose Pazpar2 as the selected
+ * service type, the configuration could be:</p>
  * 
  * <pre>
  *  &lt;context-param&gt;
  *   &lt;param-name&gt;PAZPAR2_URL&lt;/param-name&gt;
  *   &lt;param-value&gt;http://localhost:8004/&lt;/param-value&gt;
  *  &lt;/context-param&gt;
+ *  &lt;context-param&gt;
+ *   &lt;description&gt;Service type. Possible values: SP, PZ2, TBD&lt;/description&gt;
+ *   &lt;param-name&gt;TYPE&lt;/param-name&gt;
+ *   &lt;param-value&gt;PZ2&lt;/param-value&gt;  
+ *  &lt;/context-param&gt;
  * </pre>
  * 
  * <p>For the Mk2ConfigReader scheme to work, the web.xml must then contain pointers to the configuration directory 
- * and properties file. 
+ * and properties file. The specific configuration itself would be in those files then.
  * In this example the configuration directory is in the web application itself (war://testconfig). A more regular 
  * example would put it in a separate directory to not have it overwritten by each deployment of the war.</p> 
  * <pre>

@@ -7,6 +7,7 @@ import com.indexdata.mkjsf.pazpar2.Pz2Service;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
+import com.indexdata.mkjsf.pazpar2.data.sp.AuthResponse;
 import com.indexdata.mkjsf.pazpar2.data.sp.SpResponseDataObject;
 
 /**
@@ -32,7 +33,7 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
     ClientCommandResponse response = (ClientCommandResponse) Pz2Service.get().getSearchClient().executeCommand(this);      
     String renamedResponse = renameResponseElement(response.getResponseString(), "auth");    
     response.setResponseToParse(renamedResponse);
-    SpResponseDataObject responseObject = (SpResponseDataObject) ResponseParser.getParser().getDataObject(response);    
+    AuthResponse responseObject = (AuthResponse) ResponseParser.getParser().getDataObject(response);    
     if (ResponseParser.docTypes.contains(responseObject.getType())) {
       Pz2Service.get().getPzresp().put(getCommandName(), responseObject);
     }

@@ -43,5 +43,9 @@ public class InitDocUpload extends FileUpload {
       e.printStackTrace();
     }
   }
+  
+  public boolean hasUploadedFile () {
+    return uploadedFile != null;
+  }
 
 }

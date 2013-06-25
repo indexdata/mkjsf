@@ -9,6 +9,7 @@ import javax.inject.Named;
 import org.apache.log4j.Logger;
 
 import com.indexdata.mkjsf.pazpar2.Pz2Service;
+import com.indexdata.mkjsf.pazpar2.commands.sp.SearchCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 
@@ -231,7 +232,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    * Returns the <code>limit</code> parameter value.
    */
   public String getLimit () {
-    return getParameter("limit") == null ? null : ((FilterParameter)getParameter("limit")).getValueWithExpressions();    
+    return getParameter("limit") == null ? null : ((LimitParameter)getParameter("limit")).getValueWithExpressions();    
   }
     
   /**
@@ -487,7 +488,7 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
 
   @Override
   public ServiceProxyCommand getSp() {
-    return this;
+    return new SearchCommandSp(this);
   }
 
   @Override

@@ -95,7 +95,7 @@ public abstract class Pazpar2Command implements Serializable  {
     }
     return run();
   }
-  
+    
   /**
    * Executes the command in a thread.  
    * 

@@ -1,5 +1,6 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
+import com.indexdata.mkjsf.pazpar2.commands.sp.BytargetCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 /**
@@ -25,7 +26,7 @@ public class BytargetCommand extends Pazpar2Command implements ServiceProxyComma
   }
 
   public ServiceProxyCommand getSp() {
-    return this;
+    return new BytargetCommandSp(this);
   }
 
   @Override
