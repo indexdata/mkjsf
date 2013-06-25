@@ -85,9 +85,11 @@ public abstract class Pazpar2Command implements Serializable  {
    * 
    * @return Response data object based on the Pazpar2 service response
    */
-  public ResponseDataObject runWith(String... parameters) {
-    for (String parameter : parameters) {
-      StringTokenizer tokenizer = new StringTokenizer(parameter,"=");
+  public ResponseDataObject runWith(String parameters) {
+    StringTokenizer expressions = new StringTokenizer(parameters,";");
+    while (expressions.hasMoreTokens()) {
+      String expression = expressions.nextToken();
+      StringTokenizer tokenizer = new StringTokenizer(expression,"=");
       String name = (String) tokenizer.nextElement();
       String value = (String) tokenizer.nextElement();
       CommandParameter commandParameter = new CommandParameter(name,"=",value);
