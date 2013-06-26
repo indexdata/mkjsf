@@ -80,7 +80,7 @@ public abstract class Pazpar2Command implements Serializable  {
   
   /**
    * Executes the commands with the currently selected parameters, while adding
-   * the parameters provided
+   * the parameters provided in the vararg
    * @param parameters A list of parameters on the form [key=value]
    * 
    * @return Response data object based on the Pazpar2 service response
@@ -94,6 +94,29 @@ public abstract class Pazpar2Command implements Serializable  {
       setParameterInState(commandParameter);
     }
     return run();
+  }
+
+  /**
+   * Executes the commands with the currently selected parameters, while adding
+   * the parameters provided in the 'delimiter'-separated String.
+   * 
+   * Note: This is for Glassfish/JBoss support. With Tomcat7 the method 
+   *       runWith(String... parameters) can be used directly from EL 
+   *       with a vararg 
+   *  
+   * @param parameters A list of parameters separated by 'delimiter'
+   * @param delimiter The separator character of the String 'parameters' 
+   * 
+   * @return Response data object based on the Pazpar2 service response
+   */
+  public ResponseDataObject runWith2(String parameters, String delimiter) {    
+    StringTokenizer params = new StringTokenizer(parameters,delimiter);
+    String[] vararg = new String[params.countTokens()];
+    int i=0;
+    while (params.hasMoreTokens()) {
+      vararg[i++] = params.nextToken();
+    }
+    return runWith(vararg);
   }
     
   /**
