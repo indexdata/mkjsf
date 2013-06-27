@@ -14,7 +14,7 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- JSF 2 -->
+    <!-- JSF 2, JSP tag library, Weld, CDI -->
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.faces</artifactId>
@@ -24,19 +24,14 @@
       <groupId>javax.servlet.jsp.jstl</groupId>
       <artifactId>javax.servlet.jsp.jstl-api</artifactId>
       <version>1.2.1</version>      
-    </dependency>
-    <!-- Weld, Dependency Injection (CDI) -->
+    </dependency>    
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet</artifactId>
       <version>1.1.10.Final</version>      
-    </dependency>    
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.2.3</version>
-    </dependency>
-    <!-- File upload -->
+    </dependency> 
+
+    <!-- File upload etc -->
     <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk20</artifactId>
@@ -46,7 +41,14 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.1</version>
-    </dependency>    
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.2.3</version>
+    </dependency>
+     
+    <!-- Pazpar2 client -->   
     <dependency>
       <groupId>com.indexdata</groupId>
       <artifactId>masterkey-common</artifactId>
@@ -63,6 +65,7 @@
         <excludes>          
           <exclude>main/</exclude>
           <exclude>*.java</exclude>
+          <exclude>META-INF/beans.xml</exclude>
         </excludes>
       </resource>
     </resources>
@@ -90,6 +93,15 @@
           <localCheckout>true</localCheckout>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <classifier>${env}</classifier>
+        </configuration>
+      </plugin>
+      
     </plugins>
     <extensions>
       <extension>
@@ -128,7 +140,58 @@
   </scm>
   
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <env></env>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>    
   </properties>
   
+  <profiles>
+    <profile>
+      <!-- Tomcat 7 profile, includes JSF 2.0 and Weld -->
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <env></env>
+      </properties>
+      <dependencies>
+      </dependencies>
+      <build>
+        <resources>
+          <resource>
+            <targetPath>META-INF</targetPath>
+            <directory>src/main/resources/tomcat</directory>
+            <includes>
+              <include>beans.xml</include>
+            </includes>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+    <profile>
+      <!-- J2EE Application Server profile (Glassfish, JBoss) -->
+      <!-- beans.xml contains information of which configuration 
+           scheme to inject. Optimally this would be decided at 
+           the .war/application level, not at (this) jar/library
+           level, but for now this is necessary when using Glassfish
+           or JBoss -->
+      <id>as</id>
+      <properties>
+        <env>as</env>
+      </properties>
+      <dependencies>
+      </dependencies>
+      <build>
+        <resources>
+          <resource>
+            <targetPath>META-INF</targetPath>
+            <directory>src/main/resources/as</directory>
+            <includes>
+              <include>beans.xml</include>
+            </includes>
+          </resource>
+        </resources>
+      </build>      
+    </profile>
+  </profiles>
 </project>
