@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.indexdata</groupId>
   <artifactId>mkjsf</artifactId>
-  <version>0.0.6-SNAPSHOT</version>
+  <version>0.0.6</version>
   <name>MasterKey JSF</name>
   <packaging>jar</packaging>
   <description>MKJSF - JavaServer Faces library for MasterKey</description>
@@ -140,7 +140,7 @@
   </scm>
   
   <properties>
-    <env></env>
+    <env />
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>    
   </properties>
   
@@ -152,7 +152,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <env></env>
+        <env />
       </properties>
       <dependencies>
       </dependencies>
