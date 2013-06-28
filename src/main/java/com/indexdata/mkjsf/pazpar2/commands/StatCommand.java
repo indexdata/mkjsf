@@ -4,7 +4,7 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.commands.sp.StatCommandSp;
 
 /**
- * Represents a Pazpar2 <code>stat</code> command, can be accessed by <code>pzreq.stat</code>
+ * <b><code>stat</code></b> Pazpar2 command, referenced as: <code>pzreq.stat</code>
  * 
  * @author Niels Erik
  *

@@ -12,7 +12,7 @@ import com.indexdata.mkjsf.pazpar2.data.ResponseDataObject;
 import com.indexdata.mkjsf.pazpar2.data.ResponseParser;
 
 /**
- * Represents a Pazpar2 <code>record</code> command, can be accessed by <code>pzreq.record</code>
+ * <b><code>record</code></b> Pazpar2 command, referenced as: <code>pzreq.record</code>
  * 
  * @author Niels Erik
  *

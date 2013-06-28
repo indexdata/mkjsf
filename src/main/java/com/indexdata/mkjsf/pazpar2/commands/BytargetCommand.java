@@ -4,7 +4,7 @@ import com.indexdata.mkjsf.pazpar2.commands.sp.BytargetCommandSp;
 import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 
 /**
- * Represents a Pazpar2 <code>bytarget</code> command, can be accessed by <code>pzreq.bytarget</code>
+ * <b><code>bytarget</code></b> Pazpar2 command referenced as: <code>pzreq.bytarget</code>
  * 
  * @author Niels Erik
  *

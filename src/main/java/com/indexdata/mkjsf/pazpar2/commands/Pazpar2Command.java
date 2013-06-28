@@ -50,7 +50,7 @@ public abstract class Pazpar2Command implements Serializable  {
   }
       
   /**
-   * Commands must implement this method to provide an completely detached, deep clone of 
+   * Commands must implement this method to provide a completely detached, deep clone of 
    * themselves.
    * 
    * The clone is needed by the state manager to transfer commands with current setting 
