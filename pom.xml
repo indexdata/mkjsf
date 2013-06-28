@@ -125,7 +125,7 @@
     </repository>
     <site>
       <id>id-website</id>
-      <url>scpexe://www.indexdata.com/var/www/software/mkjsf/</url>
+      <url>scpexe://www.indexdata.com/var/www/software/mkjsf/project/</url>
     </site>
   </distributionManagement>  
   <repositories>
