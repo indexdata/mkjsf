@@ -1,18 +1,19 @@
 /**
- * The library comes with two alternative mechanisms for configuration of an application, but it is
- * possible to apply a custom scheme too or not use the configurations at all.
- * <p>The library does require that a configuration scheme is chosen - in beans.xml as described below.</p>
- * <p>But the library does NOT impose any mandatory parameters in order to start up (except for those required for 
- * bootstrapping the configuration). The library <i>does</i> know of certain parameters, if it encounters them.
+ * The library comes with two alternative mechanisms for configuration of an application. It is
+ * possible, however, to apply a custom scheme or not to use configurations at all.
+ * <p>The library does require that a configuration scheme is chosen - in beans.xml as described below, but the library 
+ * does NOT impose any mandatory parameters in order to initialize. The library <i>does</i> know of certain parameters, 
+ * if it encounters them.
  *
- * <p>Following classes can be configured: Pz2Service (controller), Pz2Client, and ServiceProxyClient. Some currently 
- * acknowledged parameters are TYPE (service type) PAZPAR2_URL, SERVICE_ID, and SERVICE_PROXY_URL</p>
+ * <p>Following classes can be configured: Pz2Service (the controller), Pz2Client, and ServiceProxyClient. Some currently 
+ * acknowledged parameters are TYPE (service type) PAZPAR2_URL, SERVICE_ID (see Pazpar2 documentation for an explanation of 
+ * service id), and SERVICE_PROXY_URL</p>
  * 
  * <h3>Selecting a configuration scheme</h3>
  * 
  * <p>The built-in configuration schemes are:</p>
  * <ol>
- *  <li>Configuration by context parameters in web.xml, this is the simple though less flexible choice</li>
+ *  <li>Configuration by context parameters in web.xml, this is the simple albeit less flexible choice</li>
  *  <li>The configuration scheme Index Data uses for other MasterKey applications, Mk2Config, this is the more versatile option</li>
  * </ol> 
  * 
@@ -39,9 +40,8 @@
  * 
  * <h3>Configuring the service using web.xml only</h3>
  * 
- * <p>For the web.xml configuration scheme (choosing WebXmlConfigReader in beans.xml)
- * to pre-define the URL of the Pazpar2 to use and choose Pazpar2 as the selected
- * service type, the configuration could be:</p>
+ * <p>Using the web.xml configuration scheme (choosing WebXmlConfigReader in beans.xml)
+ * you can configure you application to use a locally installed Pazpar2 server like this:</p>
  * 
  * <pre>
  *  &lt;context-param&gt;
@@ -54,6 +54,21 @@
  *   &lt;param-value&gt;PZ2&lt;/param-value&gt;  
  *  &lt;/context-param&gt;
  * </pre>
+ * 
+ * Likewise you could configure your application to use our hosted Pazpar2 service with these settings:
+ *
+ * <pre>
+ *  &lt;context-param&gt;
+ *   &lt;param-name&gt;SERVICE_PROXY_URL&lt;/param-name&gt;
+ *   &lt;param-value&gt;http://mkc.indexdata.com:9009/service-proxy/&lt;/param-value&gt;
+ *  &lt;/context-param&gt;
+ *  &lt;context-param&gt;
+ *   &lt;description&gt;Service type. Possible values: SP, PZ2, TBD&lt;/description&gt;
+ *   &lt;param-name&gt;TYPE&lt;/param-name&gt;
+ *   &lt;param-value&gt;SP&lt;/param-value&gt;  
+ *  &lt;/context-param&gt;
+ * </pre>
+ * 
  * 
  * <h3>Configuring the service using 'Mk2Config' scheme</h3>
  * 
@@ -95,7 +110,10 @@
  * <p>The jsfdemo.properties file might look like this for running against a 
  * local Pazpar2 service:</p>
  * 
- * <code>pz2client.PAZPAR2_URL = http://localhost:8004/</code>
+ * <pre>
+ * service.TYPE = pz2
+ * pz2client.PAZPAR2_URL = http://localhost:8004/
+ * </pre>
  * 
  * <p>Some of the other known parameters in this format could be:</p>
  * 
