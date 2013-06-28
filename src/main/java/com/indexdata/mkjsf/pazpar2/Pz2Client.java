@@ -37,6 +37,21 @@ import com.indexdata.mkjsf.utils.Utils;
  * types of session handling, bootstraps lost sessions, avoids repeating already 
  * executed queries etc, so it is -- in other words -- still a mediated interaction 
  * with Pazpar2 that takes place. At least for now.</p>  
+ * 
+ * <h3>Configuration</h3>
+ *
+ * Configuration name: pz2client.
+ *  
+ * <p>When configuring the client using the Mk2Config scheme, this is the prefix to
+ * use in the .properties file. When using web.xml context parameters for configuration
+ * the configuration name has no effect.</p> 
+ * 
+ * <p>Pz2Client will acknowledge following configuration parameters:
+ * 
+ * <ul>
+ *  <li>(pz2client.)PAZPAR2_URL</li>
+ *  <li>(pz2client.)SERVICE_ID</li>
+ * </ul> 
  *  
  * @author Niels Erik
  *
@@ -48,6 +63,10 @@ public class Pz2Client implements SearchClient {
   private transient Pazpar2Client client = null;
   private Pazpar2ClientConfiguration cfg = null;
   public static final String MODULENAME = "pz2client";
+  
+  /**
+   * PAZPAR2_URL=none, PROXY_MODE=1, SERIALIZE_REQUESTS=false, STREAMBUFF_SIZE=4096, PARSE_RESPONSES=true
+   */
   public static Map<String,String> DEFAULTS = new HashMap<String,String>();
   Configuration config = null;  
   

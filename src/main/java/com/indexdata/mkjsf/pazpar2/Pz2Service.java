@@ -50,6 +50,22 @@ import com.indexdata.mkjsf.utils.Utils;
  * though, if the polling mechanism in the tag <code>&lt;pz2utils:pz2watch&gt;</code> is used.
  * 
  * 
+ * <h3>Configuration</h3>
+ *
+ * Configuration name: service
+ *  
+ * <p>When configuring the client using the Mk2Config scheme, this is the prefix to
+ * use in the .properties file. When using web.xml context parameters for configuration
+ * the configuration name has no effect.</p> 
+ * 
+ * <p>Pz2Service will acknowledge following configuration parameters:
+ * 
+ * <ul>
+ *  <li>(service.)TYPE</li>  
+ * </ul> 
+ * 
+ * Possible values for service TYPE are: PZ2, SP, TBD. "TBD", meaning "to-be-decided runtime", is the default.
+ * 
  **/ 
 @Named("pz2") @SessionScoped
 public class Pz2Service implements StateListener, Configurable, Serializable {

@@ -7,8 +7,8 @@ import com.indexdata.mkjsf.errors.ConfigurationException;
 
 /**
  * Interface to be implemented by any part of an application that wish to
- * use a ConfigurationReader for it's configuration. The Configurables that
- * come with the project are a Pazpar2 client and a Service Proxy client
+ * use a ConfigurationReader for it's configuration. See config package info page
+ * for more information. 
  * 
  * @author Niels Erik
  *

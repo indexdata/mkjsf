@@ -38,12 +38,25 @@ import com.indexdata.mkjsf.errors.MissingConfigurationContextException;
 import com.indexdata.mkjsf.pazpar2.commands.CommandParameter;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.sp.AuthCommand;
-import com.indexdata.mkjsf.pazpar2.commands.sp.ServiceProxyCommand;
 import com.indexdata.mkjsf.pazpar2.data.CommandError;
 import com.indexdata.mkjsf.utils.Utils;
 
 /**
  * Search client handling Service Proxy requests. 
+ *   
+ * <h3>Configuration</h3>
+ *
+ * Configuration name: proxyclient
+ *  
+ * <p>When configuring the client using the Mk2Config scheme, this is the prefix to
+ * use in the .properties file. When using web.xml context parameters for configuration
+ * the configuration name has no effect.</p> 
+ * 
+ * <p>ServiceProxyClient will acknowledge following configuration parameters:
+ * 
+ * <ul>
+ *  <li>(proxyclient.)SERVICE_PROXY_URL</li>
+ * </ul>   
  *   
  * @author Niels Erik
  *

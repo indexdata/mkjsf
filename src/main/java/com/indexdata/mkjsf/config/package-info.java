@@ -5,13 +5,16 @@
  * <p>But the library does NOT impose any mandatory parameters in order to start up (except for those required for 
  * bootstrapping the configuration). The library <i>does</i> know of certain parameters, if it encounters them.
  *
- * <p>The known parameters are TYPE (service type) PAZPAR2_URL, SERVICE_ID, and SERVICE_PROXY_URL</p>
+ * <p>Following classes can be configured: Pz2Service (controller), Pz2Client, and ServiceProxyClient. Some currently 
+ * acknowledged parameters are TYPE (service type) PAZPAR2_URL, SERVICE_ID, and SERVICE_PROXY_URL</p>
+ * 
+ * <h3>Selecting a configuration scheme</h3>
  * 
  * <p>The built-in configuration schemes are:</p>
- * <ul>
- *  <li>Configuration by context parameters in web.xml</li>
- *  <li>The configuration scheme Index Data uses for other MasterKey applications</li>
- * </ul> 
+ * <ol>
+ *  <li>Configuration by context parameters in web.xml, this is the simple though less flexible choice</li>
+ *  <li>The configuration scheme Index Data uses for other MasterKey applications, Mk2Config, this is the more versatile option</li>
+ * </ol> 
  * 
  * <p>It must be determined deploy-time what configuration scheme to use, by selecting the preferred 
  * mechanism in the application's beans.xml. In this example the MasterKey configuration scheme is injected:</p> 
@@ -23,12 +26,18 @@
  *     http://java.sun.com/xml/ns/javaee 
  *     http://java.sun.com/xml/ns/javaee/beans_1_0.xsd"&gt;  
  *     &lt;alternatives>         
- *        &lt;class>com.indexdata.mkjsf.config.Mk2ConfigReader&lt;/class&gt;
+ *        &lt;class>com.indexdata.mkjsf.config.WebXmlConfigReader&lt;/class&gt;
  *        &lt;!-- Options                      Mk2ConfigReader     --&gt;
  *        &lt;!--                              WebXmlConfigReader  --&gt;        
  *     &lt;/alternatives&gt;          
  * &lt;/beans&gt;
  * </pre>
+ * 
+ * Please note that with Tomcat7 this beans.xml would be the one in your application's WEB-INF, which means you can set it once and
+ * for all. With Glassfish and JBoss, it would be the one in the META-INF directory of the mkjsf jar (the artifact of this project)
+ * meaning it would have to be re-applied with every update of new versions of mkjsf.  
+ * 
+ * <h3>Configuring the service using web.xml only</h3>
  * 
  * <p>For the web.xml configuration scheme (choosing WebXmlConfigReader in beans.xml)
  * to pre-define the URL of the Pazpar2 to use and choose Pazpar2 as the selected
@@ -46,10 +55,15 @@
  *  &lt;/context-param&gt;
  * </pre>
  * 
- * <p>For the Mk2ConfigReader scheme to work, the web.xml must then contain pointers to the configuration directory 
+ * <h3>Configuring the service using 'Mk2Config' scheme</h3>
+ * 
+ * <p>The Mk2ConfigReader scheme allows the configuration to exist outside of the web application archive. 
+ * It supports name spaces for different parts of the application (as opposed to the web.xml scheme) and it 
+ * supports different configurations for different virtual hosts using the same web application deployment.</p> 
+ * <p>For the Mk2ConfigReader scheme to work, the web.xml must contain pointers to the configuration directory 
  * and properties file. The specific configuration itself would be in those files then.
- * In this example the configuration directory is in the web application itself (war://testconfig). A more regular 
- * example would put it in a separate directory to not have it overwritten by each deployment of the war.</p> 
+ * In this example the configuration directory is in the web application itself (war://testconfig). Usually it 
+ * would probably be somewhere else in your file system.</p> 
  * <pre>
  * &lt;context-param&gt;
  *  &lt;param-name&gt;MASTERKEY_ROOT_CONFIG_DIR&lt;/param-name&gt;
@@ -97,7 +111,8 @@
  * and then set the desired values and hand it off to the Configurable (currently Pz2Service, Pz2Client, 
  * and ServiceProxyClient)</p> 
  * 
- * <p>Finally it's possible to set the URL runtime even from the UI pages.</p> 
+ * <p>It would also be easy enough to simply set the URL runtime from the UI pages, using methods on 
+ * Pz2Service (named 'pz2').</p> 
  * 
  */
 package com.indexdata.mkjsf.config;
