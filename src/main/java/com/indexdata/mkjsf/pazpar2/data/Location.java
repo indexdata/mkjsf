@@ -40,12 +40,14 @@ public class Location extends ResponseDataObject {
   
   public String getSubjects() {
     StringBuilder builder = new StringBuilder("");
-    for (ResponseDataObject data : getElements("md-subject")) {
-      if (builder.length()==0) {
-        builder.append(data.getValue());
-      } else {
-        builder.append(", ");
-        builder.append(data.getValue());
+    if (getElements("md-subject") != null) {
+      for (ResponseDataObject data : getElements("md-subject")) {
+        if (builder.length()==0) {
+          builder.append(data.getValue());
+        } else {
+          builder.append(", ");
+          builder.append(data.getValue());
+        }
       }
     }
     return builder.toString();
