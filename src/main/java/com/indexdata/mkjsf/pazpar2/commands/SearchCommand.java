@@ -217,7 +217,13 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    */  
   public void setLimit (String limitExpression) {   
     if (limitExpression != null && limitExpression.length()>0) {
-      setParameter(new LimitParameter(new Expression(limitExpression)));
+      if (limitExpression.split("[=~]").length==1) {
+        removeLimits(limitExpression.split("[=~]")[0]);
+      } else if (limitExpression.split("[=~]").length==2) {
+        setParameter(new LimitParameter(new Expression(limitExpression)));
+      } else {
+        logger.error("Could not parse limit expression [" + limitExpression + "]");
+      }
     }
   }
   
