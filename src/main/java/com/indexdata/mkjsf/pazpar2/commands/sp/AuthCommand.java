@@ -53,8 +53,8 @@ public class AuthCommand extends Pazpar2Command implements ServiceProxyCommand {
    * @return
    */
   private String renameResponseElement(String responseString, String newName) {
-    responseString = responseString.replace("<response>", "<" + newName + ">");
-    responseString = responseString.replace("</response>", "</" + newName + ">");
+    responseString = responseString.replace("<response", "<" + newName);
+    responseString = responseString.replace("</response", "</" + newName);
     return responseString;
   }
 
