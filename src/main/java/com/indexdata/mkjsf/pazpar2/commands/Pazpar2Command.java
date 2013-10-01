@@ -267,12 +267,14 @@ public abstract class Pazpar2Command implements Serializable  {
   }
   
   public void removeExpressions(String parameterName, String... expressionFields) {
-    Pazpar2Command copy = this.copy();    
-    copy.getParameter(parameterName).removeExpressions(expressionFields);    
-    if (!getParameter(parameterName).hasValue() && !getParameter(parameterName).hasExpressions()) {
-      copy.parameters.remove(parameterName);
+    if (this.getParameter(parameterName) != null) {
+      Pazpar2Command copy = this.copy();    
+      copy.getParameter(parameterName).removeExpressions(expressionFields);    
+      if (!getParameter(parameterName).hasValue() && !getParameter(parameterName).hasExpressions()) {
+        copy.parameters.remove(parameterName);
+      }
+      checkInState(copy);    
     }
-    checkInState(copy);    
   }
   
   public boolean hasParameters () {
