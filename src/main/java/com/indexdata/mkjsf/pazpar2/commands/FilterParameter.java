@@ -45,7 +45,6 @@ public class FilterParameter extends CommandParameter {
   private String pz2escape (String expressionString) {
     String escaped = expressionString.replaceAll("\\\\","\\\\\\\\");
     escaped = escaped.replaceAll(",","\\\\,");
-    escaped = escaped.replaceAll("\\|", "\\\\|");
     return escaped;
   }
   
