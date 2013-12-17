@@ -219,6 +219,10 @@ public abstract class Pazpar2Command implements Serializable  {
     checkInState(copy);
   }
   
+  public void removeParameterInState (String name) {
+    parameters.remove(name);
+  }
+  
   /**
    * Removes multiple parameters completely and notifies the state manager
    * -- once -- about the change
@@ -252,6 +256,10 @@ public abstract class Pazpar2Command implements Serializable  {
     Pazpar2Command copy = this.copy();
     copy.getParameter(parameterName).addExpression(expression);
     checkInState(copy);
+  }
+  
+  public void addExpressionInState (String parameterName, Expression expression) {
+    getParameter(parameterName).addExpression(expression);
   }
   
   public void removeExpression(String parameterName, Expression expression) {

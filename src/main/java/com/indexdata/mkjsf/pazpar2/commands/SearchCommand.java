@@ -71,26 +71,19 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    * Sets the <code>filter</code> parameter. See Pazpar2 documentation for details.
    */  
   public void setFilter(String compoundExpression) {
-    if (compoundExpression != null && compoundExpression.length()>0) {
-      // Split expression by commas that are not escaped (with backslash)
+    if (getParameter("filter") != null) removeParameterInState("filter");
+    if (compoundExpression != null && compoundExpression.length()>0) {      
+      // Split expression by commas that are not escaped with backslash
       String[] subExpressions = compoundExpression.split("(?<!\\\\),");
       for (int i=0; i<subExpressions.length; i++) {
-        if (subExpressions[i].split("[=~]").length==1) {
-          removeFilters(subExpressions[i].split("[=~]")[0]);
-        } else if (subExpressions[i].split("[=~]").length==2) {
-          if (getParameter("filter") == null) {
-            setParameter(new FilterParameter(new Expression(subExpressions[i])));
-          } else {
-            if (getParameter("filter").hasExpressions(subExpressions[i].split("[=~]")[0])) {
-              getParameter("filter").removeExpressions(subExpressions[i].split("[=~]")[0]);
-            }
-            getParameter("filter").addExpression(new Expression(subExpressions[i]));
-          }
+        if (i==0) {
+          setParameterInState(new FilterParameter(new Expression(subExpressions[i])));
         } else {
-          logger.error("Could not parse filter expression [" + subExpressions[i] + "]");
+          addExpressionInState("filter",new Expression(subExpressions[i]));
         }
       }
     }
+    checkInState(this);
   }
   
   /**
@@ -226,27 +219,20 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
   /**
    * Sets the <code>limit</code> parameter. See Pazpar2 documentation for details.
    */  
-  public void setLimit (String compoundExpression) {   
-    if (compoundExpression != null && compoundExpression.length()>0) {
-      // Split expression by commas that are not escaped (with backslash)
+  public void setLimit (String compoundExpression) {
+    if (getParameter("limit") != null) removeParameterInState("limit");
+    if (compoundExpression != null && compoundExpression.length()>0) {      
+      // Split expression by commas that are not escaped with backslash
       String[] subExpressions = compoundExpression.split("(?<!\\\\),");
       for (int i=0; i<subExpressions.length; i++) {
-        if (subExpressions[i].split("[=~]").length==1) {
-          removeLimits(subExpressions[i].split("[=~]")[0]);
-        } else if (subExpressions[i].split("[=~]").length==2) {
-          if (getParameter("limit") == null) {
-            setParameter(new LimitParameter(new Expression(subExpressions[i])));
-          } else {
-            if (getParameter("limit").hasExpressions(subExpressions[i].split("[=~]")[0])) {
-              getParameter("limit").removeExpressions(subExpressions[i].split("[=~]")[0]);
-            }
-            getParameter("limit").addExpression(new Expression(subExpressions[i]));
-          }
+        if (i==0) {
+          setParameterInState(new LimitParameter(new Expression(subExpressions[i])));
         } else {
-          logger.error("Could not parse limit expression [" + subExpressions[i] + "]");
+          addExpressionInState("limit",new Expression(subExpressions[i]));
         }
       }
     }
+    checkInState(this);
   }
   
   /**
