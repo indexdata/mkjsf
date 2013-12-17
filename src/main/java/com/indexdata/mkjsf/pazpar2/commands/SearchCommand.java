@@ -1,9 +1,7 @@
 package com.indexdata.mkjsf.pazpar2.commands;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
@@ -74,7 +72,8 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    */  
   public void setFilter(String compoundExpression) {
     if (compoundExpression != null && compoundExpression.length()>0) {
-      String[] subExpressions = compoundExpression.split(",");
+      // Split expression by commas that are not escaped (with backslash)
+      String[] subExpressions = compoundExpression.split("(?<!\\\\),");
       for (int i=0; i<subExpressions.length; i++) {
         if (subExpressions[i].split("[=~]").length==1) {
           removeFilters(subExpressions[i].split("[=~]")[0]);
@@ -229,7 +228,8 @@ public class SearchCommand extends Pazpar2Command implements ServiceProxyCommand
    */  
   public void setLimit (String compoundExpression) {   
     if (compoundExpression != null && compoundExpression.length()>0) {
-      String[] subExpressions = compoundExpression.split(",");
+      // Split expression by commas that are not escaped (with backslash)
+      String[] subExpressions = compoundExpression.split("(?<!\\\\),");
       for (int i=0; i<subExpressions.length; i++) {
         if (subExpressions[i].split("[=~]").length==1) {
           removeLimits(subExpressions[i].split("[=~]")[0]);

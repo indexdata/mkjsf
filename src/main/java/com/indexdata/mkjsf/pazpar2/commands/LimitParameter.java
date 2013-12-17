@@ -31,7 +31,7 @@ public class LimitParameter extends CommandParameter {
         completeValue.append(",");
       else 
         first=false;      
-      completeValue.append(pz2escape(expr.toString()));
+      completeValue.append(expr.toString());
       logger.trace("valueWithExpressions so far: [" + completeValue + "]");
     }
     return completeValue.toString();    

@@ -31,7 +31,7 @@ public class FilterParameter extends CommandParameter {
         completeValue.append(",");
       else 
         first=false;      
-      completeValue.append(pz2escape(expr.toString()));
+      completeValue.append(expr.toString());
     }
     return completeValue.toString();    
   }  
