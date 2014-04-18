@@ -31,17 +31,14 @@ public class LimitParameter extends CommandParameter {
         completeValue.append(",");
       else 
         first=false;      
-      completeValue.append(expr.toString());
+      completeValue.append(expr.getField() + expr.getOperator() + expr.getValue());
       logger.trace("valueWithExpressions so far: [" + completeValue + "]");
     }
     return completeValue.toString();    
   }
-  
-  private String pz2escape (String expressionString) {
-    String escaped = expressionString.replaceAll("\\\\","\\\\\\\\");
-    escaped = escaped.replaceAll(",","\\\\,");
-    escaped = escaped.replaceAll("\\|", "\\\\|");
-    return escaped;
+    
+  private String pz2escape (String str) {
+    return str.replaceAll("[~|,=\\\\]","\\\\$0");
   }
 
   
