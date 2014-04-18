@@ -38,7 +38,7 @@ public class ResponseParser extends DefaultHandler {
   private String xml = null;
   private static Logger logger = Logger.getLogger(ResponseParser.class);
 
-  public static List<String> docTypes = Arrays.asList(  "bytarget","termlist","show","stat","record","search","init",
+  public static List<String> docTypes = Arrays.asList(  "bytarget","termlist","show","stat","record","search","init","info",
                                         /* SP extras */ "auth", "categories" );                                        
   
   public ResponseParser() {
@@ -123,6 +123,10 @@ public class ResponseParser extends DefaultHandler {
         currentElement = new TermResponse();
       }
       ((TermListResponse)dataElements.peek()).addTerm((TermResponse)currentElement);
+    } else if (localName.equals("info")) {
+      currentElement = new InfoResponse();
+    } else if (localName.equals("version") && dataElements.peek().getType().equals("info")) {
+      currentElement = new Pazpar2VersionResponse();
     } else if (localName.equals("applicationerror")) {
       currentElement = new CommandError();
     } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
