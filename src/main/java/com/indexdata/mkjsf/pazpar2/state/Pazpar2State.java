@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.indexdata.mkjsf.pazpar2.commands.BytargetCommand;
+import com.indexdata.mkjsf.pazpar2.commands.InfoCommand;
 import com.indexdata.mkjsf.pazpar2.commands.InitCommand;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Command;
 import com.indexdata.mkjsf.pazpar2.commands.Pazpar2Commands;
@@ -41,6 +42,7 @@ public class Pazpar2State {
     commands.put(Pazpar2Commands.RECORD,   new RecordCommand());
     commands.put(Pazpar2Commands.TERMLIST, new TermlistCommand());
     commands.put(Pazpar2Commands.BYTARGET, new BytargetCommand());  
+    commands.put(Pazpar2Commands.INFO,     new InfoCommand());
 
     commands.put(ServiceProxyCommands.AUTH, new AuthCommand());
     commands.put(ServiceProxyCommands.CATEGORIES, new CategoriesCommand());

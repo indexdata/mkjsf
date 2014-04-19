@@ -45,6 +45,7 @@ public class Pazpar2Commands implements Serializable {
   public static final String RECORD =   "record";
   public static final String TERMLIST = "termlist";
   public static final String BYTARGET = "bytarget";  
+  public static final String INFO =     "info";
   private ServiceProxyCommands sp = null;    
   
   public Pazpar2Commands() {
@@ -127,12 +128,20 @@ public class Pazpar2Commands implements Serializable {
   }
   
   /**
+   *
+   * @return info command from current state
+   */
+  public InfoCommand getInfo () {
+    return (InfoCommand) (Pz2Service.get().getStateMgr().getCommand(INFO));
+  }
+
+  /**
    * Generically retrieves any command
    * 
    * @param name name of command to retrieve
    * @return command of the given type
    */
-  public Pazpar2Command getCommand(String name) {    
+  public Pazpar2Command getCommand(String name) {
     return Pz2Service.get().getStateMgr().getCommand(name);
   }
   

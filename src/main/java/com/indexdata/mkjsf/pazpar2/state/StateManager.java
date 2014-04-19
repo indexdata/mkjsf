@@ -18,7 +18,8 @@ public class StateManager implements Serializable {
 
   Map<String, Pazpar2State> states = new HashMap<String, Pazpar2State>();
   String currentKey = "";
-  private static List<String> allCommands = new ArrayList<String>(Arrays.asList("init","ping","settings","search","stat","show","record","termlist","bytarget",
+  private static List<String> allCommands = new ArrayList<String>(Arrays.asList("init","ping","settings",
+                                                                "search","stat","show","record","termlist","bytarget","info",
                                                                 /* SP extras */ "auth","categories"));
   Map<String,Boolean> pendingStateChanges = new HashMap<String,Boolean>();
   private static Logger logger = Logger.getLogger(StateManager.class);

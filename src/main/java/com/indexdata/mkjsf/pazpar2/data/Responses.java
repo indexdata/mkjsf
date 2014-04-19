@@ -147,6 +147,10 @@ public class Responses implements Serializable {
   public ByTargetResponse getByTarget() {
     return ((ByTargetResponse) dataObjects.get("bytarget"));
   }
+  
+  public InfoResponse getInfo() {
+    return ((InfoResponse) dataObjects.get("info"));
+  }
 
   public ResponseDataObject getResponseObject (String name) {
     return dataObjects.get(name);
