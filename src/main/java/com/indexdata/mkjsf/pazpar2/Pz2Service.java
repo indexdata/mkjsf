@@ -606,15 +606,15 @@ public class Pz2Service implements StateListener, Configurable, Serializable {
   }
 
   public void setServiceTypePZ2() {
-    setServiceType(SERVICE_TYPE_PZ2);    
+    setServiceType(SERVICE_TYPE_PZ2);
   }
 
   public void setServiceTypeSP() {
-    setServiceType(SERVICE_TYPE_SP);        
+    setServiceType(SERVICE_TYPE_SP);
   }
 
   public void setServiceTypeTBD() {
-    setServiceType(SERVICE_TYPE_TBD);    
+    setServiceType(SERVICE_TYPE_TBD);
   }
   
   private void setServiceType(String type) {

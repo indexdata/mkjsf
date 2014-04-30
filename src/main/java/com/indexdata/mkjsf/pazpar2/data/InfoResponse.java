@@ -7,12 +7,16 @@ public class InfoResponse extends ResponseDataObject {
    */
   private static final long serialVersionUID = 3084509436017631123L;
 
-  public String getPazpar2Version () {
-    return getOneElement("version").getOneValue("pazpar2");
+  public String getVersionPazpar2 () {
+    return ((Pazpar2VersionResponse) getOneElement("version")).getPazpar2();
   }
   
-  public String getYazVersion() {
-    return getOneElement("version").getOneValue("yaz");
+  public String getVersionYaz() {
+    return ((Pazpar2VersionResponse) getOneElement("version")).getYaz();
+  }
+  
+  public Pazpar2VersionResponse getVersion() {
+    return (Pazpar2VersionResponse) getOneElement("version");
   }
   
   
