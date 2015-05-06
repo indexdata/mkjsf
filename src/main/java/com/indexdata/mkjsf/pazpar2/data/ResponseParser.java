@@ -129,7 +129,7 @@ public class ResponseParser extends DefaultHandler {
       currentElement = new Pazpar2VersionResponse();
     } else if (localName.equals("applicationerror")) {
       currentElement = new CommandError();
-    } else if (localName.equals("error") && dataElements.peek().getType().equals("applicationerror")) {
+    } else if (localName.equals("error") && (!dataElements.isEmpty() && dataElements.peek().getType().equals("applicationerror"))) {
       currentElement = new ServiceError(); 
     // Service Proxy extras  
     } else if (localName.equals("auth")) {  
