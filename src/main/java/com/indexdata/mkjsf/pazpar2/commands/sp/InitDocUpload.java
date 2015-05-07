@@ -34,13 +34,17 @@ public class InitDocUpload extends FileUpload {
   }
 
   public void setUploadedFile(UploadedFile uploadedFile) {
-    logger.info(Utils.objectId(this) + " received an uploaded file [" + Utils.objectId(uploadedFile) + "]");
-    this.uploadedFile = uploadedFile;
-    try {
-      logger.info("File length: " + this.uploadedFile.getBytes().length);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    if (uploadedFile != null) {
+      logger.info(Utils.objectId(this) + " received an uploaded file [" + Utils.objectId(uploadedFile) + "]");
+      this.uploadedFile = uploadedFile;
+      try {
+        logger.info("File length: " + this.uploadedFile.getBytes().length);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } else {
+      logger.info("Was asked to upload file, but no file specified");
     }
   }
   
