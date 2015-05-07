@@ -63,6 +63,9 @@ public class Expression implements Serializable {
     if (parts.length>1) {
       this.rightEntity = parts[1];
       this.label=rightEntity;
+    } else {
+      this.rightEntity = "";
+      this.label = "";
     }
   }
   
