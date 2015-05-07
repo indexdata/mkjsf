@@ -104,7 +104,7 @@ function errorListener(data) {
   if (data.source.name === "pz2watch:activeclientsField") {
     alert("This occurred when polling: ["
         + data.description
-        + "]. The page could be in an inconsistent state after this. We apologize for the inconvenience.");
+        + "].");
   } else {
     var pattern = /viewId.*could not be restored./;
     if (pattern.test(data.description)) {
@@ -114,7 +114,7 @@ function errorListener(data) {
           + data.errorName + ": " +data.description
           + "] was triggered by ["
           + data.source.name
-          + "]. The page could be in an inconsistent state after this. We apologize for the inconvenience.");
+          + "].");
     }
   }
 }
