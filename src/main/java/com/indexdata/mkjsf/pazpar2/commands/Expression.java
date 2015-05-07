@@ -56,10 +56,14 @@ public class Expression implements Serializable {
    */
   public Expression (String expressionString) {
     String[] parts = expressionString.split("[=~]");
-    this.leftEntity = parts[0];
-    this.operator = expressionString.contains("=") ? "=" : "~";
-    this.rightEntity = parts[1];
-    this.label=rightEntity;
+    if (parts.length>0) {
+      this.leftEntity = parts[0];
+      this.operator = expressionString.contains("=") ? "=" : "~";
+    }
+    if (parts.length>1) {
+      this.rightEntity = parts[1];
+      this.label=rightEntity;
+    }
   }
   
   /** 
