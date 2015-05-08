@@ -1,8 +1,17 @@
+0.0.7 Fri May  8 08:37:28 UTC 2015
+
+ - Handles some exceptions and errors more gracefully
+ - Support for compound filter/limit expressions
+ - More documentation
+ - Support for pazpar2/SP command 'info'
+
+0.0.6
+
 - Adds parameter 'windowid' (SP extension) to applicable commands
 - Bugfixes: State handling in record command (the SP extensions) 
             Wrong class cast (FilterParameter to LimitParameter)
 - Adds working web.xml context parameters for SP service
 
-0.3.3  
+0.0.3
 
 - First release
