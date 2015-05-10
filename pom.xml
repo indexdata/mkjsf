@@ -101,7 +101,6 @@
           <classifier>${env}</classifier>
         </configuration>
       </plugin>
-      
     </plugins>
     <extensions>
       <extension>

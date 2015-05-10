@@ -107,7 +107,8 @@ public class Responses implements Serializable {
    * but excluding a possible auth response
    */
   public void resetInitAndBeyond () {
-    dataObjects.put("init", new InitResponse());        
+    dataObjects.put("init", new InitResponse());
+    dataObjects.put("info", new InfoResponse());
     resetSearchAndBeyond();
     getSp().resetInitAndBeyond(false);
   }
