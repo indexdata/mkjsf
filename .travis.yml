@@ -1,0 +1,17 @@
+language: java
+sudo: required
+
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+
+#addons:
+# apt:
+#  packages:
+#   - maven
+
+script:
+ - mvn install -DskipTests=true
+ - mvn test
+
